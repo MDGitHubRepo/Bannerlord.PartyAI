@@ -843,6 +843,18 @@ namespace PartyAIControls.CampaignBehaviors
         return;
     }
 
+    // If this target has no recruitable volunteers (per template rules), don't get stuck.
+    // Clear the target and let the next tick reselect.
+    int available = ComputeRecruitableVolunteersCount(party, currentTarget, settings);
+    if (available == 0)
+    {
+        settings.Order.Target = null;
+        if (party.Ai.DoNotMakeNewDecisions)
+            party.Ai.SetDoNotMakeNewDecisions(false);
+        ResetPartyAi(party);
+        return;
+    }
+
     // Safe to lock AI and navigate
     party.Ai.SetDoNotMakeNewDecisions(true);
 
@@ -895,10 +907,10 @@ namespace PartyAIControls.CampaignBehaviors
 
             // Old comment: "if we're going to convert the troop anyway, it doesn't matter"
             // In the original mod this early-return left __result at 0, so we preserve that.
-            if (SubModule.PartySettingsManager.AllowTroopConversion && heroSettings.PartyTemplate != null)
-            {
-                return 0;
-            }
+            //if (SubModule.PartySettingsManager.AllowTroopConversion && heroSettings.PartyTemplate != null)
+            //{
+            //    return 0;
+            //}
 
             PartyCompositionObect comp =
                 SubModule.PartyTroopRecruiter.GetPartyComposition(party.Party, heroSettings);
