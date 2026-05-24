@@ -23,25 +23,35 @@ public class HarmonyPatchBuilder
         _harmony = harmony;
     }
 
-    public HarmonyPatchBuilder Prefix(
-        Delegate target,
+    public HarmonyPatchBuilder Prefix<T>(
+        Expression<Action<T>> target,
         Delegate prefix)
     {
-        _harmony.TryPatch(
-            target.Method,
-            prefix: prefix.Method);
-
+        Apply(target, prefix: prefix);
         return this;
     }
 
-    public HarmonyPatchBuilder Postfix(
-        Delegate target,
+    public HarmonyPatchBuilder Prefix<T>(
+        Expression<Func<T, object>> target,
+        Delegate prefix)
+    {
+        Apply(target, prefix: prefix);
+        return this;
+    }
+
+    public HarmonyPatchBuilder Postfix<T>(
+        Expression<Action<T>> target,
         Delegate postfix)
     {
-        _harmony.TryPatch(
-            target.Method,
-            postfix: postfix.Method);
+        Apply(target, postfix: postfix);
+        return this;
+    }
 
+    public HarmonyPatchBuilder Postfix<T>(
+        Expression<Func<T, object>> target,
+        Delegate postfix)
+    {
+        Apply(target, postfix: postfix);
         return this;
     }
 
@@ -64,17 +74,23 @@ public class HarmonyPatchBuilder
     {
         return expression.Body switch
         {
-            // normal method call: x => x.DoThing()
-            MethodCallExpression m => m.Method,
+            // direct method call
+            MethodCallExpression m
+                => m.Method,
 
-            // property access: x => x.SomeProperty
+            // boxed method call
+            UnaryExpression u
+                when u.Operand is MethodCallExpression m
+                => m.Method,
+
+            // property access
             MemberExpression member
                 when member.Member is PropertyInfo prop
                 => prop.GetMethod
                    ?? throw new InvalidOperationException(
                         $"Property '{prop.Name}' has no getter"),
 
-            // value type boxing: x => (object)x.SomeProperty
+            // boxed property access
             UnaryExpression u
                 when u.Operand is MemberExpression member
                 && member.Member is PropertyInfo prop
@@ -83,7 +99,7 @@ public class HarmonyPatchBuilder
                         $"Property '{prop.Name}' has no getter"),
 
             _ => throw new InvalidOperationException(
-                "Expression must be a method or property access.")
+                $"Expression must be a method or property access. Actual: {expression.Body.NodeType}")
         };
     }
 }
