@@ -1,7 +1,6 @@
 ﻿//NEW
 using Helpers;
 using PartyAIControls.HarmonyPatches;
-using PartyAIControls.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -171,7 +170,7 @@ namespace PartyAIControls.CampaignBehaviors
                 {
                     break;
                 }
-            } while (Clan.PlayerClan.WarPartyComponents.Count < Clan.PlayerClan.CommanderLimit);
+            } while (Clan.PlayerClan.WarPartyComponents.Count < Clan.PlayerClan.WarPartyLimit);
         }
 
         private void OnHourlyTickParty(MobileParty party)
@@ -1299,7 +1298,7 @@ namespace PartyAIControls.CampaignBehaviors
             // The other half of this is in HarmonyPatches.AiMilitaryBehaviorPatches
             if (party.Army != null && !party.Army.LeaderParty.LeaderHero.Equals(party.LeaderHero))
             {
-                if (PAIArmyManagementCalculationModel.IsArmyRaiding(party.Army))
+                if (IsArmyRaiding(party.Army))
                 {
                     // refund influence
                     int influence = Campaign.Current.Models.ArmyManagementCalculationModel.CalculatePartyInfluenceCost(party.Army.LeaderParty, party);
@@ -1335,7 +1334,7 @@ namespace PartyAIControls.CampaignBehaviors
             // The other half of this is in HarmonyPatches.AiMilitaryBehaviorPatches
             if (party.Army != null && !party.Army.LeaderParty.LeaderHero.Equals(party.LeaderHero))
             {
-                if (PAIArmyManagementCalculationModel.IsArmyBesieging(party.Army))
+                if (IsArmyBesieging(party.Army))
                 {
                     LeaveArmy(party, thinkParams);
                 }
@@ -1540,6 +1539,23 @@ namespace PartyAIControls.CampaignBehaviors
         {
             try { return getter(); }
             catch { return fallback; }
+        }
+
+        private static bool IsArmyRaiding(Army army)
+        {
+            if (army == null)
+                return false;
+
+            return army.ArmyType == Army.ArmyTypes.Raider;
+        }
+
+        private static bool IsArmyBesieging(Army army)
+        {
+            if (army == null)
+                return false;
+
+            // In newer versions AIBehavior / AIBehaviorFlags are gone; ArmyType is enough here.
+            return army.ArmyType == Army.ArmyTypes.Besieger;
         }
     }
 }

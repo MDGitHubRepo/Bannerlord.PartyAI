@@ -47,7 +47,7 @@ namespace PartyAIControls.ViewModels.Dropdowns
 
             SortOptions.AddItem(new PartyAIMaxPartiesSelectorItemVM(new TextObject("{=PAIIqVpFFAi}Max"), 0));
 
-            for (int i = 1; i <= Clan.PlayerClan.CommanderLimit || i <= SubModule.PartySettingsManager.AutoCreateClanPartiesMax; i++)
+            for (int i = 1; i <= Clan.PlayerClan.WarPartyLimit || i <= SubModule.PartySettingsManager.AutoCreateClanPartiesMax; i++)
             {
                 SortOptions.AddItem(new PartyAIMaxPartiesSelectorItemVM(new TextObject("{=!}" + i.ToString()), i));
             }
