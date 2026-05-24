@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.PartyAI;
+using HarmonyLib;
 using Helpers;
 using System.Reflection;
 using TaleWorlds.CampaignSystem;
@@ -9,7 +10,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 
-namespace PartyAIControls.CampaignBehaviors
+namespace Bannerlord.PartyAI.CampaignBehaviors
 {
     internal class PartyAIFoodBuyer : CampaignBehaviorBase
     {

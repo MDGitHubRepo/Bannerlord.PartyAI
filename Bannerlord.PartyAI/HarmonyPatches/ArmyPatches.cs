@@ -2,7 +2,7 @@
 using System.Reflection;
 using TaleWorlds.CampaignSystem;
 
-namespace PartyAIControls.HarmonyPatches
+namespace Bannerlord.PartyAI.HarmonyPatches
 {
     // this patches an issue where Army._hourlyTickEvent will be null for some reason and cause a crash on army dispersion
 

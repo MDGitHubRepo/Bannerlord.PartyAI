@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.PartyAI;
+using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
@@ -6,9 +7,9 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
-using static PartyAIControls.PAICustomOrder;
+using static Bannerlord.PartyAI.PAICustomOrder;
 
-namespace PartyAIControls.HarmonyPatches
+namespace Bannerlord.PartyAI.HarmonyPatches
 {
     [HarmonyPatch]
     internal class AssumingControlPatches

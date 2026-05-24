@@ -1,4 +1,5 @@
-﻿using PartyAIControls.ViewModels.Misc;
+﻿using Bannerlord.PartyAI;
+using Bannerlord.PartyAI.ViewModels.Misc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using TaleWorlds.Core.ImageIdentifiers;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels
+namespace Bannerlord.PartyAI.ViewModels
 {
     internal class PartyAIDetachmentsVM : ViewModel
     {

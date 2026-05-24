@@ -4,7 +4,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 
-namespace PartyAIControls.Models
+namespace Bannerlord.PartyAI.Models
 {
     internal class PAIPartyFoodBuyingModel : PartyFoodBuyingModel
     {

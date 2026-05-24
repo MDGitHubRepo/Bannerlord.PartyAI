@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors.AiBehaviors;
 using TaleWorlds.CampaignSystem.Party;
-using static PartyAIControls.PAICustomOrder;
+using static Bannerlord.PartyAI.PAICustomOrder;
 
-namespace PartyAIControls.HarmonyPatches
+namespace Bannerlord.PartyAI.HarmonyPatches
 {
     [HarmonyPatch(typeof(AiMilitaryBehavior), "AiHourlyTick")]
     internal class AiMilitaryBehaviorPatches

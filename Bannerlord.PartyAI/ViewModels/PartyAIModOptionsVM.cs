@@ -1,6 +1,6 @@
-﻿using HarmonyLib;
-using PartyAIControls.ViewModels.Components;
-using PartyAIControls.ViewModels.Dropdowns;
+﻿using Bannerlord.PartyAI.ViewModels.Components;
+using Bannerlord.PartyAI.ViewModels.Dropdowns;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels
+namespace Bannerlord.PartyAI.ViewModels
 {
     public class PartyAIModOptionsVM : ViewModel
     {

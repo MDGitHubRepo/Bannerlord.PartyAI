@@ -8,7 +8,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.ViewModelCollection.ArmyManagement;
 using TaleWorlds.Core;
 
-namespace PartyAIControls.HarmonyPatches
+namespace Bannerlord.PartyAI.HarmonyPatches
 {
 
     internal class ArmyManagementVMPatches

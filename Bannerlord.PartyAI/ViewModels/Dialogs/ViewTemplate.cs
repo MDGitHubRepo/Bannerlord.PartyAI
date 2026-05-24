@@ -1,4 +1,4 @@
-﻿using PartyAIControls.ViewModels.Misc;
+﻿using Bannerlord.PartyAI.ViewModels.Misc;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
@@ -9,7 +9,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Core.ImageIdentifiers;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels.Dialogs
+namespace Bannerlord.PartyAI.ViewModels.Dialogs
 {
     internal static class ViewTemplate
     {

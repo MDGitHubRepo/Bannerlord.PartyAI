@@ -1,13 +1,13 @@
-﻿using PartyAIControls.CampaignBehaviors;
+﻿using Bannerlord.PartyAI.CampaignBehaviors;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.InputSystem;
 using TaleWorlds.SaveSystem;
-using static PartyAIControls.PAICustomOrder;
-using static PartyAIControls.PAIDetatchmentConfig;
+using static Bannerlord.PartyAI.PAICustomOrder;
+using static Bannerlord.PartyAI.PAIDetatchmentConfig;
 
-namespace PartyAIControls
+namespace Bannerlord.PartyAI
 {
     internal class PAISaveableTypeDefiner : SaveableTypeDefiner
     {

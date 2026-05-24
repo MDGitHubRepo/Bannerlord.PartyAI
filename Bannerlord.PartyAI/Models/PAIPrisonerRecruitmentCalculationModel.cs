@@ -3,7 +3,7 @@ using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
 
-namespace PartyAIControls.Models
+namespace Bannerlord.PartyAI.Models
 {
     internal class PAIPrisonerRecruitmentCalculationModel : PrisonerRecruitmentCalculationModel
     {

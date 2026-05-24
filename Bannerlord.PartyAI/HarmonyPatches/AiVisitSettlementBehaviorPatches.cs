@@ -1,10 +1,11 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.PartyAI;
+using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors.AiBehaviors;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 
-namespace PartyAIControls.HarmonyPatches
+namespace Bannerlord.PartyAI.HarmonyPatches
 {
     [HarmonyPatch(typeof(AiVisitSettlementBehavior), "GetApproximateVolunteersCanBeRecruitedDataFromSettlement")]
     internal class AiVisitSettlementBehaviorPatches

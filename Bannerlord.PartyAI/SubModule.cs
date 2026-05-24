@@ -1,8 +1,8 @@
-﻿using Bannerlord.UIExtenderEx;
+﻿using Bannerlord.PartyAI.CampaignBehaviors;
+using Bannerlord.PartyAI.HarmonyPatches;
+using Bannerlord.PartyAI.Models;
+using Bannerlord.UIExtenderEx;
 using HarmonyLib;
-using PartyAIControls.CampaignBehaviors;
-using PartyAIControls.HarmonyPatches;
-using PartyAIControls.Models;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
@@ -17,7 +17,7 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
 
-namespace PartyAIControls
+namespace Bannerlord.PartyAI
 {
     public class SubModule : MBSubModuleBase
     {

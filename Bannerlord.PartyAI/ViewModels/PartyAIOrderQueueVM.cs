@@ -1,11 +1,12 @@
-﻿using PartyAIControls.ViewModels.Components;
-using PartyAIControls.ViewModels.Dialogs;
+﻿using Bannerlord.PartyAI;
+using Bannerlord.PartyAI.ViewModels.Components;
+using Bannerlord.PartyAI.ViewModels.Dialogs;
 using System;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels
+namespace Bannerlord.PartyAI.ViewModels
 {
     public class PartyAIOrderQueueVM : ViewModel
     {

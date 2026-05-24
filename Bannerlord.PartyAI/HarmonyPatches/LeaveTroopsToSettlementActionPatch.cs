@@ -1,9 +1,10 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.PartyAI;
+using HarmonyLib;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 
-namespace PartyAIControls.HarmonyPatches
+namespace Bannerlord.PartyAI.HarmonyPatches
 {
     [HarmonyPatch(typeof(GarrisonTroopsCampaignBehavior))]
     internal static class LeaveTroopsToSettlementActionPatch

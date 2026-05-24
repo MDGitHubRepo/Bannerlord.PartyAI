@@ -1,5 +1,5 @@
-﻿using PartyAIControls.ViewModels;
-using PartyAIControls.ViewModels.MenuOptionVMs;
+﻿using Bannerlord.PartyAI.ViewModels;
+using Bannerlord.PartyAI.ViewModels.MenuOptionVMs;
 using System;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
@@ -13,7 +13,7 @@ using TaleWorlds.MountAndBlade.View;
 using TaleWorlds.ScreenSystem;
 using TaleWorlds.TwoDimension;
 
-namespace PartyAIControls
+namespace Bannerlord.PartyAI
 {
     internal class PAInformationManager : GlobalLayer
     {

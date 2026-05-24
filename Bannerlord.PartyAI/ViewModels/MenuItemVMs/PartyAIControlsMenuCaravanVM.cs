@@ -1,8 +1,9 @@
-﻿using TaleWorlds.CampaignSystem;
+﻿using Bannerlord.PartyAI;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels.MenuItemVMs
+namespace Bannerlord.PartyAI.ViewModels.MenuItemVMs
 {
     public class PartyAIControlsMenuCaravanVM : PartyAIControlsMenuPartyVM
     {

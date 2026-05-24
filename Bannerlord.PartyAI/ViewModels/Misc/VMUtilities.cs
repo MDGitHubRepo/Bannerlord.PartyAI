@@ -6,7 +6,7 @@ using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels.Misc
+namespace Bannerlord.PartyAI.ViewModels.Misc
 {
     internal static class VMUtilities
     {

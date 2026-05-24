@@ -1,4 +1,4 @@
-﻿using PartyAIControls.ViewModels.Misc;
+﻿using Bannerlord.PartyAI.ViewModels.Misc;
 using System;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
@@ -6,7 +6,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels.Dialogs
+namespace Bannerlord.PartyAI.ViewModels.Dialogs
 {
     internal static class CreateTemplate
     {

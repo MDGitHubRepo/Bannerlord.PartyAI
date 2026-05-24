@@ -3,7 +3,7 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels
+namespace Bannerlord.PartyAI.ViewModels
 {
     public class PartyAICompositionSlidersVM : ViewModel
     {

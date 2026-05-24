@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 
-namespace PartyAIControls.UIExtenderPatches
+namespace Bannerlord.PartyAI.UIExtenderPatches
 {
     internal class InventoryPrefabExtension
     {

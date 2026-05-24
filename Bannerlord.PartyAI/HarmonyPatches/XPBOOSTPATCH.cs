@@ -1,4 +1,4 @@
-﻿namespace PartyAIControls.HarmonyPatches
+﻿namespace Bannerlord.PartyAI.HarmonyPatches
 {
     /*internal class PartyUpgraderCampaignBehaviorPatches
   {

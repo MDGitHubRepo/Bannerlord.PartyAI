@@ -7,7 +7,7 @@ using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.CampaignBehaviors
+namespace Bannerlord.PartyAI.CampaignBehaviors
 {
     internal class PartyAIDetachmentManager : CampaignBehaviorBase
     {

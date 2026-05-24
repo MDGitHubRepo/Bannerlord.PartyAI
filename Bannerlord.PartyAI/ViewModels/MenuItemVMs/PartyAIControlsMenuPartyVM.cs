@@ -1,5 +1,5 @@
-﻿using PartyAIControls.ViewModels.Components;
-using PartyAIControls.ViewModels.Dialogs;
+﻿using Bannerlord.PartyAI.ViewModels.Components;
+using Bannerlord.PartyAI.ViewModels.Dialogs;
 using SandBox.View.Map;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -11,7 +11,7 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade.View;
 
-namespace PartyAIControls.ViewModels.MenuItemVMs
+namespace Bannerlord.PartyAI.ViewModels.MenuItemVMs
 {
     public class PartyAIControlsMenuPartyVM : ViewModel
     {

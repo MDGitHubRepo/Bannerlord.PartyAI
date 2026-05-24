@@ -1,8 +1,9 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.PartyAI;
+using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 
-namespace PartyAIControls.HarmonyPatches
+namespace Bannerlord.PartyAI.HarmonyPatches
 {
     [HarmonyPatch(typeof(CampaignEventDispatcher), "AiHourlyTick")]
     internal class CampaignEventDispatcherPatches

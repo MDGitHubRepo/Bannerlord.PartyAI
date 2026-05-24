@@ -1,7 +1,7 @@
-﻿using Bannerlord.UIExtenderEx.Attributes;
+﻿using Bannerlord.PartyAI.ViewModels;
+using Bannerlord.PartyAI.ViewModels.MenuOptionVMs;
+using Bannerlord.UIExtenderEx.Attributes;
 using Bannerlord.UIExtenderEx.ViewModels;
-using PartyAIControls.ViewModels;
-using PartyAIControls.ViewModels.MenuOptionVMs;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -10,7 +10,7 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade.ViewModelCollection.Inquiries;
 
-namespace PartyAIControls.UIExtenderPatches
+namespace Bannerlord.PartyAI.UIExtenderPatches
 {
     [ViewModelMixin(nameof(MultiSelectionQueryPopUpVM.SetData))]
     internal class MultiSelectionQueryPopupVMMixin : BaseViewModelMixin<MultiSelectionQueryPopUpVM>

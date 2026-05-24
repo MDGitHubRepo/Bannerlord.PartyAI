@@ -1,9 +1,9 @@
-﻿using HarmonyLib;
-using PartyAIControls.UIExtenderPatches;
+﻿using Bannerlord.PartyAI.UIExtenderPatches;
+using HarmonyLib;
 using SandBox.GauntletUI;
 using TaleWorlds.CampaignSystem.GameState;
 
-namespace PartyAIControls.HarmonyPatches
+namespace Bannerlord.PartyAI.HarmonyPatches
 {
     internal class ClanManagementVMPatches
     {

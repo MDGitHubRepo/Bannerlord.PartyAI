@@ -5,7 +5,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using static TaleWorlds.CampaignSystem.CampaignBehaviors.RecruitmentCampaignBehavior;
 
-namespace PartyAIControls.HarmonyPatches
+namespace Bannerlord.PartyAI.HarmonyPatches
 {
     internal class RecruitmentCampaignBehaviorPatches
     {

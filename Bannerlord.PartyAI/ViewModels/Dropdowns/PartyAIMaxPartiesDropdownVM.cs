@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Bannerlord.PartyAI;
+using System;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core.ViewModelCollection.Selector;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels.Dropdowns
+namespace Bannerlord.PartyAI.ViewModels.Dropdowns
 {
     public class PartyAIMaxPartiesDropdownVM : ViewModel
     {

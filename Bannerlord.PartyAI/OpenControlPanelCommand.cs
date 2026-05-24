@@ -4,7 +4,7 @@ using TaleWorlds.CampaignSystem.GameState;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 
-namespace PartyAIControls
+namespace Bannerlord.PartyAI
 {
     internal class OpenControlPanelCommand
     {

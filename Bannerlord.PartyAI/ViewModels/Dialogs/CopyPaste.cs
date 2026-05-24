@@ -1,4 +1,4 @@
-﻿using PartyAIControls.UIExtenderPatches;
+﻿using Bannerlord.PartyAI.UIExtenderPatches;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +7,9 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ImageIdentifiers;
 using TaleWorlds.Localization;
-using static PartyAIControls.PAICustomOrder;
+using static Bannerlord.PartyAI.PAICustomOrder;
 
-namespace PartyAIControls.ViewModels.Dialogs
+namespace Bannerlord.PartyAI.ViewModels.Dialogs
 {
     internal static class CopyPaste
     {

@@ -3,7 +3,7 @@ using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels.Components
+namespace Bannerlord.PartyAI.ViewModels.Components
 {
     public class PartyAIOptionToggleVM : ViewModel
     {

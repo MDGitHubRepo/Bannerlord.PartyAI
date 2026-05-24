@@ -8,7 +8,7 @@ using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 
-namespace PartyAIControls.CampaignBehaviors
+namespace Bannerlord.PartyAI.CampaignBehaviors
 {
     internal class PartyAITroopRecruiter : CampaignBehaviorBase
     {

@@ -4,7 +4,7 @@ using TaleWorlds.Core.ViewModelCollection.Selector;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels.Dropdowns
+namespace Bannerlord.PartyAI.ViewModels.Dropdowns
 {
     public class PartyAIMaxTroopTierDropdownVM : ViewModel
     {

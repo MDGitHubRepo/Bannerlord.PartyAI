@@ -7,7 +7,7 @@ using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.MountAndBlade.View;
 
-namespace PartyAIControls.ViewModels.MenuItemVMs
+namespace Bannerlord.PartyAI.ViewModels.MenuItemVMs
 {
     public class PartyAIControlsMenuSettlementVM : PartyAIControlsMenuPartyVM
     {

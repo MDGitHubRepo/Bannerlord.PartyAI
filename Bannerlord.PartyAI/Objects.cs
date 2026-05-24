@@ -8,10 +8,10 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Localization;
 using TaleWorlds.SaveSystem;
-using static PartyAIControls.PAICustomOrder;
+using static Bannerlord.PartyAI.PAICustomOrder;
 using static TaleWorlds.CampaignSystem.Party.MobileParty;
 
-namespace PartyAIControls
+namespace Bannerlord.PartyAI
 {
     public class PartyAIClanPartySettings
     {

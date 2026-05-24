@@ -1,4 +1,4 @@
-﻿using PartyAIControls.ViewModels;
+﻿using Bannerlord.PartyAI.ViewModels;
 using System.Collections.Generic;
 using TaleWorlds.Core;
 using TaleWorlds.Engine.GauntletUI;
@@ -7,7 +7,7 @@ using TaleWorlds.MountAndBlade.View.Screens;
 using TaleWorlds.ScreenSystem;
 using TaleWorlds.TwoDimension;
 
-namespace PartyAIControls
+namespace Bannerlord.PartyAI
 {
     public class PartyAIControlsMenuState : GameState
     {

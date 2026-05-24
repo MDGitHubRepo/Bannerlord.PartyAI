@@ -1,7 +1,7 @@
 ﻿using Bannerlord.UIExtenderEx.Attributes;
 using Bannerlord.UIExtenderEx.Prefabs2;
 
-namespace PartyAIControls.UIExtenderPatches
+namespace Bannerlord.PartyAI.UIExtenderPatches
 {
     internal class MultiSelectionQueryPopupPrefabExtension
     {

@@ -1,8 +1,8 @@
-﻿using Helpers;
-using PartyAIControls.ViewModels.Components;
-using PartyAIControls.ViewModels.Dialogs;
-using PartyAIControls.ViewModels.Dropdowns;
-using PartyAIControls.ViewModels.MenuItemVMs;
+﻿using Bannerlord.PartyAI.ViewModels.Components;
+using Bannerlord.PartyAI.ViewModels.Dialogs;
+using Bannerlord.PartyAI.ViewModels.Dropdowns;
+using Bannerlord.PartyAI.ViewModels.MenuItemVMs;
+using Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +13,10 @@ using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
-using static PartyAIControls.ViewModels.Dropdowns.PartyAISortDirectionDropdownVM;
-using static PartyAIControls.ViewModels.Dropdowns.PartyAISortDropdownVM;
+using static Bannerlord.PartyAI.ViewModels.Dropdowns.PartyAISortDirectionDropdownVM;
+using static Bannerlord.PartyAI.ViewModels.Dropdowns.PartyAISortDropdownVM;
 
-namespace PartyAIControls.ViewModels
+namespace Bannerlord.PartyAI.ViewModels
 {
     public class PartyAIControlsMenuVM : ViewModel
     {
@@ -184,9 +184,9 @@ namespace PartyAIControls.ViewModels
             GameStateManager.Current.PopState();
         }
 
-        public void CreatePartyTemplate() => Dialogs.CreateTemplate.Create();
+        public void CreatePartyTemplate() => CreateTemplate.Create();
 
-        public void DeletePartyTemplate() => Dialogs.DeleteTemplate.Delete(new Action(RefreshPartyList));
+        public void DeletePartyTemplate() => DeleteTemplate.Delete(new Action(RefreshPartyList));
 
         public void FineTunePartyTemplate() => Dialogs.FineTune.Tune();
 

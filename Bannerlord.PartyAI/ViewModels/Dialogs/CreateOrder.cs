@@ -8,9 +8,9 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ImageIdentifiers;
 using TaleWorlds.Localization;
-using static PartyAIControls.PAICustomOrder;
+using static Bannerlord.PartyAI.PAICustomOrder;
 
-namespace PartyAIControls.ViewModels.Dialogs
+namespace Bannerlord.PartyAI.ViewModels.Dialogs
 {
     internal class CreateOrder
     {

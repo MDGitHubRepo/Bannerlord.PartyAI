@@ -1,6 +1,7 @@
 ﻿//NEW
+using Bannerlord.PartyAI;
+using Bannerlord.PartyAI.HarmonyPatches;
 using Helpers;
-using PartyAIControls.HarmonyPatches;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,10 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.SaveSystem;
-using static PartyAIControls.PAICustomOrder;
+using static Bannerlord.PartyAI.PAICustomOrder;
 using static TaleWorlds.CampaignSystem.Party.MobileParty;
 
-namespace PartyAIControls.CampaignBehaviors
+namespace Bannerlord.PartyAI.CampaignBehaviors
 {
     public class PAISettlementVisitLog
     {

@@ -7,7 +7,7 @@ using TaleWorlds.Core.ImageIdentifiers;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels.Dialogs
+namespace Bannerlord.PartyAI.ViewModels.Dialogs
 {
     internal static class DeleteTemplate
     {

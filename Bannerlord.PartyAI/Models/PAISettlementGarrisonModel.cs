@@ -4,7 +4,7 @@ using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 
-namespace PartyAIControls.Models
+namespace Bannerlord.PartyAI.Models
 {
     internal class PAISettlementGarrisonModel : SettlementGarrisonModel
     {

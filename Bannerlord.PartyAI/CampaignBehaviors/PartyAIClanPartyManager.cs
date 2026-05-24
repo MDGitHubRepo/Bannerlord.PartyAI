@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bannerlord.PartyAI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
@@ -9,7 +10,7 @@ using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.CampaignBehaviors
+namespace Bannerlord.PartyAI.CampaignBehaviors
 {
     public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
     {

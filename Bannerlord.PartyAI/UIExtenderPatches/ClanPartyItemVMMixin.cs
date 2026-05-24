@@ -1,8 +1,8 @@
-﻿using Bannerlord.UIExtenderEx.Attributes;
+﻿using Bannerlord.PartyAI.CampaignBehaviors;
+using Bannerlord.PartyAI.ViewModels.Components;
+using Bannerlord.PartyAI.ViewModels.Dialogs;
+using Bannerlord.UIExtenderEx.Attributes;
 using Bannerlord.UIExtenderEx.ViewModels;
-using PartyAIControls.CampaignBehaviors;
-using PartyAIControls.ViewModels.Components;
-using PartyAIControls.ViewModels.Dialogs;
 using System;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -12,7 +12,7 @@ using TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.UIExtenderPatches
+namespace Bannerlord.PartyAI.UIExtenderPatches
 {
     [ViewModelMixin(nameof(ClanPartyItemVM.UpdateProperties))]
     internal class ClanPartyItemVMMixin : BaseViewModelMixin<ClanPartyItemVM>

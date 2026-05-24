@@ -1,13 +1,13 @@
-﻿using PartyAIControls.ViewModels.Components;
-using PartyAIControls.ViewModels.Dialogs;
-using PartyAIControls.ViewModels.Dropdowns;
+﻿using Bannerlord.PartyAI.ViewModels.Components;
+using Bannerlord.PartyAI.ViewModels.Dialogs;
+using Bannerlord.PartyAI.ViewModels.Dropdowns;
 using System;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace PartyAIControls.ViewModels.MenuOptionVMs
+namespace Bannerlord.PartyAI.ViewModels.MenuOptionVMs
 {
     public class PartyAIPartyOptionsVM : ViewModel
     {

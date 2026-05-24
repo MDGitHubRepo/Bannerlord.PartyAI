@@ -4,7 +4,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.SaveSystem;
 
-namespace PartyAIControls
+namespace Bannerlord.PartyAI
 {
     public class PAICustomTemplate
     {
