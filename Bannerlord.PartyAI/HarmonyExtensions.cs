@@ -59,15 +59,17 @@ public class HarmonyPatchBuilder
         LambdaExpression target,
         Delegate? prefix = null,
         Delegate? postfix = null,
-        Delegate? transpiler = null)
+        Delegate? transpiler = null,
+        Delegate? finalizer = null)
     {
         MethodInfo original = ExtractMethod(target);
 
-        _harmony.TryPatch(
-            original,
-            prefix: prefix?.Method,
-            postfix: postfix?.Method,
-            transpiler: transpiler?.Method);
+        var prefixMethod = prefix is null ? null : new HarmonyMethod(prefix);
+        var postfixMethod = postfix is null ? null : new HarmonyMethod(postfix);
+        var transpilerMethod = transpiler is null ? null : new HarmonyMethod(transpiler);
+        var finalizerMethod = finalizer is null ? null : new HarmonyMethod(finalizer);
+
+        _harmony.Patch(original, prefixMethod, postfixMethod, transpilerMethod, finalizerMethod);
     }
 
     private static MethodInfo ExtractMethod(LambdaExpression expression)
