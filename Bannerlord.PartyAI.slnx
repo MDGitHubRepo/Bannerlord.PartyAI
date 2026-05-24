@@ -1,5 +1,8 @@
 <Solution>
-  <Folder Name="/.github/" />
+  <Folder Name="/.github/">
+    <File Path=".github/workflows/build.yml" />
+    <File Path=".github/workflows/publish.yml" />
+  </Folder>
   <Folder Name="/build/">
     <File Path="build/common.props" />
     <File Path="build/common.targets" />
