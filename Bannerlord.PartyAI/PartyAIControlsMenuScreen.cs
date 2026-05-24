@@ -12,6 +12,7 @@ namespace Bannerlord.PartyAI
     public class PartyAIControlsMenuState : GameState
     {
         public PartyAIControlsMenuState()
+            : base()
         {
         }
     }
@@ -77,9 +78,11 @@ namespace Bannerlord.PartyAI
                 _dataSource.Paste();
             }
         }
+
         void IGameStateListener.OnInitialize()
         {
         }
+
         void IGameStateListener.OnFinalize()
         {
             foreach (SpriteCategory category in _spriteCategories)

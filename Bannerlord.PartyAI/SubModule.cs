@@ -21,18 +21,17 @@ namespace Bannerlord.PartyAI
 {
     public class SubModule : MBSubModuleBase
     {
-        private Harmony _harmony = null;
-        private bool _harmonyRan = false;
-        private bool _UIExtenderRan = false;
+        private static readonly string Namespace = typeof(SubModule).Namespace;
+
+        private Harmony _harmony = new(Namespace);
+
         private bool _isChoosePartiesPopupOpenAlready = false;
-        private static readonly bool _bannerKingsLoaded = AccessTools.TypeByName("BannerKings.Main") != null;
 
         internal static PartyAIClanPartySettingsManager PartySettingsManager;
         internal static PartyAITroopRecruiter PartyTroopRecruiter;
         internal static PartyAIThinker PartyThinker;
         internal static PartyAIDetachmentManager DetatchmentManager;
         internal static PAInformationManager InformationManager;
-        private UIExtender _extender;
 
         protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
         {
@@ -72,17 +71,6 @@ namespace Bannerlord.PartyAI
                 return;
             }
 
-            if (!_harmonyRan)
-            {
-                _harmony.PatchAll();
-                if (!_bannerKingsLoaded)
-                {
-                    _harmony.Patch(AccessTools.Method(typeof(ArmyManagementVM), "ExecuteDone"), postfix: new(typeof(ArmyManagementVMPatches.ExecuteDone), "Postfix"));
-                    _harmony.Patch(AccessTools.Method(typeof(ArmyManagementVM), "RefreshValues"), postfix: new(typeof(ArmyManagementVMPatches.Constructor), "Postfix"));
-                }
-                _harmonyRan = true;
-            }
-
             ValidateGameModel(Campaign.Current.Models.PartyTroopUpgradeModel);
             ValidateGameModel(Campaign.Current.Models.ArmyManagementCalculationModel);
             ValidateGameModel(Campaign.Current.Models.PrisonerRecruitmentCalculationModel);
@@ -105,19 +93,21 @@ namespace Bannerlord.PartyAI
 
         protected override void OnApplicationTick(float dt)
         {
-            var state = Game.Current?.GameStateManager?.ActiveState;
+            var activeState = Game.Current?.GameStateManager?.ActiveState;
 
-            if (state == null
-                      || state is not MapState
-                      || state.IsMenuState
-                      || state is MissionState
+            if (activeState == null
+                      || activeState is not MapState
+                      || activeState.IsMenuState
+                      || activeState is MissionState
                       || Mission.Current != null
                )
             {
                 return;
             }
 
-            if ((Input.IsKeyDown(PartySettingsManager.ControlPanelModiferKey) || PartySettingsManager.ControlPanelModiferKey == InputKey.Invalid) && Input.IsKeyDown(PartySettingsManager.ControlPanelKey))
+            if ((Input.IsKeyDown(PartySettingsManager.ControlPanelModiferKey)
+                || PartySettingsManager.ControlPanelModiferKey == InputKey.Invalid)
+                && Input.IsKeyDown(PartySettingsManager.ControlPanelKey))
             {
                 GameStateManager.Current.PushState(GameStateManager.Current.CreateState<PartyAIControlsMenuState>());
                 return;
@@ -160,14 +150,38 @@ namespace Bannerlord.PartyAI
 
         protected override void OnSubModuleLoad()
         {
-            _harmony ??= new Harmony("carbon.partyaicontrols");
+            ApplyPatches(_harmony);
 
-            if (!_UIExtenderRan)
+            var extender = UIExtender.Create(Namespace);
+            extender.Register(typeof(SubModule).Assembly);
+            extender.Enable();
+
+            base.OnSubModuleLoad();
+        }
+
+        protected override void OnBeforeInitialModuleScreenSetAsRoot()
+        {
+            TryApplyBannerKingsConflictPatches(_harmony);
+
+            base.OnBeforeInitialModuleScreenSetAsRoot();
+        }
+
+        private static void ApplyPatches(Harmony harmony)
+        {
+            harmony.PatchAll();
+
+            AiMilitaryBehaviorPatches.Apply(harmony);
+            FixModdedGameStateScreenCrashOnShow.Apply(harmony);
+            InventoryLogicPatches.Apply(harmony);
+        }
+
+        private static void TryApplyBannerKingsConflictPatches(Harmony harmony)
+        {
+            var bannerKingsLoaded = AccessTools.TypeByName("BannerKings.Main") != null;
+            if (!bannerKingsLoaded)
             {
-                _extender = new UIExtender("PartyAIControls");
-                _extender.Register(typeof(SubModule).Assembly);
-                _extender.Enable();
-                _UIExtenderRan = true;
+                harmony.Patch(AccessTools.Method(typeof(ArmyManagementVM), "ExecuteDone"), postfix: new(typeof(ArmyManagementVMPatches.ExecuteDone), "Postfix"));
+                harmony.Patch(AccessTools.Method(typeof(ArmyManagementVM), "RefreshValues"), postfix: new(typeof(ArmyManagementVMPatches.Constructor), "Postfix"));
             }
         }
 
