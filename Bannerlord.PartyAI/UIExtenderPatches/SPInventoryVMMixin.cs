@@ -13,64 +13,64 @@ using TaleWorlds.Localization;
 
 namespace PartyAIControls.UIExtenderPatches
 {
-  [ViewModelMixin("RefreshInformationValues")]
-  internal class SPInventoryVMMixin : BaseViewModelMixin<SPInventoryVM>
-  {
-    private readonly SPInventoryVM _vm;
-    private readonly InventoryLogic _inventoryLogic;
-    private BasicTooltipViewModel _otherSideEquipmentMaxCountHint;
-    private static readonly FieldInfo _inventoryLogicField = AccessTools.Field(typeof(SPInventoryVM), "_inventoryLogic");
-
-    public SPInventoryVMMixin(SPInventoryVM vm) : base(vm)
+    [ViewModelMixin("RefreshInformationValues")]
+    internal class SPInventoryVMMixin : BaseViewModelMixin<SPInventoryVM>
     {
-      _vm = vm;
-      _inventoryLogic = (InventoryLogic)_inventoryLogicField?.GetValue(_vm);
-    }
+        private readonly SPInventoryVM _vm;
+        private readonly InventoryLogic _inventoryLogic;
+        private BasicTooltipViewModel _otherSideEquipmentMaxCountHint;
+        private static readonly FieldInfo _inventoryLogicField = AccessTools.Field(typeof(SPInventoryVM), "_inventoryLogic");
 
-    public override void OnRefresh()
-    {
-      base.OnRefresh();
-
-      if (_vm.OtherSideHasCapacity && _inventoryLogic?.OtherSideCapacityData != null && !_vm.IsTrading)
-      {
-        int weight;
-        if (_inventoryLogic?.OtherParty?.MobileParty != null)
+        public SPInventoryVMMixin(SPInventoryVM vm) : base(vm)
         {
-          OtherSideEquipmentMaxCountHint = new BasicTooltipViewModel(() => CampaignUIHelper.GetPartyInventoryCapacityTooltip(_inventoryLogic?.OtherParty?.MobileParty));
-          weight = MathF.Ceiling(_vm.LeftItemListVM.Where(i => !i.ItemRosterElement.EquipmentElement.Item.IsMountable && !i.ItemRosterElement.EquipmentElement.Item.IsAnimal).Sum((SPItemVM x) => x.ItemRosterElement.GetRosterElementWeight()));
-        }
-        else
-        {
-          weight = MathF.Ceiling(_vm.LeftItemListVM.Sum((SPItemVM x) => x.ItemRosterElement.GetRosterElementWeight()));
+            _vm = vm;
+            _inventoryLogic = (InventoryLogic)_inventoryLogicField?.GetValue(_vm);
         }
 
-        TextObject textObject = GameTexts.FindText("str_LEFT_over_RIGHT");
-        int capacity = _inventoryLogic.OtherSideCapacityData.GetCapacity();
-        textObject.SetTextVariable("LEFT", weight);
-        textObject.SetTextVariable("RIGHT", capacity);
-        _vm.OtherEquipmentCountText = textObject.ToString();
-        _vm.OtherEquipmentCountWarned = weight > capacity;
-        OtherSideEquipmentMaxCountHint ??= new BasicTooltipViewModel();
-
-        _vm.IsDoneDisabled = weight > capacity;
-      }
-    }
-
-    [DataSourceProperty]
-    public BasicTooltipViewModel OtherSideEquipmentMaxCountHint
-    {
-      get
-      {
-        return _otherSideEquipmentMaxCountHint;
-      }
-      set
-      {
-        if (value != _otherSideEquipmentMaxCountHint)
+        public override void OnRefresh()
         {
-          _otherSideEquipmentMaxCountHint = value;
-          OnPropertyChangedWithValue(value, "OtherSideEquipmentMaxCountHint");
+            base.OnRefresh();
+
+            if (_vm.OtherSideHasCapacity && _inventoryLogic?.OtherSideCapacityData != null && !_vm.IsTrading)
+            {
+                int weight;
+                if (_inventoryLogic?.OtherParty?.MobileParty != null)
+                {
+                    OtherSideEquipmentMaxCountHint = new BasicTooltipViewModel(() => CampaignUIHelper.GetPartyInventoryCapacityTooltip(_inventoryLogic?.OtherParty?.MobileParty));
+                    weight = MathF.Ceiling(_vm.LeftItemListVM.Where(i => !i.ItemRosterElement.EquipmentElement.Item.IsMountable && !i.ItemRosterElement.EquipmentElement.Item.IsAnimal).Sum((SPItemVM x) => x.ItemRosterElement.GetRosterElementWeight()));
+                }
+                else
+                {
+                    weight = MathF.Ceiling(_vm.LeftItemListVM.Sum((SPItemVM x) => x.ItemRosterElement.GetRosterElementWeight()));
+                }
+
+                TextObject textObject = GameTexts.FindText("str_LEFT_over_RIGHT");
+                int capacity = _inventoryLogic.OtherSideCapacityData.GetCapacity();
+                textObject.SetTextVariable("LEFT", weight);
+                textObject.SetTextVariable("RIGHT", capacity);
+                _vm.OtherEquipmentCountText = textObject.ToString();
+                _vm.OtherEquipmentCountWarned = weight > capacity;
+                OtherSideEquipmentMaxCountHint ??= new BasicTooltipViewModel();
+
+                _vm.IsDoneDisabled = weight > capacity;
+            }
         }
-      }
+
+        [DataSourceProperty]
+        public BasicTooltipViewModel OtherSideEquipmentMaxCountHint
+        {
+            get
+            {
+                return _otherSideEquipmentMaxCountHint;
+            }
+            set
+            {
+                if (value != _otherSideEquipmentMaxCountHint)
+                {
+                    _otherSideEquipmentMaxCountHint = value;
+                    OnPropertyChangedWithValue(value, "OtherSideEquipmentMaxCountHint");
+                }
+            }
+        }
     }
-  }
 }

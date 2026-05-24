@@ -1,46 +1,44 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors.AiBehaviors;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
-using TaleWorlds.Core;
 
 namespace PartyAIControls.HarmonyPatches
 {
-  [HarmonyPatch(typeof(AiVisitSettlementBehavior), "GetApproximateVolunteersCanBeRecruitedDataFromSettlement")]
-  internal class AiVisitSettlementBehaviorPatches
-  {
-    internal static void Postfix(ref (int, float) __result, Hero hero, Settlement settlement)
+    [HarmonyPatch(typeof(AiVisitSettlementBehavior), "GetApproximateVolunteersCanBeRecruitedDataFromSettlement")]
+    internal class AiVisitSettlementBehaviorPatches
+    {
+        internal static void Postfix(ref (int, float) __result, Hero hero, Settlement settlement)
         {
-      if (!SubModule.PartySettingsManager.IsHeroManageable(hero) || 
-          hero.PartyBelongedTo == null ||
-          hero.PartyBelongedTo.LeaderHero != hero)
-      {
-        return;
-      }
+            if (!SubModule.PartySettingsManager.IsHeroManageable(hero) ||
+                hero.PartyBelongedTo == null ||
+                hero.PartyBelongedTo.LeaderHero != hero)
+            {
+                return;
+            }
 
-      MobileParty mobileParty = hero.PartyBelongedTo;
-      PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(hero);
+            MobileParty mobileParty = hero.PartyBelongedTo;
+            PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(hero);
 
-      if (!heroSettings.AllowRecruitment)
-      {
-        __result = (0, 0f);
-        return;
-      }
+            if (!heroSettings.AllowRecruitment)
+            {
+                __result = (0, 0f);
+                return;
+            }
 
-      // if we're going to convert the troop anyway, it doesn't matter
-      if (SubModule.PartySettingsManager.AllowTroopConversion && heroSettings.PartyTemplate != null)
-      {
-        return;
-      }
+            // if we're going to convert the troop anyway, it doesn't matter
+            if (SubModule.PartySettingsManager.AllowTroopConversion && heroSettings.PartyTemplate != null)
+            {
+                return;
+            }
 
-      PartyCompositionObect comp = SubModule.PartyTroopRecruiter.GetPartyComposition(mobileParty.Party, heroSettings);
+            PartyCompositionObect comp = SubModule.PartyTroopRecruiter.GetPartyComposition(mobileParty.Party, heroSettings);
 
-      int allowedCount = 0;
-      int totalWage = 0;
+            int allowedCount = 0;
+            int totalWage = 0;
 
-      int maxSlotsPerNotable = (hero.MapFaction != settlement.MapFaction) ? 2 : 4;
+            int maxSlotsPerNotable = (hero.MapFaction != settlement.MapFaction) ? 2 : 4;
 
             foreach (Hero notable in settlement.Notables)
             {

@@ -6,26 +6,26 @@ using System.Xml;
 
 namespace PartyAIControls.UIExtenderPatches
 {
-  internal class InventoryPrefabExtension
-  {
-    [PrefabExtension("Inventory", "descendant::ListPanel[@IsVisible='@OtherSideHasCapacity']/Children")]
-    internal class Popups : PrefabExtensionInsertPatch
+    internal class InventoryPrefabExtension
     {
-      private IEnumerable<XmlNode> _nodes;
-      public override InsertType Type => InsertType.Child;
-      public override int Index => 2;
-
-      [PrefabExtensionXmlNodes]
-      public IEnumerable<XmlNode> GetNodes()
-      {
-        if (_nodes is null)
+        [PrefabExtension("Inventory", "descendant::ListPanel[@IsVisible='@OtherSideHasCapacity']/Children")]
+        internal class Popups : PrefabExtensionInsertPatch
         {
-          XmlDocument document = new();
-          document.LoadXml("<DiscardedRoot><HintWidget DataSource=\"{OtherSideEquipmentMaxCountHint}\" WidthSizePolicy=\"StretchToParent\" HeightSizePolicy=\"StretchToParent\" Command.HoverBegin=\"ExecuteBeginHint\" Command.HoverEnd=\"ExecuteEndHint\" /></DiscardedRoot>");
-          _nodes = document.DocumentElement.ChildNodes.Cast<XmlNode>();
+            private IEnumerable<XmlNode> _nodes;
+            public override InsertType Type => InsertType.Child;
+            public override int Index => 2;
+
+            [PrefabExtensionXmlNodes]
+            public IEnumerable<XmlNode> GetNodes()
+            {
+                if (_nodes is null)
+                {
+                    XmlDocument document = new();
+                    document.LoadXml("<DiscardedRoot><HintWidget DataSource=\"{OtherSideEquipmentMaxCountHint}\" WidthSizePolicy=\"StretchToParent\" HeightSizePolicy=\"StretchToParent\" Command.HoverBegin=\"ExecuteBeginHint\" Command.HoverEnd=\"ExecuteEndHint\" /></DiscardedRoot>");
+                    _nodes = document.DocumentElement.ChildNodes.Cast<XmlNode>();
+                }
+                return _nodes;
+            }
         }
-        return _nodes;
-      }
     }
-  }
 }

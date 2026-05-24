@@ -5,115 +5,115 @@ using TaleWorlds.Localization;
 
 namespace PartyAIControls.ViewModels.Components
 {
-  public class PartyAICompositionDisplayVM : ViewModel
-  {
-    private readonly PartyCompositionObect _composition;
-
-    private HintViewModel _infantryHint;
-
-    private HintViewModel _rangedHint;
-
-    private HintViewModel _cavalryHint;
-
-    private HintViewModel _horseArcherHint;
-
-    public PartyAICompositionDisplayVM(PartyCompositionObect composition, int spacing = 0)
+    public class PartyAICompositionDisplayVM : ViewModel
     {
-      _composition = composition?.Clone() ?? new PartyCompositionObect(0.25f, 0.25f, 0.25f, 0.25f);
-      _composition.Scale(100);
+        private readonly PartyCompositionObect _composition;
 
-      Spacing = spacing;
-    }
+        private HintViewModel _infantryHint;
 
-    [DataSourceProperty]
-    public string InfantryCount => ((int)Math.Round(_composition.Infantry)).ToString() + "%";
+        private HintViewModel _rangedHint;
 
-    [DataSourceProperty]
-    public string RangedCount => ((int)Math.Round(_composition.Ranged)).ToString() + "%";
+        private HintViewModel _cavalryHint;
 
-    [DataSourceProperty]
-    public string CavalryCount => ((int)Math.Round(_composition.Cavalry)).ToString() + "%";
+        private HintViewModel _horseArcherHint;
 
-    [DataSourceProperty]
-    public string HorseArcherCount => ((int)Math.Round(_composition.HorseArcher)).ToString() + "%";
-
-    [DataSourceProperty]
-    public HintViewModel InfantryHint
-    {
-      get
-      {
-        return _infantryHint;
-      }
-      set
-      {
-        if (value != _infantryHint)
+        public PartyAICompositionDisplayVM(PartyCompositionObect composition, int spacing = 0)
         {
-          _infantryHint = value;
-          OnPropertyChangedWithValue(value, "InfantryHint");
-        }
-      }
-    }
+            _composition = composition?.Clone() ?? new PartyCompositionObect(0.25f, 0.25f, 0.25f, 0.25f);
+            _composition.Scale(100);
 
-    [DataSourceProperty]
-    public HintViewModel RangedHint
-    {
-      get
-      {
-        return _rangedHint;
-      }
-      set
-      {
-        if (value != _rangedHint)
+            Spacing = spacing;
+        }
+
+        [DataSourceProperty]
+        public string InfantryCount => ((int)Math.Round(_composition.Infantry)).ToString() + "%";
+
+        [DataSourceProperty]
+        public string RangedCount => ((int)Math.Round(_composition.Ranged)).ToString() + "%";
+
+        [DataSourceProperty]
+        public string CavalryCount => ((int)Math.Round(_composition.Cavalry)).ToString() + "%";
+
+        [DataSourceProperty]
+        public string HorseArcherCount => ((int)Math.Round(_composition.HorseArcher)).ToString() + "%";
+
+        [DataSourceProperty]
+        public HintViewModel InfantryHint
         {
-          _rangedHint = value;
-          OnPropertyChangedWithValue(value, "RangedHint");
+            get
+            {
+                return _infantryHint;
+            }
+            set
+            {
+                if (value != _infantryHint)
+                {
+                    _infantryHint = value;
+                    OnPropertyChangedWithValue(value, "InfantryHint");
+                }
+            }
         }
-      }
-    }
 
-    [DataSourceProperty]
-    public HintViewModel CavalryHint
-    {
-      get
-      {
-        return _cavalryHint;
-      }
-      set
-      {
-        if (value != _cavalryHint)
+        [DataSourceProperty]
+        public HintViewModel RangedHint
         {
-          _cavalryHint = value;
-          OnPropertyChangedWithValue(value, "CavalryHint");
+            get
+            {
+                return _rangedHint;
+            }
+            set
+            {
+                if (value != _rangedHint)
+                {
+                    _rangedHint = value;
+                    OnPropertyChangedWithValue(value, "RangedHint");
+                }
+            }
         }
-      }
-    }
 
-    [DataSourceProperty]
-    public HintViewModel HorseArcherHint
-    {
-      get
-      {
-        return _horseArcherHint;
-      }
-      set
-      {
-        if (value != _horseArcherHint)
+        [DataSourceProperty]
+        public HintViewModel CavalryHint
         {
-          _horseArcherHint = value;
-          OnPropertyChangedWithValue(value, "HorseArcherHint");
+            get
+            {
+                return _cavalryHint;
+            }
+            set
+            {
+                if (value != _cavalryHint)
+                {
+                    _cavalryHint = value;
+                    OnPropertyChangedWithValue(value, "CavalryHint");
+                }
+            }
         }
-      }
-    }
 
-    [DataSourceProperty]
-    public int Spacing { get; private set; }
+        [DataSourceProperty]
+        public HintViewModel HorseArcherHint
+        {
+            get
+            {
+                return _horseArcherHint;
+            }
+            set
+            {
+                if (value != _horseArcherHint)
+                {
+                    _horseArcherHint = value;
+                    OnPropertyChangedWithValue(value, "HorseArcherHint");
+                }
+            }
+        }
 
-    public PartyAICompositionDisplayVM()
-    {
-      InfantryHint = new HintViewModel(new TextObject("{=1Bm1Wk1v}Infantry"));
-      RangedHint = new HintViewModel(new TextObject("{=bIiBytSB}Archers"));
-      CavalryHint = new HintViewModel(new TextObject("{=YVGtcLHF}Cavalry"));
-      HorseArcherHint = new HintViewModel(new TextObject("{=I1CMeL9R}Mounted Archers"));
+        [DataSourceProperty]
+        public int Spacing { get; private set; }
+
+        public PartyAICompositionDisplayVM()
+        {
+            InfantryHint = new HintViewModel(new TextObject("{=1Bm1Wk1v}Infantry"));
+            RangedHint = new HintViewModel(new TextObject("{=bIiBytSB}Archers"));
+            CavalryHint = new HintViewModel(new TextObject("{=YVGtcLHF}Cavalry"));
+            HorseArcherHint = new HintViewModel(new TextObject("{=I1CMeL9R}Mounted Archers"));
+        }
     }
-  }
 }

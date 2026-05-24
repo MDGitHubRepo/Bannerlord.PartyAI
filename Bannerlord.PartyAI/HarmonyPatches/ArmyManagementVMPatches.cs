@@ -11,29 +11,29 @@ using TaleWorlds.Core;
 namespace PartyAIControls.HarmonyPatches
 {
 
-  internal class ArmyManagementVMPatches
-  {
-    internal class Constructor
+    internal class ArmyManagementVMPatches
     {
-      private static void Postfix(ArmyManagementVM __instance)
-      {
-        if (Clan.PlayerClan.IsUnderMercenaryService && __instance.PartyList != null)
+        internal class Constructor
         {
-          List<ArmyManagementItemVM> parties = __instance.PartyList.ToList();
-          __instance.PartyList.Clear();
-
-          foreach (ArmyManagementItemVM party in parties)
-          {
-            if (party.Clan == Clan.PlayerClan)
+            private static void Postfix(ArmyManagementVM __instance)
             {
-              __instance.PartyList.Add(party);
-            }
-          }
+                if (Clan.PlayerClan.IsUnderMercenaryService && __instance.PartyList != null)
+                {
+                    List<ArmyManagementItemVM> parties = __instance.PartyList.ToList();
+                    __instance.PartyList.Clear();
 
-          __instance.OnPropertyChanged("PartyList");
+                    foreach (ArmyManagementItemVM party in parties)
+                    {
+                        if (party.Clan == Clan.PlayerClan)
+                        {
+                            __instance.PartyList.Add(party);
+                        }
+                    }
+
+                    __instance.OnPropertyChanged("PartyList");
+                }
+            }
         }
-      }
-    }
 
         internal class ExecuteDone
         {

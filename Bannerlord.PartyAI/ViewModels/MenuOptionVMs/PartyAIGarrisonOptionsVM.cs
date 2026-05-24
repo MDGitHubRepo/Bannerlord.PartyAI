@@ -7,49 +7,49 @@ using TaleWorlds.Localization;
 
 namespace PartyAIControls.ViewModels.MenuOptionVMs
 {
-  public class PartyAIGarrisonOptionsVM : ViewModel
-  {
-    private readonly Action _onClosePartyOptions;
-    private readonly PartyAIClanPartySettings _settings;
-
-    public PartyAIGarrisonOptionsVM(PartyAIClanPartySettings settings, Action callback)
+    public class PartyAIGarrisonOptionsVM : ViewModel
     {
-      if (settings == null) { return; }
-      _settings = settings;
+        private readonly Action _onClosePartyOptions;
+        private readonly PartyAIClanPartySettings _settings;
 
-      if (_settings.Hero != null)
-      {
-        TitleText = new TextObject("{=PAI5VM6usUh}Edit Garrison Options for {SETTLEMENT}").SetTextVariable("SETTLEMENT", settings.Settlement.Name.ToString()).ToString();
-      }
-      else
-      {
-        TitleText = new TextObject("{=PAIy61wxVLV}Edit Garrison Options").ToString();
-      }
+        public PartyAIGarrisonOptionsVM(PartyAIClanPartySettings settings, Action callback)
+        {
+            if (settings == null) { return; }
+            _settings = settings;
 
-      MaxTroopTierDropdown = new(settings.MaxTroopTier, null);
+            if (_settings.Hero != null)
+            {
+                TitleText = new TextObject("{=PAI5VM6usUh}Edit Garrison Options for {SETTLEMENT}").SetTextVariable("SETTLEMENT", settings.Settlement.Name.ToString()).ToString();
+            }
+            else
+            {
+                TitleText = new TextObject("{=PAIy61wxVLV}Edit Garrison Options").ToString();
+            }
 
-      _onClosePartyOptions = callback;
+            MaxTroopTierDropdown = new(settings.MaxTroopTier, null);
 
-      RefreshValues();
+            _onClosePartyOptions = callback;
+
+            RefreshValues();
+        }
+
+        [DataSourceProperty] public string AcceptText => new TextObject("{=bV75iwKa}Save").ToString();
+        [DataSourceProperty] public string CancelText => GameTexts.FindText("str_cancel").ToString();
+        [DataSourceProperty] public string TitleText { get; private set; }
+        [DataSourceProperty] public PartyAIMaxTroopTierDropdownVM MaxTroopTierDropdown { get; private set; }
+        [DataSourceProperty] public string MaxTroopTierText => new TextObject("{=PAIn4UJJg3a}Max Troop Tier").ToString();
+        [DataSourceProperty] public HintViewModel MaxTroopTierHint => new(new TextObject("{=PAIKeTFa2PX}Maximum troop tier to upgrade troops to. If you lower this setting while there are higher tier troops in the party, they will be downgraded."));
+
+        public void AcceptEditPartyOptions()
+        {
+            _settings.MaxTroopTier = MaxTroopTierDropdown.SortOptions.SelectedItem.Max;
+
+            _onClosePartyOptions?.Invoke();
+        }
+
+        public void CancelEditPartyOptions()
+        {
+            _onClosePartyOptions?.Invoke();
+        }
     }
-
-    [DataSourceProperty] public string AcceptText => new TextObject("{=bV75iwKa}Save").ToString();
-    [DataSourceProperty] public string CancelText => GameTexts.FindText("str_cancel").ToString();
-    [DataSourceProperty] public string TitleText { get; private set; }
-    [DataSourceProperty] public PartyAIMaxTroopTierDropdownVM MaxTroopTierDropdown { get; private set; }
-    [DataSourceProperty] public string MaxTroopTierText => new TextObject("{=PAIn4UJJg3a}Max Troop Tier").ToString();
-    [DataSourceProperty] public HintViewModel MaxTroopTierHint => new(new TextObject("{=PAIKeTFa2PX}Maximum troop tier to upgrade troops to. If you lower this setting while there are higher tier troops in the party, they will be downgraded."));
-
-    public void AcceptEditPartyOptions()
-    {
-      _settings.MaxTroopTier = MaxTroopTierDropdown.SortOptions.SelectedItem.Max;
-
-      _onClosePartyOptions?.Invoke();
-    }
-
-    public void CancelEditPartyOptions()
-    {
-      _onClosePartyOptions?.Invoke();
-    }
-  }
 }
