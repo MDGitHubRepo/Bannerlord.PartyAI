@@ -3,6 +3,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using static PartyAIControls.PAICustomOrder;
 
@@ -137,6 +138,11 @@ namespace PartyAIControls.Models
         public override float GetPartySizeScore(MobileParty party)
         {
             return _previousModel.GetPartySizeScore(party);
+        }
+
+        public override bool CanLordCreateArmy(MobileParty leaderParty, out MBList<MobileParty> possibleArmyMembers)
+        {
+            return _previousModel.CanLordCreateArmy(leaderParty, out possibleArmyMembers);
         }
 
         internal static bool IsArmyBesieging(Army army)

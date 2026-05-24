@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/.github/" />
+  <Folder Name="/build/">
+    <File Path="build/common.props" />
+    <File Path="build/common.targets" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="supported-game-versions.txt" />
+  </Folder>
+  <Project Path="Bannerlord.PartyAI/Bannerlord.PartyAI.csproj">
+    <BuildType Project="Debug" />
+    <Platform Project="x64" />
+  </Project>
+</Solution>
