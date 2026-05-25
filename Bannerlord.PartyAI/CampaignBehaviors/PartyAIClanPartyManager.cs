@@ -243,18 +243,24 @@ namespace Bannerlord.PartyAI.CampaignBehaviors
 
         internal bool IsGarrisonManageable(Settlement settlement)
         {
-            if (!ManageClanGarrisons && !ManageKingdomGarrisons) { return false; }
-            if (settlement == null) { return false; }
-            if (!settlement.IsFortification) { return false; }
+            if (settlement is null || !settlement.IsFortification)
+            {
+                return false;
+            }
+            
+            if (ManageClanGarrisons && settlement.OwnerClan == Clan.PlayerClan)
+            {
+                return true;
+            }
 
-            if (settlement.OwnerClan == Clan.PlayerClan && ManageClanGarrisons)
+            if (ManageKingdomGarrisons
+                && settlement.MapFaction == Hero.MainHero.MapFaction
+                && Clan.PlayerClan.Kingdom?.RulingClan == Clan.PlayerClan
+                && settlement.OwnerClan != Clan.PlayerClan)
             {
                 return true;
             }
-            if (ManageKingdomGarrisons && settlement.MapFaction == Hero.MainHero.MapFaction && Clan.PlayerClan.Kingdom?.RulingClan == Clan.PlayerClan)
-            {
-                return true;
-            }
+
             return false;
         }
 
