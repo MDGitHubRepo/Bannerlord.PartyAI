@@ -57,7 +57,7 @@
 							<NavigationScopeTargeter ScopeID="PartyAIControlsPanelItemsContext" ScopeParent="..\PartyListClipRect" ScopeMovements="Vertical" />
 							<Widget Id="PartyListClipRect" WidthSizePolicy="CoverChildren" HeightSizePolicy="StretchToParent" ClipContents="true">
 							  <Children>
-								<NavigatableListPanel Id="PartyList" DataSource="{PartyList}" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalBottomToTop">
+								<NavigatableListPanel Id="PartyList" DataSource="{PartyList}" WidthSizePolicy="CoverChildren" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
 								  <ItemTemplate>
 									  <ListPanel WidthSizePolicy="CoverChildren" HeightSizePolicy="Fixed" SuggestedHeight="!PartyRow.Height" MarginTop="!PartyRow.Spacing" UpdateChildrenStates="true" StackLayout.LayoutMethod="HorizontalLeftToRight">
 										<Children>

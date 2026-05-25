@@ -10,7 +10,7 @@
 				</ButtonWidget>
 
 				<!-- Party Templates -->
-				<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" HorizontalAlignment="Center" VerticalAlignment="Bottom" MarginBottom="80" StackLayout.LayoutMethod="VerticalBottomToTop">
+				<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" HorizontalAlignment="Center" VerticalAlignment="Bottom" MarginBottom="80" StackLayout.LayoutMethod="VerticalTopToBottom">
 					<Children>
 						<ListPanel WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="30" HorizontalAlignment="Center" VerticalAlignment="Top" MarginTop="10" IsVisible="@ShowOrder" StackLayout.LayoutMethod="HorizontalLeftToRight">
 							<Children>
