@@ -2,7 +2,7 @@
 using Bannerlord.UIExtenderEx.ViewModels;
 using TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement.Categories;
 
-namespace Bannerlord.PartyAI.UIExtenderPatches
+namespace Bannerlord.PartyAI.Mixins
 {
     [ViewModelMixin(nameof(ClanPartiesVM.RefreshValues))]
     internal class ClanPartiesVMMixin : BaseViewModelMixin<ClanPartiesVM>

@@ -1,7 +1,7 @@
 ﻿using Bannerlord.UIExtenderEx.Attributes;
 using Bannerlord.UIExtenderEx.Prefabs2;
 
-namespace Bannerlord.PartyAI.UIExtenderPatches
+namespace Bannerlord.PartyAI.PrefabExtensions
 {
 
     internal sealed class ClanPartiesPrefabExtension

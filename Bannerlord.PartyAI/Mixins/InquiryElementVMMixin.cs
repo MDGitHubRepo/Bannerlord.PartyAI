@@ -5,7 +5,7 @@ using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
 using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 
-namespace Bannerlord.PartyAI.UIExtenderPatches
+namespace Bannerlord.PartyAI.Mixins
 {
     [ViewModelMixin]
     internal class InquiryElementVMMixin : BaseViewModelMixin<InquiryElementVM>

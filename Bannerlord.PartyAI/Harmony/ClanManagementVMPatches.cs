@@ -1,4 +1,4 @@
-﻿using Bannerlord.PartyAI.UIExtenderPatches;
+﻿using Bannerlord.PartyAI.Mixins;
 using HarmonyLib;
 using SandBox.GauntletUI;
 using TaleWorlds.CampaignSystem.GameState;

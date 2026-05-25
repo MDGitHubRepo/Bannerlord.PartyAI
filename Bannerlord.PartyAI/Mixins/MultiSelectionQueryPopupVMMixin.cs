@@ -10,7 +10,7 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade.ViewModelCollection.Inquiries;
 
-namespace Bannerlord.PartyAI.UIExtenderPatches
+namespace Bannerlord.PartyAI.Mixins
 {
     [ViewModelMixin(nameof(MultiSelectionQueryPopUpVM.SetData))]
     internal class MultiSelectionQueryPopupVMMixin : BaseViewModelMixin<MultiSelectionQueryPopUpVM>

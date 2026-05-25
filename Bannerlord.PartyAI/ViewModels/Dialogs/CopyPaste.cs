@@ -1,4 +1,4 @@
-﻿using Bannerlord.PartyAI.UIExtenderPatches;
+﻿using Bannerlord.PartyAI.Mixins;
 using System;
 using System.Collections.Generic;
 using System.Linq;

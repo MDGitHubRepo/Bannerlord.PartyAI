@@ -12,7 +12,7 @@ using TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace Bannerlord.PartyAI.UIExtenderPatches
+namespace Bannerlord.PartyAI.Mixins
 {
     [ViewModelMixin(nameof(ClanPartyItemVM.UpdateProperties))]
     internal class ClanPartyItemVMMixin : BaseViewModelMixin<ClanPartyItemVM>

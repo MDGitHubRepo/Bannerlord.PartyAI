@@ -11,7 +11,7 @@ using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace Bannerlord.PartyAI.UIExtenderPatches
+namespace Bannerlord.PartyAI.Mixins
 {
     [ViewModelMixin("RefreshInformationValues")]
     internal class SPInventoryVMMixin : BaseViewModelMixin<SPInventoryVM>
