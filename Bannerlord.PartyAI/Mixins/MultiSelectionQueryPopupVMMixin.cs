@@ -10,107 +10,106 @@ using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade.ViewModelCollection.Inquiries;
 
-namespace Bannerlord.PartyAI.Mixins
+namespace Bannerlord.PartyAI.Mixins;
+
+[ViewModelMixin(nameof(MultiSelectionQueryPopUpVM.SetData))]
+internal class MultiSelectionQueryPopupVMMixin : BaseViewModelMixin<MultiSelectionQueryPopUpVM>
 {
-    [ViewModelMixin(nameof(MultiSelectionQueryPopUpVM.SetData))]
-    internal class MultiSelectionQueryPopupVMMixin : BaseViewModelMixin<MultiSelectionQueryPopUpVM>
+    private readonly MultiSelectionQueryPopUpVM _vm;
+    private string _selectAllText;
+    private bool _isSelectAllVisible;
+    internal static bool AddClanBanners;
+
+    public MultiSelectionQueryPopupVMMixin(MultiSelectionQueryPopUpVM vm) : base(vm)
     {
-        private readonly MultiSelectionQueryPopUpVM _vm;
-        private string _selectAllText;
-        private bool _isSelectAllVisible;
-        internal static bool AddClanBanners;
+        _vm = vm;
 
-        public MultiSelectionQueryPopupVMMixin(MultiSelectionQueryPopUpVM vm) : base(vm)
+        SelectAllText = new TextObject("{=PAIxKOXkgPU}Select All").ToString();
+
+        OnRefresh();
+    }
+
+    [DataSourceProperty]
+    public string SelectAllText
+    {
+        get
         {
-            _vm = vm;
-
-            SelectAllText = new TextObject("{=PAIxKOXkgPU}Select All").ToString();
-
-            OnRefresh();
+            return _selectAllText;
         }
-
-        [DataSourceProperty]
-        public string SelectAllText
+        set
         {
-            get
+            if (value != _selectAllText)
             {
-                return _selectAllText;
-            }
-            set
-            {
-                if (value != _selectAllText)
-                {
-                    _selectAllText = value;
-                    OnPropertyChangedWithValue(value, "SelectAllText");
-                }
+                _selectAllText = value;
+                OnPropertyChangedWithValue(value, "SelectAllText");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public bool IsSelectAllVisible
+    [DataSourceProperty]
+    public bool IsSelectAllVisible
+    {
+        get
         {
-            get
+            return _isSelectAllVisible;
+        }
+        set
+        {
+            if (value != _isSelectAllVisible)
             {
-                return _isSelectAllVisible;
-            }
-            set
-            {
-                if (value != _isSelectAllVisible)
-                {
-                    _isSelectAllVisible = value;
-                    OnPropertyChangedWithValue(value, "IsSelectAllVisible");
-                }
+                _isSelectAllVisible = value;
+                OnPropertyChangedWithValue(value, "IsSelectAllVisible");
             }
         }
+    }
 
-        [DataSourceMethod]
-        public void SelectAll()
+    [DataSourceMethod]
+    public void SelectAll()
+    {
+        foreach (InquiryElementVM e in _vm.InquiryElements)
+        {
+            if (e.IsEnabled)
+            {
+                e.IsSelected = true;
+                e.RefreshValues();
+            }
+        }
+    }
+
+    public override void OnRefresh()
+    {
+        base.OnRefresh();
+
+        if (PartyAIModOptionsVM.IsAutoCreatePartyLeaderRosterSelection && _vm?.InquiryElements?.FirstOrDefault()?.InquiryElement?.Identifier is Hero)
         {
             foreach (InquiryElementVM e in _vm.InquiryElements)
             {
-                if (e.IsEnabled)
+                if (PartyAIModOptionsVM.ChosenPartyLeaders.Contains((Hero)e.InquiryElement.Identifier))
                 {
                     e.IsSelected = true;
                     e.RefreshValues();
                 }
             }
         }
+        PartyAIModOptionsVM.IsAutoCreatePartyLeaderRosterSelection = false;
 
-        public override void OnRefresh()
+        if (PartyAICaravanOptionsVM.IsSelectFilteredSettlements && _vm?.InquiryElements?.FirstOrDefault()?.InquiryElement?.Identifier is Settlement)
         {
-            base.OnRefresh();
-
-            if (PartyAIModOptionsVM.IsAutoCreatePartyLeaderRosterSelection && _vm?.InquiryElements?.FirstOrDefault()?.InquiryElement?.Identifier is Hero)
+            foreach (InquiryElementVM e in _vm.InquiryElements)
             {
-                foreach (InquiryElementVM e in _vm.InquiryElements)
+                if (PartyAICaravanOptionsVM.FilteredSettlements.Contains(e.InquiryElement.Identifier as Settlement))
                 {
-                    if (PartyAIModOptionsVM.ChosenPartyLeaders.Contains((Hero)e.InquiryElement.Identifier))
-                    {
-                        e.IsSelected = true;
-                        e.RefreshValues();
-                    }
+                    e.IsSelected = true;
+                    e.RefreshValues();
                 }
             }
-            PartyAIModOptionsVM.IsAutoCreatePartyLeaderRosterSelection = false;
-
-            if (PartyAICaravanOptionsVM.IsSelectFilteredSettlements && _vm?.InquiryElements?.FirstOrDefault()?.InquiryElement?.Identifier is Settlement)
-            {
-                foreach (InquiryElementVM e in _vm.InquiryElements)
-                {
-                    if (PartyAICaravanOptionsVM.FilteredSettlements.Contains(e.InquiryElement.Identifier as Settlement))
-                    {
-                        e.IsSelected = true;
-                        e.RefreshValues();
-                    }
-                }
-            }
-            PartyAICaravanOptionsVM.IsSelectFilteredSettlements = false;
-
-            AddClanBanners = false;
-
-            IsSelectAllVisible = _vm.InquiryElements.Count <= _vm.MaxSelectableOptionCount && _vm.InquiryElements.Count > 1 && _vm.MaxSelectableOptionCount - _vm.MinSelectableOptionCount > 1;
-
-            _vm.SearchText = string.Empty;
         }
+        PartyAICaravanOptionsVM.IsSelectFilteredSettlements = false;
+
+        AddClanBanners = false;
+
+        IsSelectAllVisible = _vm.InquiryElements.Count <= _vm.MaxSelectableOptionCount && _vm.InquiryElements.Count > 1 && _vm.MaxSelectableOptionCount - _vm.MinSelectableOptionCount > 1;
+
+        _vm.SearchText = string.Empty;
     }
 }

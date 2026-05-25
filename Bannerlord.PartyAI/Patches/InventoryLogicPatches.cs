@@ -4,7 +4,7 @@ using TaleWorlds.CampaignSystem.Inventory;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Roster;
 
-namespace Bannerlord.PartyAI.HarmonyPatches;
+namespace Bannerlord.PartyAI.Patches;
 
 internal class InventoryLogicPatches
 {

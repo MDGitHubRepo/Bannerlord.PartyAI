@@ -13,240 +13,239 @@ using TaleWorlds.MountAndBlade.View;
 using TaleWorlds.ScreenSystem;
 using TaleWorlds.TwoDimension;
 
-namespace Bannerlord.PartyAI
+namespace Bannerlord.PartyAI;
+
+internal class PAInformationManager : GlobalLayer
 {
-    internal class PAInformationManager : GlobalLayer
+    private class PAInfoLayer : GlobalLayer
     {
-        private class PAInfoLayer : GlobalLayer
+        private readonly GauntletLayer _layer;
+        private readonly List<SpriteCategory> _spriteCategories = new();
+        private GauntletMovieIdentifier _movie;
+
+
+        internal PAInfoLayer(int order)
         {
-            private readonly GauntletLayer _layer;
-            private readonly List<SpriteCategory> _spriteCategories = new();
-            private GauntletMovieIdentifier _movie;
+            _layer = new GauntletLayer("PAInfoLayer", order, false);
+            _layer.Input.RegisterHotKeyCategory(HotKeyManager.GetCategory("GenericPanelGameKeyCategory"));
+            Layer = _layer;
+            ScreenManager.AddGlobalLayer(this, isFocusable: true);
+            ScreenManager.SetSuspendLayer(Layer, isSuspended: true);
+        }
 
+        internal GauntletMovieIdentifier LoadMovie(string movie, ViewModel datasource)
+    => _movie = _layer.LoadMovie(movie, datasource);
 
-            internal PAInfoLayer(int order)
+        internal void LoadSpriteCategories(string[] categories)
+        {
+            foreach (string cat in categories)
             {
-                _layer = new GauntletLayer("PAInfoLayer", order, false);
-                _layer.Input.RegisterHotKeyCategory(HotKeyManager.GetCategory("GenericPanelGameKeyCategory"));
-                Layer = _layer;
-                ScreenManager.AddGlobalLayer(this, isFocusable: true);
-                ScreenManager.SetSuspendLayer(Layer, isSuspended: true);
+                SpriteCategory category = UIResourceManager.SpriteData.SpriteCategories[cat];
+                category.Load(UIResourceManager.ResourceContext, UIResourceManager.ResourceDepot);
+                _spriteCategories.Add(category);
+            }
+        }
+
+        internal void UnloadSpriteCategories()
+        {
+            foreach (SpriteCategory category in _spriteCategories)
+            {
+                category.Unload();
+            }
+            _spriteCategories.Clear();
+        }
+        internal void RegisterState()
+        {
+            InformationManager.HideTooltip();
+            SetLayerFocus(isFocused: true);
+
+            GameStateManager.Current.RegisterActiveStateDisableRequest(this);
+            MBCommon.PauseGameEngine();
+        }
+
+        internal void CloseQuery()
+        {
+            SetLayerFocus(isFocused: false);
+            if (_movie != null)
+            {
+                _layer.ReleaseMovie(_movie);
+                _movie = null;
             }
 
-            internal GauntletMovieIdentifier LoadMovie(string movie, ViewModel datasource)
-        => _movie = _layer.LoadMovie(movie, datasource);
-
-            internal void LoadSpriteCategories(string[] categories)
+            if (_movie == null)
             {
-                foreach (string cat in categories)
-                {
-                    SpriteCategory category = UIResourceManager.SpriteData.SpriteCategories[cat];
-                    category.Load(UIResourceManager.ResourceContext, UIResourceManager.ResourceDepot);
-                    _spriteCategories.Add(category);
-                }
-            }
-
-            internal void UnloadSpriteCategories()
-            {
-                foreach (SpriteCategory category in _spriteCategories)
-                {
-                    category.Unload();
-                }
-                _spriteCategories.Clear();
-            }
-            internal void RegisterState()
-            {
-                InformationManager.HideTooltip();
-                SetLayerFocus(isFocused: true);
-
-                GameStateManager.Current.RegisterActiveStateDisableRequest(this);
-                MBCommon.PauseGameEngine();
-            }
-
-            internal void CloseQuery()
-            {
-                SetLayerFocus(isFocused: false);
-                if (_movie != null)
-                {
-                    _layer.ReleaseMovie(_movie);
-                    _movie = null;
-                }
-
-                if (_movie == null)
-                {
-                    UnloadSpriteCategories();
-                    GameStateManager.Current.UnregisterActiveStateDisableRequest(this);
-                    MBCommon.UnPauseGameEngine();
-                }
                 UnloadSpriteCategories();
+                GameStateManager.Current.UnregisterActiveStateDisableRequest(this);
+                MBCommon.UnPauseGameEngine();
             }
+            UnloadSpriteCategories();
+        }
 
-            private void SetLayerFocus(bool isFocused)
+        private void SetLayerFocus(bool isFocused)
+        {
+            if (isFocused)
             {
-                if (isFocused)
+                ScreenManager.SetSuspendLayer(Layer, isSuspended: false);
+                Layer.IsFocusLayer = true;
+                ScreenManager.TrySetFocus(Layer);
+                Layer.InputRestrictions.SetInputRestrictions();
+            }
+            else
+            {
+                Layer.InputRestrictions.ResetInputRestrictions();
+                ScreenManager.SetSuspendLayer(Layer, isSuspended: true);
+                Layer.IsFocusLayer = false;
+                ScreenManager.TryLoseFocus(Layer);
+            }
+        }
+
+        protected override void OnEarlyTick(float dt)
+        {
+            base.OnEarlyTick(dt);
+            if (_movie != null)
+            {
+                if (ScreenManager.FocusedLayer != Layer)
                 {
-                    ScreenManager.SetSuspendLayer(Layer, isSuspended: false);
-                    Layer.IsFocusLayer = true;
-                    ScreenManager.TrySetFocus(Layer);
-                    Layer.InputRestrictions.SetInputRestrictions();
+                    SetLayerFocus(isFocused: true);
                 }
-                else
+                if (_layer.Input.IsHotKeyReleased("Confirm"))
                 {
-                    Layer.InputRestrictions.ResetInputRestrictions();
-                    ScreenManager.SetSuspendLayer(Layer, isSuspended: true);
-                    Layer.IsFocusLayer = false;
-                    ScreenManager.TryLoseFocus(Layer);
+                    UISoundsHelper.PlayUISound("event:/ui/panels/next");
+                    CloseQuery();
                 }
-            }
-
-            protected override void OnEarlyTick(float dt)
-            {
-                base.OnEarlyTick(dt);
-                if (_movie != null)
+                else if (_layer.Input.IsHotKeyReleased("Exit"))
                 {
-                    if (ScreenManager.FocusedLayer != Layer)
-                    {
-                        SetLayerFocus(isFocused: true);
-                    }
-                    if (_layer.Input.IsHotKeyReleased("Confirm"))
-                    {
-                        UISoundsHelper.PlayUISound("event:/ui/panels/next");
-                        CloseQuery();
-                    }
-                    else if (_layer.Input.IsHotKeyReleased("Exit"))
-                    {
-                        UISoundsHelper.PlayUISound("event:/ui/panels/next");
-                        CloseQuery();
-                    }
+                    UISoundsHelper.PlayUISound("event:/ui/panels/next");
+                    CloseQuery();
                 }
             }
         }
+    }
 
-        private readonly PAInfoLayer _layer1;
-        private readonly PAInfoLayer _layer2;
-        private readonly PAInfoLayer _layer3;
+    private readonly PAInfoLayer _layer1;
+    private readonly PAInfoLayer _layer2;
+    private readonly PAInfoLayer _layer3;
 
-        public PAInformationManager()
+    public PAInformationManager()
+    {
+        _layer1 = new(4497);
+        _layer2 = new(4498);
+        _layer3 = new(4499);
+    }
+
+    public void ShowPartyCompositionInquiry(PartyAIClanPartySettings settings, Action<PartyCompositionObect> callback)
+    {
+        if (!CheckContext()) { return; }
+        _layer3.LoadMovie("PartyAICompositionSliders", new PartyAICompositionSlidersVM(settings, (PartyCompositionObect comp) =>
         {
-            _layer1 = new(4497);
-            _layer2 = new(4498);
-            _layer3 = new(4499);
-        }
+            _layer3.CloseQuery();
+            callback?.Invoke(comp);
+        }));
+        _layer3.RegisterState();
+    }
 
-        public void ShowPartyCompositionInquiry(PartyAIClanPartySettings settings, Action<PartyCompositionObect> callback)
+    public void ShowDetachmentsInquiry()
+    {
+        if (!CheckContext()) { return; }
+        _layer1.LoadMovie("PartyAIDetachments", new PartyAIDetachmentsVM(() =>
         {
-            if (!CheckContext()) { return; }
-            _layer3.LoadMovie("PartyAICompositionSliders", new PartyAICompositionSlidersVM(settings, (PartyCompositionObect comp) =>
-            {
-                _layer3.CloseQuery();
-                callback?.Invoke(comp);
-            }));
-            _layer3.RegisterState();
-        }
+            _layer1.CloseQuery();
+        }));
+        _layer1.RegisterState();
+    }
 
-        public void ShowDetachmentsInquiry()
+    public void ShowNumberPickerInquiry(int initialValue, int minValue, int maxValue, string title, string description, Action<int> callback, bool isPercentage = true)
+    {
+        if (!CheckContext()) { return; }
+        _layer3.LoadMovie("PartyAINumberPicker", new PartyAINumberPickerVM(initialValue, minValue, maxValue, title, description, (int value) =>
         {
-            if (!CheckContext()) { return; }
-            _layer1.LoadMovie("PartyAIDetachments", new PartyAIDetachmentsVM(() =>
-            {
-                _layer1.CloseQuery();
-            }));
-            _layer1.RegisterState();
-        }
+            _layer3.CloseQuery();
+            callback?.Invoke(value);
+        }, isPercentage));
+        _layer3.RegisterState();
+    }
 
-        public void ShowNumberPickerInquiry(int initialValue, int minValue, int maxValue, string title, string description, Action<int> callback, bool isPercentage = true)
+    public void ShowModOptionsInquiry(Action callback)
+    {
+        if (!CheckContext()) { return; }
+        _layer1.LoadMovie("PartyAIModOptions", new PartyAIModOptionsVM(() =>
         {
-            if (!CheckContext()) { return; }
-            _layer3.LoadMovie("PartyAINumberPicker", new PartyAINumberPickerVM(initialValue, minValue, maxValue, title, description, (int value) =>
-            {
-                _layer3.CloseQuery();
-                callback?.Invoke(value);
-            }, isPercentage));
-            _layer3.RegisterState();
-        }
+            _layer1.CloseQuery();
+            callback?.Invoke();
+        }));
+        _layer1.RegisterState();
+    }
 
-        public void ShowModOptionsInquiry(Action callback)
+    public void ShowPartyOptionsInquiry(PartyAIClanPartySettings settings, Action callback)
+    {
+        if (!CheckContext()) { return; }
+        _layer2.LoadMovie("PartyAIPartyOptions", new PartyAIPartyOptionsVM(settings, () =>
         {
-            if (!CheckContext()) { return; }
-            _layer1.LoadMovie("PartyAIModOptions", new PartyAIModOptionsVM(() =>
-            {
-                _layer1.CloseQuery();
-                callback?.Invoke();
-            }));
-            _layer1.RegisterState();
-        }
+            _layer2.CloseQuery();
+            callback?.Invoke();
+        }));
+        _layer2.RegisterState();
+    }
 
-        public void ShowPartyOptionsInquiry(PartyAIClanPartySettings settings, Action callback)
+    public void ShowCaravanOptionsInquiry(PartyAIClanPartySettings settings, Action callback)
+    {
+        if (!CheckContext()) { return; }
+        _layer2.LoadMovie("PartyAICaravanOptions", new PartyAICaravanOptionsVM(settings, () =>
         {
-            if (!CheckContext()) { return; }
-            _layer2.LoadMovie("PartyAIPartyOptions", new PartyAIPartyOptionsVM(settings, () =>
-            {
-                _layer2.CloseQuery();
-                callback?.Invoke();
-            }));
-            _layer2.RegisterState();
-        }
+            _layer2.CloseQuery();
+            callback?.Invoke();
+        }));
+        _layer2.RegisterState();
+    }
 
-        public void ShowCaravanOptionsInquiry(PartyAIClanPartySettings settings, Action callback)
+    public void ShowGarrisonOptionsInquiry(PartyAIClanPartySettings settings, Action callback)
+    {
+        if (!CheckContext()) { return; }
+        _layer2.LoadMovie("PartyAIGarrisonOptions", new PartyAIGarrisonOptionsVM(settings, () =>
         {
-            if (!CheckContext()) { return; }
-            _layer2.LoadMovie("PartyAICaravanOptions", new PartyAICaravanOptionsVM(settings, () =>
-            {
-                _layer2.CloseQuery();
-                callback?.Invoke();
-            }));
-            _layer2.RegisterState();
-        }
+            _layer2.CloseQuery();
+            callback?.Invoke();
+        }));
+        _layer2.RegisterState();
+    }
 
-        public void ShowGarrisonOptionsInquiry(PartyAIClanPartySettings settings, Action callback)
+    public void ShowOrderQueueInquiry(PartyAIClanPartySettings settings, Action callback)
+    {
+        if (!CheckContext()) { return; }
+        _layer1.LoadSpriteCategories(new[] { "ui_partyscreen" });
+        _layer1.LoadMovie("PartyAIOrderQueue", new PartyAIOrderQueueVM(settings, () =>
         {
-            if (!CheckContext()) { return; }
-            _layer2.LoadMovie("PartyAIGarrisonOptions", new PartyAIGarrisonOptionsVM(settings, () =>
-            {
-                _layer2.CloseQuery();
-                callback?.Invoke();
-            }));
-            _layer2.RegisterState();
-        }
+            _layer1.CloseQuery();
+            callback?.Invoke();
+            _layer1.UnloadSpriteCategories();
+        }));
+        _layer1.RegisterState();
+    }
 
-        public void ShowOrderQueueInquiry(PartyAIClanPartySettings settings, Action callback)
+    public void ShowDefaultSettingsInquiry(Action callback)
+    {
+        if (!CheckContext()) { return; }
+        _layer1.LoadMovie("PartyAIDefaultSettings", new PartyAIDefaultSettingsVM(() =>
         {
-            if (!CheckContext()) { return; }
-            _layer1.LoadSpriteCategories(new[] { "ui_partyscreen" });
-            _layer1.LoadMovie("PartyAIOrderQueue", new PartyAIOrderQueueVM(settings, () =>
-            {
-                _layer1.CloseQuery();
-                callback?.Invoke();
-                _layer1.UnloadSpriteCategories();
-            }));
-            _layer1.RegisterState();
-        }
+            _layer1.CloseQuery();
+            callback?.Invoke();
+        }));
+        _layer1.RegisterState();
+    }
 
-        public void ShowDefaultSettingsInquiry(Action callback)
+    private bool CheckContext()
+    {
+        if (Campaign.Current == null)
         {
-            if (!CheckContext()) { return; }
-            _layer1.LoadMovie("PartyAIDefaultSettings", new PartyAIDefaultSettingsVM(() =>
-            {
-                _layer1.CloseQuery();
-                callback?.Invoke();
-            }));
-            _layer1.RegisterState();
+            InformationManager.ShowInquiry(new InquiryData(
+              new TextObject("{=oZrVNUOk}Error").ToString(),
+              new TextObject("{=PAI0m3MyqBm}You must load a save game to use this menu.").ToString(),
+              true, false, new TextObject("{=Y94H6XnK}Accept").ToString(), string.Empty,
+              () => { }, null)
+            );
+            return false;
         }
-
-        private bool CheckContext()
-        {
-            if (Campaign.Current == null)
-            {
-                InformationManager.ShowInquiry(new InquiryData(
-                  new TextObject("{=oZrVNUOk}Error").ToString(),
-                  new TextObject("{=PAI0m3MyqBm}You must load a save game to use this menu.").ToString(),
-                  true, false, new TextObject("{=Y94H6XnK}Accept").ToString(), string.Empty,
-                  () => { }, null)
-                );
-                return false;
-            }
-            if (Mission.Current != null) { return false; }
-            return true;
-        }
+        if (Mission.Current != null) { return false; }
+        return true;
     }
 }

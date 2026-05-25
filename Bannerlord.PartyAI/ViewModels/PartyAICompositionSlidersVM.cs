@@ -3,332 +3,331 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace Bannerlord.PartyAI.ViewModels
+namespace Bannerlord.PartyAI.ViewModels;
+
+public class PartyAICompositionSlidersVM : ViewModel
 {
-    public class PartyAICompositionSlidersVM : ViewModel
+    private readonly Action<PartyCompositionObect> _onSavePartyComposition;
+    private readonly PartyAIClanPartySettings _settings;
+    private bool _doNotClamp;
+    private int _infantry;
+    private int _ranged;
+    private int _cavalry;
+    private int _horseArcher;
+    private bool _isInfantryLocked;
+    private bool _isRangedLocked;
+    private bool _isCavalryLocked;
+    private bool _isHorseArcherLocked;
+
+    // keep the constructor safe for settings to be null
+    public PartyAICompositionSlidersVM(PartyAIClanPartySettings settings, Action<PartyCompositionObect> callback)
     {
-        private readonly Action<PartyCompositionObect> _onSavePartyComposition;
-        private readonly PartyAIClanPartySettings _settings;
-        private bool _doNotClamp;
-        private int _infantry;
-        private int _ranged;
-        private int _cavalry;
-        private int _horseArcher;
-        private bool _isInfantryLocked;
-        private bool _isRangedLocked;
-        private bool _isCavalryLocked;
-        private bool _isHorseArcherLocked;
+        SlidersTitleText = new TextObject("{=PAgaRahFHeV}Edit Party Composition").ToString();
 
-        // keep the constructor safe for settings to be null
-        public PartyAICompositionSlidersVM(PartyAIClanPartySettings settings, Action<PartyCompositionObect> callback)
+        if (settings == null) { return; }
+        _settings = settings;
+
+        PartyCompositionObect composition = settings.Composition.Clone();
+        composition.Scale(100);
+
+        _doNotClamp = true;
+        InfantryInt = (int)Math.Round(composition.Infantry);
+        RangedInt = (int)Math.Round(composition.Ranged);
+        CavalryInt = (int)Math.Round(composition.Cavalry);
+        HorseArcherInt = (int)Math.Round(composition.HorseArcher);
+        _doNotClamp = false;
+
+        IsInfantryLocked = false; // to clear locks
+        IsRangedLocked = false; // to clear locks
+        IsCavalryLocked = false; // to clear locks
+        IsHorseArcherLocked = false; // to clear locks
+        _onSavePartyComposition = callback;
+
+        RefreshValues();
+    }
+
+    [DataSourceProperty]
+    public string AcceptText => new TextObject("{=bV75iwKa}Save").ToString();
+
+    [DataSourceProperty]
+    public string CancelText => GameTexts.FindText("str_cancel").ToString();
+
+    [DataSourceProperty]
+    public string SlidersTitleText { get; set; }
+
+    [DataSourceProperty]
+    public string InfantryPercentage => InfantryInt.ToString() + "%";
+
+    [DataSourceProperty]
+    public string RangedPercentage => RangedInt.ToString() + "%";
+
+    [DataSourceProperty]
+    public string CavalryPercentage => CavalryInt.ToString() + "%";
+
+    [DataSourceProperty]
+    public string HorseArcherPercentage => HorseArcherInt.ToString() + "%";
+
+    [DataSourceProperty]
+    public bool IsInfantryLocked
+    {
+        get
         {
-            SlidersTitleText = new TextObject("{=PAgaRahFHeV}Edit Party Composition").ToString();
-
-            if (settings == null) { return; }
-            _settings = settings;
-
-            PartyCompositionObect composition = settings.Composition.Clone();
-            composition.Scale(100);
-
-            _doNotClamp = true;
-            InfantryInt = (int)Math.Round(composition.Infantry);
-            RangedInt = (int)Math.Round(composition.Ranged);
-            CavalryInt = (int)Math.Round(composition.Cavalry);
-            HorseArcherInt = (int)Math.Round(composition.HorseArcher);
-            _doNotClamp = false;
-
-            IsInfantryLocked = false; // to clear locks
-            IsRangedLocked = false; // to clear locks
-            IsCavalryLocked = false; // to clear locks
-            IsHorseArcherLocked = false; // to clear locks
-            _onSavePartyComposition = callback;
-
-            RefreshValues();
+            return _isInfantryLocked;
         }
-
-        [DataSourceProperty]
-        public string AcceptText => new TextObject("{=bV75iwKa}Save").ToString();
-
-        [DataSourceProperty]
-        public string CancelText => GameTexts.FindText("str_cancel").ToString();
-
-        [DataSourceProperty]
-        public string SlidersTitleText { get; set; }
-
-        [DataSourceProperty]
-        public string InfantryPercentage => InfantryInt.ToString() + "%";
-
-        [DataSourceProperty]
-        public string RangedPercentage => RangedInt.ToString() + "%";
-
-        [DataSourceProperty]
-        public string CavalryPercentage => CavalryInt.ToString() + "%";
-
-        [DataSourceProperty]
-        public string HorseArcherPercentage => HorseArcherInt.ToString() + "%";
-
-        [DataSourceProperty]
-        public bool IsInfantryLocked
+        set
         {
-            get
+            if (value != _isInfantryLocked)
             {
-                return _isInfantryLocked;
-            }
-            set
-            {
-                if (value != _isInfantryLocked)
-                {
-                    _isInfantryLocked = value;
-                    OnPropertyChangedWithValue(value, "IsInfantryLocked");
-                }
+                _isInfantryLocked = value;
+                OnPropertyChangedWithValue(value, "IsInfantryLocked");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public bool IsRangedLocked
+    [DataSourceProperty]
+    public bool IsRangedLocked
+    {
+        get
         {
-            get
+            return _isRangedLocked;
+        }
+        set
+        {
+            if (value != _isRangedLocked)
             {
-                return _isRangedLocked;
-            }
-            set
-            {
-                if (value != _isRangedLocked)
-                {
-                    _isRangedLocked = value;
-                    OnPropertyChangedWithValue(value, "IsRangedLocked");
-                }
+                _isRangedLocked = value;
+                OnPropertyChangedWithValue(value, "IsRangedLocked");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public bool IsCavalryLocked
+    [DataSourceProperty]
+    public bool IsCavalryLocked
+    {
+        get
         {
-            get
+            return _isCavalryLocked;
+        }
+        set
+        {
+            if (value != _isCavalryLocked)
             {
-                return _isCavalryLocked;
-            }
-            set
-            {
-                if (value != _isCavalryLocked)
-                {
-                    _isCavalryLocked = value;
-                    OnPropertyChangedWithValue(value, "IsCavalryLocked");
-                }
+                _isCavalryLocked = value;
+                OnPropertyChangedWithValue(value, "IsCavalryLocked");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public bool IsHorseArcherLocked
+    [DataSourceProperty]
+    public bool IsHorseArcherLocked
+    {
+        get
         {
-            get
+            return _isHorseArcherLocked;
+        }
+        set
+        {
+            if (value != _isHorseArcherLocked)
             {
-                return _isHorseArcherLocked;
-            }
-            set
-            {
-                if (value != _isHorseArcherLocked)
-                {
-                    _isHorseArcherLocked = value;
-                    OnPropertyChangedWithValue(value, "IsHorseArcherLocked");
-                }
+                _isHorseArcherLocked = value;
+                OnPropertyChangedWithValue(value, "IsHorseArcherLocked");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public int InfantryInt
+    [DataSourceProperty]
+    public int InfantryInt
+    {
+        get
         {
-            get
-            {
-                return _infantry;
-            }
-            set
-            {
-                if (value != _infantry)
-                {
-                    _infantry = value;
-                    ClampTo100(FormationClass.Infantry);
-                }
-
-                OnPropertyChanged("InfantryInt");
-                OnPropertyChanged("InfantryPercentage");
-            }
+            return _infantry;
         }
-
-        [DataSourceProperty]
-        public int RangedInt
+        set
         {
-            get
+            if (value != _infantry)
             {
-                return _ranged;
+                _infantry = value;
+                ClampTo100(FormationClass.Infantry);
             }
-            set
-            {
-                if (value != _ranged)
-                {
-                    _ranged = value;
-                    ClampTo100(FormationClass.Ranged);
-                }
 
-                OnPropertyChanged("RangedInt");
-                OnPropertyChanged("RangedPercentage");
-            }
+            OnPropertyChanged("InfantryInt");
+            OnPropertyChanged("InfantryPercentage");
         }
+    }
 
-        [DataSourceProperty]
-        public int CavalryInt
+    [DataSourceProperty]
+    public int RangedInt
+    {
+        get
         {
-            get
-            {
-                return _cavalry;
-            }
-            set
-            {
-                if (value != _cavalry)
-                {
-                    _cavalry = value;
-                    ClampTo100(FormationClass.Cavalry);
-                }
-
-                OnPropertyChanged("CavalryInt");
-                OnPropertyChanged("CavalryPercentage");
-            }
+            return _ranged;
         }
-
-        [DataSourceProperty]
-        public int HorseArcherInt
+        set
         {
-            get
+            if (value != _ranged)
             {
-                return _horseArcher;
+                _ranged = value;
+                ClampTo100(FormationClass.Ranged);
             }
-            set
-            {
-                if (value != _horseArcher)
-                {
-                    _horseArcher = value;
-                    ClampTo100(FormationClass.HorseArcher);
-                }
 
-                OnPropertyChanged("HorseArcherInt");
-                OnPropertyChanged("HorseArcherPercentage");
-            }
+            OnPropertyChanged("RangedInt");
+            OnPropertyChanged("RangedPercentage");
         }
+    }
 
-        private int Total => InfantryInt + RangedInt + CavalryInt + HorseArcherInt;
-
-        public void AcceptEditPartyComposition()
+    [DataSourceProperty]
+    public int CavalryInt
+    {
+        get
         {
-            PartyCompositionObect composition = new();
-            composition.Infantry = _infantry;
-            composition.Ranged = _ranged;
-            composition.Cavalry = _cavalry;
-            composition.HorseArcher = _horseArcher;
-            composition.Scale(0.01f);
-
-            _onSavePartyComposition.Invoke(composition);
+            return _cavalry;
         }
-
-        public void CancelEditPartyComposition()
+        set
         {
-            _onSavePartyComposition.Invoke(_settings.Composition.Clone());
+            if (value != _cavalry)
+            {
+                _cavalry = value;
+                ClampTo100(FormationClass.Cavalry);
+            }
+
+            OnPropertyChanged("CavalryInt");
+            OnPropertyChanged("CavalryPercentage");
         }
+    }
 
-        private void ClampTo100(FormationClass changedType)
+    [DataSourceProperty]
+    public int HorseArcherInt
+    {
+        get
         {
-            if (_doNotClamp)
+            return _horseArcher;
+        }
+        set
+        {
+            if (value != _horseArcher)
             {
-                return;
+                _horseArcher = value;
+                ClampTo100(FormationClass.HorseArcher);
             }
 
-            if (Total == 100)
-            {
-                return;
-            }
+            OnPropertyChanged("HorseArcherInt");
+            OnPropertyChanged("HorseArcherPercentage");
+        }
+    }
 
-            _doNotClamp = true;
+    private int Total => InfantryInt + RangedInt + CavalryInt + HorseArcherInt;
 
-            bool mayChangeMain = false;
-            while (Total != 100)
-            {
-                bool actionTaken = false;
-                foreach (FormationClass type in new FormationClass[] { FormationClass.Infantry, FormationClass.Ranged, FormationClass.Cavalry, FormationClass.HorseArcher })
-                {
-                    int sign = Total > 100 ? -1 : 1;
+    public void AcceptEditPartyComposition()
+    {
+        PartyCompositionObect composition = new();
+        composition.Infantry = _infantry;
+        composition.Ranged = _ranged;
+        composition.Cavalry = _cavalry;
+        composition.HorseArcher = _horseArcher;
+        composition.Scale(0.01f);
 
-                    if (type == changedType && !mayChangeMain)
-                    {
-                        continue;
-                    }
+        _onSavePartyComposition.Invoke(composition);
+    }
 
-                    if ((sign > 0 && this[type] >= 100) || (sign < 0 && this[type] <= 0))
-                    {
-                        continue;
-                    }
+    public void CancelEditPartyComposition()
+    {
+        _onSavePartyComposition.Invoke(_settings.Composition.Clone());
+    }
 
-                    if (!GetLocked(type))
-                    {
-                        this[type] += sign;
-                        actionTaken = true;
-                    }
-
-                    if (Total == 100)
-                    {
-                        break;
-                    }
-                }
-
-                if (!actionTaken)
-                {
-                    mayChangeMain = true;
-                }
-            }
-
-            _doNotClamp = false;
+    private void ClampTo100(FormationClass changedType)
+    {
+        if (_doNotClamp)
+        {
             return;
         }
 
-        public int this[FormationClass i]
+        if (Total == 100)
         {
-            get
+            return;
+        }
+
+        _doNotClamp = true;
+
+        bool mayChangeMain = false;
+        while (Total != 100)
+        {
+            bool actionTaken = false;
+            foreach (FormationClass type in new FormationClass[] { FormationClass.Infantry, FormationClass.Ranged, FormationClass.Cavalry, FormationClass.HorseArcher })
             {
-                switch (i)
+                int sign = Total > 100 ? -1 : 1;
+
+                if (type == changedType && !mayChangeMain)
                 {
-                    case FormationClass.Infantry: return InfantryInt;
-                    case FormationClass.Ranged: return RangedInt;
-                    case FormationClass.Cavalry: return CavalryInt;
-                    case FormationClass.HorseArcher: return HorseArcherInt;
-                    default: return 0;
+                    continue;
+                }
+
+                if ((sign > 0 && this[type] >= 100) || (sign < 0 && this[type] <= 0))
+                {
+                    continue;
+                }
+
+                if (!GetLocked(type))
+                {
+                    this[type] += sign;
+                    actionTaken = true;
+                }
+
+                if (Total == 100)
+                {
+                    break;
                 }
             }
-            set
+
+            if (!actionTaken)
             {
-                switch (i)
-                {
-                    case FormationClass.Infantry: InfantryInt = value; break;
-                    case FormationClass.Ranged: RangedInt = value; break;
-                    case FormationClass.Cavalry: CavalryInt = value; break;
-                    case FormationClass.HorseArcher: HorseArcherInt = value; break;
-                    default: break;
-                }
+                mayChangeMain = true;
             }
         }
 
-        private bool GetLocked(FormationClass type)
+        _doNotClamp = false;
+        return;
+    }
+
+    public int this[FormationClass i]
+    {
+        get
         {
-            switch (type)
+            switch (i)
             {
-                case FormationClass.Infantry:
-                    return IsInfantryLocked;
-                case FormationClass.Ranged:
-                    return IsRangedLocked;
-                case FormationClass.Cavalry:
-                    return IsCavalryLocked;
-                case FormationClass.HorseArcher:
-                    return IsHorseArcherLocked;
-                default:
-                    return false;
+                case FormationClass.Infantry: return InfantryInt;
+                case FormationClass.Ranged: return RangedInt;
+                case FormationClass.Cavalry: return CavalryInt;
+                case FormationClass.HorseArcher: return HorseArcherInt;
+                default: return 0;
             }
+        }
+        set
+        {
+            switch (i)
+            {
+                case FormationClass.Infantry: InfantryInt = value; break;
+                case FormationClass.Ranged: RangedInt = value; break;
+                case FormationClass.Cavalry: CavalryInt = value; break;
+                case FormationClass.HorseArcher: HorseArcherInt = value; break;
+                default: break;
+            }
+        }
+    }
+
+    private bool GetLocked(FormationClass type)
+    {
+        switch (type)
+        {
+            case FormationClass.Infantry:
+                return IsInfantryLocked;
+            case FormationClass.Ranged:
+                return IsRangedLocked;
+            case FormationClass.Cavalry:
+                return IsCavalryLocked;
+            case FormationClass.HorseArcher:
+                return IsHorseArcherLocked;
+            default:
+                return false;
         }
     }
 }

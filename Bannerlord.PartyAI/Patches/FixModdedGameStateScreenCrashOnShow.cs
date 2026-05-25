@@ -3,7 +3,7 @@ using TaleWorlds.Core;
 using TaleWorlds.MountAndBlade.View.Screens;
 using TaleWorlds.ScreenSystem;
 
-namespace Bannerlord.PartyAI.HarmonyPatches;
+namespace Bannerlord.PartyAI.Patches;
 
 internal class FixModdedGameStateScreenCrashOnShow
 {

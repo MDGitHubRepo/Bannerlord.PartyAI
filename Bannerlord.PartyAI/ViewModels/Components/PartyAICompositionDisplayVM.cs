@@ -3,117 +3,116 @@ using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace Bannerlord.PartyAI.ViewModels.Components
+namespace Bannerlord.PartyAI.ViewModels.Components;
+
+public class PartyAICompositionDisplayVM : ViewModel
 {
-    public class PartyAICompositionDisplayVM : ViewModel
+    private readonly PartyCompositionObect _composition;
+
+    private HintViewModel _infantryHint;
+
+    private HintViewModel _rangedHint;
+
+    private HintViewModel _cavalryHint;
+
+    private HintViewModel _horseArcherHint;
+
+    public PartyAICompositionDisplayVM(PartyCompositionObect composition, int spacing = 0)
     {
-        private readonly PartyCompositionObect _composition;
+        _composition = composition?.Clone() ?? new PartyCompositionObect(0.25f, 0.25f, 0.25f, 0.25f);
+        _composition.Scale(100);
 
-        private HintViewModel _infantryHint;
+        Spacing = spacing;
+    }
 
-        private HintViewModel _rangedHint;
+    [DataSourceProperty]
+    public string InfantryCount => ((int)Math.Round(_composition.Infantry)).ToString() + "%";
 
-        private HintViewModel _cavalryHint;
+    [DataSourceProperty]
+    public string RangedCount => ((int)Math.Round(_composition.Ranged)).ToString() + "%";
 
-        private HintViewModel _horseArcherHint;
+    [DataSourceProperty]
+    public string CavalryCount => ((int)Math.Round(_composition.Cavalry)).ToString() + "%";
 
-        public PartyAICompositionDisplayVM(PartyCompositionObect composition, int spacing = 0)
+    [DataSourceProperty]
+    public string HorseArcherCount => ((int)Math.Round(_composition.HorseArcher)).ToString() + "%";
+
+    [DataSourceProperty]
+    public HintViewModel InfantryHint
+    {
+        get
         {
-            _composition = composition?.Clone() ?? new PartyCompositionObect(0.25f, 0.25f, 0.25f, 0.25f);
-            _composition.Scale(100);
-
-            Spacing = spacing;
+            return _infantryHint;
         }
-
-        [DataSourceProperty]
-        public string InfantryCount => ((int)Math.Round(_composition.Infantry)).ToString() + "%";
-
-        [DataSourceProperty]
-        public string RangedCount => ((int)Math.Round(_composition.Ranged)).ToString() + "%";
-
-        [DataSourceProperty]
-        public string CavalryCount => ((int)Math.Round(_composition.Cavalry)).ToString() + "%";
-
-        [DataSourceProperty]
-        public string HorseArcherCount => ((int)Math.Round(_composition.HorseArcher)).ToString() + "%";
-
-        [DataSourceProperty]
-        public HintViewModel InfantryHint
+        set
         {
-            get
+            if (value != _infantryHint)
             {
-                return _infantryHint;
-            }
-            set
-            {
-                if (value != _infantryHint)
-                {
-                    _infantryHint = value;
-                    OnPropertyChangedWithValue(value, "InfantryHint");
-                }
+                _infantryHint = value;
+                OnPropertyChangedWithValue(value, "InfantryHint");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public HintViewModel RangedHint
+    [DataSourceProperty]
+    public HintViewModel RangedHint
+    {
+        get
         {
-            get
+            return _rangedHint;
+        }
+        set
+        {
+            if (value != _rangedHint)
             {
-                return _rangedHint;
-            }
-            set
-            {
-                if (value != _rangedHint)
-                {
-                    _rangedHint = value;
-                    OnPropertyChangedWithValue(value, "RangedHint");
-                }
+                _rangedHint = value;
+                OnPropertyChangedWithValue(value, "RangedHint");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public HintViewModel CavalryHint
+    [DataSourceProperty]
+    public HintViewModel CavalryHint
+    {
+        get
         {
-            get
+            return _cavalryHint;
+        }
+        set
+        {
+            if (value != _cavalryHint)
             {
-                return _cavalryHint;
-            }
-            set
-            {
-                if (value != _cavalryHint)
-                {
-                    _cavalryHint = value;
-                    OnPropertyChangedWithValue(value, "CavalryHint");
-                }
+                _cavalryHint = value;
+                OnPropertyChangedWithValue(value, "CavalryHint");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public HintViewModel HorseArcherHint
+    [DataSourceProperty]
+    public HintViewModel HorseArcherHint
+    {
+        get
         {
-            get
+            return _horseArcherHint;
+        }
+        set
+        {
+            if (value != _horseArcherHint)
             {
-                return _horseArcherHint;
-            }
-            set
-            {
-                if (value != _horseArcherHint)
-                {
-                    _horseArcherHint = value;
-                    OnPropertyChangedWithValue(value, "HorseArcherHint");
-                }
+                _horseArcherHint = value;
+                OnPropertyChangedWithValue(value, "HorseArcherHint");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public int Spacing { get; private set; }
+    [DataSourceProperty]
+    public int Spacing { get; private set; }
 
-        public PartyAICompositionDisplayVM()
-        {
-            InfantryHint = new HintViewModel(new TextObject("{=1Bm1Wk1v}Infantry"));
-            RangedHint = new HintViewModel(new TextObject("{=bIiBytSB}Archers"));
-            CavalryHint = new HintViewModel(new TextObject("{=YVGtcLHF}Cavalry"));
-            HorseArcherHint = new HintViewModel(new TextObject("{=I1CMeL9R}Mounted Archers"));
-        }
+    public PartyAICompositionDisplayVM()
+    {
+        InfantryHint = new HintViewModel(new TextObject("{=1Bm1Wk1v}Infantry"));
+        RangedHint = new HintViewModel(new TextObject("{=bIiBytSB}Archers"));
+        CavalryHint = new HintViewModel(new TextObject("{=YVGtcLHF}Cavalry"));
+        HorseArcherHint = new HintViewModel(new TextObject("{=I1CMeL9R}Mounted Archers"));
     }
 }

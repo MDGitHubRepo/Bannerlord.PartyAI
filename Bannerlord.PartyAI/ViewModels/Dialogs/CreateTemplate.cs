@@ -6,58 +6,57 @@ using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace Bannerlord.PartyAI.ViewModels.Dialogs
+namespace Bannerlord.PartyAI.ViewModels.Dialogs;
+
+internal static class CreateTemplate
 {
-    internal static class CreateTemplate
+    private static string _newTemplateName;
+
+    public static void Create()
     {
-        private static string _newTemplateName;
+        string titleText = new TextObject("{=PAZ8yCnPyxh}Create New Troop Template").ToString();
+        string innerText = new TextObject("{=PAO0HGBsJZd}Enter a name for your new party troop template.").ToString();
+        InformationManager.ShowTextInquiry(new TextInquiryData(titleText, innerText, isAffirmativeOptionShown: true, isNegativeOptionShown: true, GameTexts.FindText("str_next").ToString(), GameTexts.FindText("str_cancel").ToString(), OnTemplateNamed, null, shouldInputBeObfuscated: false, IsTemplateNameValid));
+    }
 
-        public static void Create()
+    private static Tuple<bool, string> IsTemplateNameValid(string name)
+    {
+        int minimum = 2;
+        if (name.Length < minimum)
         {
-            string titleText = new TextObject("{=PAZ8yCnPyxh}Create New Troop Template").ToString();
-            string innerText = new TextObject("{=PAO0HGBsJZd}Enter a name for your new party troop template.").ToString();
-            InformationManager.ShowTextInquiry(new TextInquiryData(titleText, innerText, isAffirmativeOptionShown: true, isNegativeOptionShown: true, GameTexts.FindText("str_next").ToString(), GameTexts.FindText("str_cancel").ToString(), OnTemplateNamed, null, shouldInputBeObfuscated: false, IsTemplateNameValid));
+            return new Tuple<bool, string>(false, new TextObject("{=PAHxbYi6Awy}Minimum {MIN} characters").SetTextVariable("MIN", minimum).ToString());
         }
 
-        private static Tuple<bool, string> IsTemplateNameValid(string name)
+        int maximum = 20;
+        if (name.Length > maximum)
         {
-            int minimum = 2;
-            if (name.Length < minimum)
-            {
-                return new Tuple<bool, string>(false, new TextObject("{=PAHxbYi6Awy}Minimum {MIN} characters").SetTextVariable("MIN", minimum).ToString());
-            }
-
-            int maximum = 20;
-            if (name.Length > maximum)
-            {
-                return new Tuple<bool, string>(false, new TextObject("{=PAbGk5vWaqM}Maximum {MAX} characters").SetTextVariable("MAX", maximum).ToString());
-            }
-
-            if (!SubModule.PartySettingsManager.IsUniqueTemplateName(name))
-            {
-                return new Tuple<bool, string>(false, new TextObject("{=PAuu16DcbWX}There is already a template with that name.").ToString());
-            }
-
-            return new Tuple<bool, string>(true, String.Empty);
+            return new Tuple<bool, string>(false, new TextObject("{=PAbGk5vWaqM}Maximum {MAX} characters").SetTextVariable("MAX", maximum).ToString());
         }
 
-        private static void OnTemplateNamed(string name)
+        if (!SubModule.PartySettingsManager.IsUniqueTemplateName(name))
         {
-            _newTemplateName = name;
-            TextObject leftPartyName = new("{=PAirAdxXSc5}Eligible Troops");
-            TextObject rightPartyName = new("{=PA3a9D3vJpb}Chosen Troops");
-            TextObject header = new("{=PAH9JlPJqJC}Create New Template");
-            VMUtilities.OpenPartyScreen(SubModule.PartySettingsManager.GetAllTopTierTroops(), null, leftPartyName, rightPartyName, header, TemplateCreateDoneHandler);
+            return new Tuple<bool, string>(false, new TextObject("{=PAuu16DcbWX}There is already a template with that name.").ToString());
         }
 
-        private static bool TemplateCreateDoneHandler(TroopRoster leftMemberRoster, TroopRoster leftPrisonRoster, TroopRoster rightMemberRoster, TroopRoster rightPrisonRoster, FlattenedTroopRoster takenPrisonerRoster, FlattenedTroopRoster releasedPrisonerRoster, bool isForced, PartyBase leftParty = null, PartyBase rightParty = null)
-        {
-            PAICustomTemplate template = new(
-              _newTemplateName,
-              rightMemberRoster
-            );
+        return new Tuple<bool, string>(true, String.Empty);
+    }
 
-            return true;
-        }
+    private static void OnTemplateNamed(string name)
+    {
+        _newTemplateName = name;
+        TextObject leftPartyName = new("{=PAirAdxXSc5}Eligible Troops");
+        TextObject rightPartyName = new("{=PA3a9D3vJpb}Chosen Troops");
+        TextObject header = new("{=PAH9JlPJqJC}Create New Template");
+        VMUtilities.OpenPartyScreen(SubModule.PartySettingsManager.GetAllTopTierTroops(), null, leftPartyName, rightPartyName, header, TemplateCreateDoneHandler);
+    }
+
+    private static bool TemplateCreateDoneHandler(TroopRoster leftMemberRoster, TroopRoster leftPrisonRoster, TroopRoster rightMemberRoster, TroopRoster rightPrisonRoster, FlattenedTroopRoster takenPrisonerRoster, FlattenedTroopRoster releasedPrisonerRoster, bool isForced, PartyBase leftParty = null, PartyBase rightParty = null)
+    {
+        PAICustomTemplate template = new(
+          _newTemplateName,
+          rightMemberRoster
+        );
+
+        return true;
     }
 }

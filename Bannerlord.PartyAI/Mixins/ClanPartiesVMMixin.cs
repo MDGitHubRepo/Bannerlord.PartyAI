@@ -2,18 +2,17 @@
 using Bannerlord.UIExtenderEx.ViewModels;
 using TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement.Categories;
 
-namespace Bannerlord.PartyAI.Mixins
-{
-    [ViewModelMixin(nameof(ClanPartiesVM.RefreshValues))]
-    internal class ClanPartiesVMMixin : BaseViewModelMixin<ClanPartiesVM>
-    {
-        internal ClanPartiesVM _vm;
-        internal static ClanPartiesVMMixin Instance;
+namespace Bannerlord.PartyAI.Mixins;
 
-        public ClanPartiesVMMixin(ClanPartiesVM vm) : base(vm)
-        {
-            _vm = vm;
-            Instance = this;
-        }
+[ViewModelMixin(nameof(ClanPartiesVM.RefreshValues))]
+internal class ClanPartiesVMMixin : BaseViewModelMixin<ClanPartiesVM>
+{
+    internal ClanPartiesVM _vm;
+    internal static ClanPartiesVMMixin Instance;
+
+    public ClanPartiesVMMixin(ClanPartiesVM vm) : base(vm)
+    {
+        _vm = vm;
+        Instance = this;
     }
 }

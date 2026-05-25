@@ -3,90 +3,89 @@ using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
-namespace Bannerlord.PartyAI.ViewModels.Components
+namespace Bannerlord.PartyAI.ViewModels.Components;
+
+public class PartyAIOptionToggleVM : ViewModel
 {
-    public class PartyAIOptionToggleVM : ViewModel
+    private string _text;
+    private bool _isSelected;
+    private HintViewModel _hint;
+    private bool _isDisabled;
+    private readonly Action<bool> _onChange;
+
+    public PartyAIOptionToggleVM(TextObject text, bool isSelected, TextObject hint, Action<bool> onChange = null)
     {
-        private string _text;
-        private bool _isSelected;
-        private HintViewModel _hint;
-        private bool _isDisabled;
-        private readonly Action<bool> _onChange;
+        Text = text.ToString();
+        IsSelected = isSelected;
+        Hint = new HintViewModel(hint ?? new TextObject(""));
+        _onChange = onChange;
+    }
 
-        public PartyAIOptionToggleVM(TextObject text, bool isSelected, TextObject hint, Action<bool> onChange = null)
+    [DataSourceProperty]
+    public string Text
+    {
+        get
         {
-            Text = text.ToString();
-            IsSelected = isSelected;
-            Hint = new HintViewModel(hint ?? new TextObject(""));
-            _onChange = onChange;
+            return _text;
         }
-
-        [DataSourceProperty]
-        public string Text
+        set
         {
-            get
+            if (value != _text)
             {
-                return _text;
-            }
-            set
-            {
-                if (value != _text)
-                {
-                    _text = value;
-                    OnPropertyChangedWithValue(value, "Text");
-                }
+                _text = value;
+                OnPropertyChangedWithValue(value, "Text");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public bool IsSelected
+    [DataSourceProperty]
+    public bool IsSelected
+    {
+        get
         {
-            get
+            return _isSelected;
+        }
+        set
+        {
+            if (value != _isSelected)
             {
-                return _isSelected;
-            }
-            set
-            {
-                if (value != _isSelected)
-                {
-                    _onChange?.Invoke(value);
-                    _isSelected = value;
-                    OnPropertyChangedWithValue(value, "IsSelected");
-                }
+                _onChange?.Invoke(value);
+                _isSelected = value;
+                OnPropertyChangedWithValue(value, "IsSelected");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public bool IsDisabled
+    [DataSourceProperty]
+    public bool IsDisabled
+    {
+        get
         {
-            get
+            return _isDisabled;
+        }
+        set
+        {
+            if (value != _isDisabled)
             {
-                return _isDisabled;
-            }
-            set
-            {
-                if (value != _isDisabled)
-                {
-                    _isDisabled = value;
-                    OnPropertyChangedWithValue(value, "IsDisabled");
-                }
+                _isDisabled = value;
+                OnPropertyChangedWithValue(value, "IsDisabled");
             }
         }
+    }
 
-        [DataSourceProperty]
-        public HintViewModel Hint
+    [DataSourceProperty]
+    public HintViewModel Hint
+    {
+        get
         {
-            get
+            return _hint;
+        }
+        set
+        {
+            if (value != _hint)
             {
-                return _hint;
-            }
-            set
-            {
-                if (value != _hint)
-                {
-                    _hint = value;
-                    OnPropertyChangedWithValue(value, "Hint");
-                }
+                _hint = value;
+                OnPropertyChangedWithValue(value, "Hint");
             }
         }
     }
