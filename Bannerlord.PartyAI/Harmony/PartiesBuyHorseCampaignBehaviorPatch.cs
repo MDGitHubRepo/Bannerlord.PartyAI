@@ -1,5 +1,4 @@
-﻿using Bannerlord.PartyAI;
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -12,13 +11,16 @@ using TaleWorlds.Library;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    [HarmonyPatch]
     internal class PartiesBuyHorseCampaignBehaviorPatch
     {
+        public static void Apply(Harmony harmony)
+        {
+            harmony.Patch<PartiesBuyHorseCampaignBehavior>()
+                .Method(x => x.OnSettlementEntered(default, default, default))
+                    .Prefix(OnSettlementEnteredPrefix);
+        }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(PartiesBuyHorseCampaignBehavior), "OnSettlementEntered")]
-        internal static bool Prefix(MobileParty mobileParty, Settlement settlement, Hero hero)
+        private static bool OnSettlementEnteredPrefix(MobileParty mobileParty, Settlement settlement, Hero hero)
         {
             if (mobileParty?.LeaderHero == null || mobileParty == MobileParty.MainParty || mobileParty.IsDisbanding || settlement == null)
             {

@@ -1,5 +1,4 @@
-﻿using Bannerlord.PartyAI;
-using HarmonyLib;
+﻿using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors.AiBehaviors;
 using TaleWorlds.CampaignSystem.Party;
@@ -7,10 +6,16 @@ using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    [HarmonyPatch(typeof(AiVisitSettlementBehavior), "GetApproximateVolunteersCanBeRecruitedDataFromSettlement")]
     internal class AiVisitSettlementBehaviorPatches
     {
-        internal static void Postfix(ref (int, float) __result, Hero hero, Settlement settlement)
+        public static void Apply(Harmony harmony)
+        {
+            harmony.Patch<AiVisitSettlementBehavior>()
+                .Method("GetApproximateVolunteersCanBeRecruitedDataFromSettlement")
+                    .Postfix(GetApproximateVolunteersCanBeRecruitedDataFromSettlementPostfix);
+        }
+
+        private static void GetApproximateVolunteersCanBeRecruitedDataFromSettlementPostfix(ref (int, float) __result, Hero hero, Settlement settlement)
         {
             if (!SubModule.PartySettingsManager.IsHeroManageable(hero) ||
                 hero.PartyBelongedTo == null ||

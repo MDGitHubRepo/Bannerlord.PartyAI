@@ -1,5 +1,4 @@
-﻿using Bannerlord.PartyAI;
-using HarmonyLib;
+﻿using HarmonyLib;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Map;
@@ -8,20 +7,24 @@ using TaleWorlds.Library;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    [HarmonyPatch(typeof(MobilePartyAi))]
     internal class MobilePartyAiPatches
     {
         private const float AggroRadius = 15f;
         private const float MaxDistanceFromPatrolPoint = 100f;
+
+        public static void Apply(Harmony harmony)
+        {
+            harmony.Patch<MobilePartyAi>()
+                .Method("GetBehaviors")
+                    .Postfix(GetBehaviorsPostfix);
+        }
 
         /// <summary>
         /// Postfix on GetBehaviors:
         /// If the AI decided “PatrolAroundPoint” AND AggressivePatrols is enabled,
         /// then scan for nearby enemy parties and override the output to EngageParty.
         /// </summary>
-        [HarmonyPostfix]
-        [HarmonyPatch("GetBehaviors")]
-        private static void Postfix(
+        private static void GetBehaviorsPostfix(
             ref AiBehavior bestAiBehavior,
             ref IInteractablePoint behaviorObject,
             ref CampaignVec2 bestTargetPoint,

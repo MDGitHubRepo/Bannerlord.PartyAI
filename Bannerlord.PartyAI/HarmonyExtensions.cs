@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using HarmonyLib.BUTR.Extensions;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -18,58 +19,110 @@ public class HarmonyPatchBuilder
 {
     private readonly Harmony _harmony;
 
+    private MethodBase? _method;
+
     public HarmonyPatchBuilder(Harmony harmony)
     {
         _harmony = harmony;
     }
 
-    public HarmonyPatchBuilder Prefix<T>(
-        Expression<Action<T>> target,
-        Delegate prefix)
+    public HarmonyPatchBuilder Method<T>(
+        Expression<Action<T>> target)
     {
-        Apply(target, prefix: prefix);
+        _method = ResolveMethod<T>(target);
         return this;
     }
 
-    public HarmonyPatchBuilder Prefix<T>(
-        Expression<Func<T, object>> target,
-        Delegate prefix)
+    public HarmonyPatchBuilder Method<T>(
+        Expression<Func<T, object>> target)
     {
-        Apply(target, prefix: prefix);
+        _method = ResolveMethod<T>(target);
         return this;
     }
 
-    public HarmonyPatchBuilder Postfix<T>(
-        Expression<Action<T>> target,
-        Delegate postfix)
+    public HarmonyPatchBuilder Method<T>(
+        string targetMethodName)
     {
-        Apply(target, postfix: postfix);
+        _method = AccessTools2.Method(typeof(T), targetMethodName);
         return this;
     }
 
-    public HarmonyPatchBuilder Postfix<T>(
-        Expression<Func<T, object>> target,
-        Delegate postfix)
+    public HarmonyPatchBuilder Method(Expression<Action> target)
     {
-        Apply(target, postfix: postfix);
+        _method = ExtractMethod(target);
+        return this;
+    }
+
+    public HarmonyPatchBuilder Method<TResult>(
+        Expression<Func<TResult>> target)
+    {
+        _method = ExtractMethod(target);
+        return this;
+    }
+
+    public HarmonyPatchBuilder Method(
+        Type type,
+        string targetMethodName)
+    {
+        _method = AccessTools2.Method(type, targetMethodName);
+        return this;
+    }
+
+    public HarmonyPatchBuilder Constructor<T>(Type[]? parameters = null)
+    {
+        _method = AccessTools2.Constructor(typeof(T), parameters);
+        return this;
+    }
+
+    public HarmonyPatchBuilder Prefix(Delegate prefix)
+    {
+        Apply(_method, prefix: prefix);
+        return this;
+    }
+
+    public HarmonyPatchBuilder Postfix(Delegate postfix)
+    {
+        Apply(_method, postfix: postfix);
         return this;
     }
 
     protected void Apply(
-        LambdaExpression target,
+        MethodBase? original,
         Delegate? prefix = null,
         Delegate? postfix = null,
         Delegate? transpiler = null,
         Delegate? finalizer = null)
     {
-        MethodInfo original = ExtractMethod(target);
-
         var prefixMethod = prefix is null ? null : new HarmonyMethod(prefix);
         var postfixMethod = postfix is null ? null : new HarmonyMethod(postfix);
         var transpilerMethod = transpiler is null ? null : new HarmonyMethod(transpiler);
         var finalizerMethod = finalizer is null ? null : new HarmonyMethod(finalizer);
 
         _harmony.Patch(original, prefixMethod, postfixMethod, transpilerMethod, finalizerMethod);
+    }
+
+    private static MethodInfo ResolveMethod<T>(LambdaExpression expression)
+    {
+        var extracted = ExtractMethod(expression);
+
+        if (!extracted.IsVirtual)
+        {
+            return extracted;
+        }
+
+        var parameters = extracted.GetParameters()
+            .Select(p => p.ParameterType)
+            .ToArray();
+
+        return typeof(T).GetMethod(
+            extracted.Name,
+            BindingFlags.Instance |
+            BindingFlags.Static |
+            BindingFlags.Public |
+            BindingFlags.NonPublic,
+            null,
+            parameters,
+            null) ?? extracted;
     }
 
     private static MethodInfo ExtractMethod(LambdaExpression expression)
@@ -110,35 +163,42 @@ public class HarmonyPatchBuilder<T> : HarmonyPatchBuilder
 {
     public HarmonyPatchBuilder(Harmony harmony) : base(harmony) { }
 
-    public HarmonyPatchBuilder<T> Prefix(
-        Expression<Func<T, object>> target,
-        Delegate prefix)
+    public HarmonyPatchBuilder<T> Method(
+        Expression<Action<T>> target)
     {
-        Apply(target, prefix: prefix);
+        base.Method<T>(target);
         return this;
     }
 
-    public HarmonyPatchBuilder<T> Prefix(
-        Expression<Action<T>> target,
-        Delegate prefix)
+    public HarmonyPatchBuilder<T> Method(
+        Expression<Func<T, object>> target)
     {
-        Apply(target, prefix: prefix);
+        base.Method<T>(target);
         return this;
     }
 
-    public HarmonyPatchBuilder<T> Postfix(
-        Expression<Func<T, object>> target,
-        Delegate postfix)
+    public HarmonyPatchBuilder<T> Method(
+        string targetMethodName)
     {
-        Apply(target, postfix: postfix);
+        base.Method<T>(targetMethodName);
         return this;
     }
 
-    public HarmonyPatchBuilder<T> Postfix(
-        Expression<Action<T>> target,
-        Delegate postfix)
+    public HarmonyPatchBuilder<T> Constructor(Type[]? parameters = null)
     {
-        Apply(target, postfix: postfix);
+        base.Constructor<T>(parameters);
+        return this;
+    }
+
+    public HarmonyPatchBuilder<T> Prefix(Delegate prefix)
+    {
+        base.Prefix(prefix);
+        return this;
+    }
+
+    public HarmonyPatchBuilder<T> Postfix(Delegate postfix)
+    {
+        base.Postfix(postfix);
         return this;
     }
 }

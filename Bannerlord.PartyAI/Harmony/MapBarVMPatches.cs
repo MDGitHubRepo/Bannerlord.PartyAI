@@ -5,12 +5,20 @@ using TaleWorlds.Localization;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    [HarmonyPatch(typeof(MapBarVM), "UpdateCanGatherArmyAndReason")]
     internal class MapBarVMPatches
     {
-        private static readonly bool _bannerKingsLoaded = AccessTools.TypeByName("BannerKings.Main") != null;
+        private static bool _bannerKingsLoaded;
 
-        private static void Postfix(MapBarVM __instance)
+        public static void Apply(Harmony harmony, bool bannerKingsLoaded)
+        {
+            _bannerKingsLoaded = bannerKingsLoaded;
+
+            harmony.Patch<MapBarVM>()
+                .Method("UpdateCanGatherArmyAndReason")
+                    .Postfix(UpdateCanGatherArmyAndReasonPostfix);
+        }
+
+        private static void UpdateCanGatherArmyAndReasonPostfix(MapBarVM __instance)
         {
             if (_bannerKingsLoaded)
             {

@@ -4,12 +4,18 @@ using TaleWorlds.Localization;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    [HarmonyPatch]
     internal class PartyVMPatches
     {
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PartyVM), "TitleLbl", MethodType.Getter)]
-        private static void TitleLbl(ref string __result, PartyVM __instance)
+        public static void Apply(Harmony harmony)
+        {
+            harmony.Patch<PartyVM>()
+                .Method(x => x.TitleLbl)
+                    .Postfix(TitleLblPostfix)
+                .Method(x => x.ExecuteDone())
+                    .Postfix(ExecuteDonePostfix);
+        }
+
+        private static void TitleLblPostfix(ref string __result, PartyVM __instance)
         {
             if (__result != __instance.HeaderLbl)
             {
@@ -17,13 +23,11 @@ namespace Bannerlord.PartyAI.HarmonyPatches
             }
         }
 
-        // refreshes text on done button tooltip if it didn't auto update itself
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(PartyVM), "ExecuteDone")]
-        private static void ExecuteDone(PartyVM __instance)
+        private static void ExecuteDonePostfix(PartyVM __instance)
         {
             try
             {
+                // refreshes text on done button tooltip if it didn't auto update itself
                 if (!__instance.PartyScreenLogic.IsDoneActive())
                 {
                     __instance.IsDoneDisabled = !__instance.PartyScreenLogic.IsDoneActive();

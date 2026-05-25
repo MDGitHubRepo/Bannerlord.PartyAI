@@ -1,15 +1,21 @@
-﻿using Bannerlord.PartyAI;
-using HarmonyLib;
+﻿using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    [HarmonyPatch(typeof(TakePrisonerAction), "ApplyInternal")]
     internal class TakePrisonerActionPatches
     {
-        private static void Prefix(PartyBase capturerParty, Hero prisonerCharacter, ref bool isEventCalled)
+        public static void Apply(Harmony harmony)
+        {
+            harmony.Patch()
+                .Method(typeof(TakePrisonerAction), "ApplyInternal")
+                    .Prefix(ApplyInternalPrefix)
+                    .Postfix(ApplyInternalPostfix);
+        }
+
+        private static void ApplyInternalPrefix(PartyBase capturerParty, Hero prisonerCharacter, ref bool isEventCalled)
         {
             if (!SubModule.PartySettingsManager.IsHeroManageable(capturerParty?.LeaderHero))
             {
@@ -22,7 +28,7 @@ namespace Bannerlord.PartyAI.HarmonyPatches
             }
         }
 
-        private static void Postfix(PartyBase capturerParty, Hero prisonerCharacter, bool isEventCalled)
+        private static void ApplyInternalPostfix(PartyBase capturerParty, Hero prisonerCharacter, bool isEventCalled)
         {
             if (!SubModule.PartySettingsManager.IsHeroManageable(capturerParty?.LeaderHero))
             {

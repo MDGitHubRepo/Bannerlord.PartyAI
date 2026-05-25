@@ -6,12 +6,16 @@ using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    [HarmonyPatch]
     internal class CaravansCampaignBehaviorPatches
     {
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(CaravansCampaignBehavior), "GetTradeScoreForTown")]
-        private static void Postfix(ref float __result, MobileParty caravanParty, Town town, CampaignTime lastHomeVisitTimeOfCaravan, float caravanFullness, bool distanceCut)
+        public static void Apply(Harmony harmony)
+        {
+            harmony.Patch<CaravansCampaignBehavior>()
+                .Method("GetTradeScoreForTown")
+                    .Postfix(GetTradeScoreForTownPostfix);
+        }
+
+        private static void GetTradeScoreForTownPostfix(ref float __result, MobileParty caravanParty, Town town, CampaignTime lastHomeVisitTimeOfCaravan, float caravanFullness, bool distanceCut)
         {
             if (!SubModule.PartySettingsManager.IsCaravanManageable(caravanParty.LeaderHero)) { return; }
 

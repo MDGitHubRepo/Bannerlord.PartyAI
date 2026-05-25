@@ -4,16 +4,26 @@ using TaleWorlds.CampaignSystem;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    // this patches an issue where Army._hourlyTickEvent will be null for some reason and cause a crash on army dispersion
-
-    [HarmonyPatch(typeof(Army), "DisperseInternal")]
     internal class ArmyPatches
     {
-        private static readonly FieldInfo _hourlyTickEvent = AccessTools.Field(typeof(Army), "_hourlyTickEvent");
-        private static readonly MethodInfo AddEventHandlers = AccessTools.Method(typeof(Army), "AddEventHandlers");
-        private static void Prefix(Army __instance)
+        private static FieldInfo HourlyTickEvent = default!;
+        private static MethodInfo AddEventHandlers = default!;
+
+        public static void Apply(Harmony harmony)
         {
-            if (_hourlyTickEvent.GetValue(__instance) == null)
+            HourlyTickEvent = AccessTools.Field(typeof(Army), "_hourlyTickEvent");
+            AddEventHandlers = AccessTools.Method(typeof(Army), "AddEventHandlers");
+
+            harmony.Patch<Army>()
+                .Method("DisperseInternal")
+                    .Prefix(DisperseInternalPrefix);
+        }
+
+        private static void DisperseInternalPrefix(Army __instance)
+        {
+            // this patches an issue where Army._hourlyTickEvent will be null for some reason
+            // and cause a crash on army dispersion
+            if (HourlyTickEvent.GetValue(__instance) == null)
             {
                 AddEventHandlers.Invoke(__instance, new object[] { });
             }

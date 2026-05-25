@@ -1,21 +1,25 @@
-﻿using Bannerlord.PartyAI;
-using HarmonyLib;
+﻿using HarmonyLib;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    [HarmonyPatch(typeof(GarrisonTroopsCampaignBehavior))]
     internal static class LeaveTroopsToSettlementActionPatch
     {
+        public static void Apply(Harmony harmony)
+        {
+            harmony.Patch<GarrisonTroopsCampaignBehavior>()
+                .Method("LeaveTroopsToGarrison")
+                    .Prefix(LeaveTroopsToGarrisonPrefix)
+                .Method("TakeTroopsFromGarrison")
+                    .Prefix(TakeTroopsFromGarrisonPrefix);
+        }
+
         // =========================
         // BLOCK DONATING TO GARRISON
         // =========================
-
-        [HarmonyPatch("LeaveTroopsToGarrison")]
-        [HarmonyPrefix]
-        private static bool Prefix_LeaveTroopsToGarrison(
+        private static bool LeaveTroopsToGarrisonPrefix(
             MobileParty mobileParty,
             Settlement settlement,
             int numberOfTroopsToLeave,
@@ -36,10 +40,7 @@ namespace Bannerlord.PartyAI.HarmonyPatches
         // =========================
         // BLOCK TAKING FROM GARRISON
         // =========================
-
-        [HarmonyPatch("TakeTroopsFromGarrison")]
-        [HarmonyPrefix]
-        private static bool Prefix_TakeTroopsFromGarrison(
+        private static bool TakeTroopsFromGarrisonPrefix(
             MobileParty mobileParty,
             Settlement settlement,
             int numberOfTroopsToTake,

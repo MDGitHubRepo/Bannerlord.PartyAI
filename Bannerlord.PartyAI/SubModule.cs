@@ -171,17 +171,32 @@ namespace Bannerlord.PartyAI
             harmony.PatchAll();
 
             AiMilitaryBehaviorPatches.Apply(harmony);
+            AiVisitSettlementBehaviorPatches.Apply(harmony);
+            ArmyPatches.Apply(harmony);
+            CampaignEventDispatcherPatches.Apply(harmony);
+            CaravansCampaignBehaviorPatches.Apply(harmony);
+            DisbandArmyActionPatches.Apply(harmony);
             FixModdedGameStateScreenCrashOnShow.Apply(harmony);
+            GauntletClanScreenPatches.Apply(harmony);
             InventoryLogicPatches.Apply(harmony);
+            LeaveTroopsToSettlementActionPatch.Apply(harmony);
+            MobilePartyAiPatches.Apply(harmony);
+            MobilePartyPatches.Apply(harmony);
+            PartiesBuyHorseCampaignBehaviorPatch.Apply(harmony);
+            PartyVMPatches.Apply(harmony);
+            RecruitmentCampaignBehaviorPatches.Apply(harmony);
+            TakePrisonerActionPatches.Apply(harmony);
         }
 
         private static void TryApplyBannerKingsConflictPatches(Harmony harmony)
         {
             var bannerKingsLoaded = AccessTools.TypeByName("BannerKings.Main") != null;
+
+            MapBarVMPatches.Apply(harmony, bannerKingsLoaded);
+
             if (!bannerKingsLoaded)
             {
-                harmony.Patch(AccessTools.Method(typeof(ArmyManagementVM), "ExecuteDone"), postfix: new(typeof(ArmyManagementVMPatches.ExecuteDone), "Postfix"));
-                harmony.Patch(AccessTools.Method(typeof(ArmyManagementVM), "RefreshValues"), postfix: new(typeof(ArmyManagementVMPatches.Constructor), "Postfix"));
+                ArmyManagementVMPatches.Apply(harmony);
             }
         }
 

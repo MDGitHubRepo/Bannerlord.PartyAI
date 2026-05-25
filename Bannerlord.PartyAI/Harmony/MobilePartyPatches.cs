@@ -1,5 +1,4 @@
-﻿using Bannerlord.PartyAI;
-using HarmonyLib;
+﻿using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
@@ -11,13 +10,23 @@ using static Bannerlord.PartyAI.PAICustomOrder;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    [HarmonyPatch]
-    internal class AssumingControlPatches
+    internal class MobilePartyPatches
     {
+        public static void Apply(Harmony harmony)
+        {
+            harmony.Patch<MobileParty>()
+                .Method(x => x.SetMoveGoToPoint(default, default))
+                    .Postfix(SetMoveGoToPointPostfix)
+                .Method(x => x.SetMoveEngageParty(default, default))
+                    .Postfix(SetMoveEngagePartyPostfix)
+                .Method(x => x.SetMoveEscortParty(default, default, default))
+                    .Postfix(SetMoveEscortPartyPostfix)
+                .Method(x => x.SetMoveGoToSettlement(default, default, default))
+                    .Postfix(SetMoveGoToSettlementPostfix);
+        }
+
         // === GO TO POINT (CLICK ON MAP) ===
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(MobileParty), "SetMoveGoToPoint")]
-        private static void SetMoveGoToPoint(
+        private static void SetMoveGoToPointPostfix(
             MobileParty __instance,
             CampaignVec2 point,
             MobileParty.NavigationType navigationType
@@ -76,9 +85,7 @@ namespace Bannerlord.PartyAI.HarmonyPatches
         }
 
         // === ENGAGE PARTY (ATTACK ORDER) ===
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(MobileParty), "SetMoveEngageParty")]
-        private static void SetMoveEngageParty(
+        private static void SetMoveEngagePartyPostfix(
             MobileParty __instance,
             MobileParty party
         )
@@ -147,21 +154,17 @@ namespace Bannerlord.PartyAI.HarmonyPatches
         }
 
         // === ESCORT PARTY (VANILLA FOLLOW ORDER) ===
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(MobileParty), "SetMoveEscortParty")]
-        private static void SetMoveEscortParty(
+        private static void SetMoveEscortPartyPostfix(
             MobileParty __instance,
             MobileParty mobileParty
         )
         {
             // Reuse the same logic as engaging / escorting
-            SetMoveEngageParty(__instance, mobileParty);
+            SetMoveEngagePartyPostfix(__instance, mobileParty);
         }
 
         // === GO TO SETTLEMENT ===
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(MobileParty), "SetMoveGoToSettlement")]
-        private static void SetMoveGoToSettlement(
+        private static void SetMoveGoToSettlementPostfix(
             MobileParty __instance,
             Settlement settlement
         )

@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using HarmonyLib.BUTR.Extensions;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors.AiBehaviors;
@@ -8,14 +7,13 @@ using static Bannerlord.PartyAI.PAICustomOrder;
 
 namespace Bannerlord.PartyAI.HarmonyPatches
 {
-    [HarmonyPatch(typeof(AiMilitaryBehavior), "AiHourlyTick")]
     internal class AiMilitaryBehaviorPatches
     {
         public static void Apply(Harmony harmony)
         {
-            var originalMethod = AccessTools2.DeclaredMethod(typeof(AiMilitaryBehavior), "AiHourlyTick");
-            var postfix = AccessTools2.DeclaredMethod(typeof(AiMilitaryBehaviorPatches), nameof(AiHourlyTickPostfix));
-            harmony.TryPatch(originalMethod, postfix: postfix);
+            harmony.Patch<AiMilitaryBehavior>()
+                .Method("AiHourlyTick")
+                    .Postfix(AiHourlyTickPostfix);
         }
 
         private static void AiHourlyTickPostfix(MobileParty mobileParty, PartyThinkParams partyThinkParams)

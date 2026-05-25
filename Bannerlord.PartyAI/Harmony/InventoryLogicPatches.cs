@@ -11,7 +11,8 @@ internal class InventoryLogicPatches
     public static void Apply(Harmony harmony)
     {
         harmony.Patch<InventoryLogic>()
-            .Postfix(x => x.CanGainXpFromDiscarding, CanGainXpFromDiscardingPostfix);
+            .Method(x => x.CanGainXpFromDiscarding)
+                .Postfix(CanGainXpFromDiscardingPostfix);
     }
 
     // PreventDonationExploit

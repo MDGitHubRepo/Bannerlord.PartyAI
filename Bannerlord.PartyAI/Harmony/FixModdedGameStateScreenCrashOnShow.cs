@@ -10,15 +10,13 @@ internal class FixModdedGameStateScreenCrashOnShow
     public static void Apply(Harmony harmony)
     {
         harmony.Patch()
-            .Prefix<GameStateScreenManager>(
-                x => x.CreateScreen(null),
-                CreateScreenPrefix)
-            .Prefix<PartyAIControlsMenuState>(
-                x => x.RegisterListener(null),
-                RegisterListenerPrefix);
+            .Method<GameStateScreenManager>(x => x.CreateScreen(null))
+                .Prefix(CreateScreenPrefix)
+            .Method<PartyAIControlsMenuState>(x => x.RegisterListener(null))
+                .Prefix(RegisterListenerPrefix);
     }
 
-    public static bool CreateScreenPrefix(GameStateScreenManager __instance, ref ScreenBase __result, GameState state)
+    private static bool CreateScreenPrefix(GameStateScreenManager __instance, ref ScreenBase __result, GameState state)
     {
         if (state is not PartyAIControlsMenuState partyAIControlsMenuState)
         {
@@ -32,7 +30,7 @@ internal class FixModdedGameStateScreenCrashOnShow
         return false;
     }
 
-    public static bool RegisterListenerPrefix(PartyAIControlsMenuState __instance, ref bool __result, IGameStateListener listener)
+    private static bool RegisterListenerPrefix(PartyAIControlsMenuState __instance, ref bool __result, IGameStateListener listener)
     {
         // Do not register null listeners (causes null exception later down the line)
         // What's funny is that the vanilla code DOES check for null, but it still proceeds to add it.
