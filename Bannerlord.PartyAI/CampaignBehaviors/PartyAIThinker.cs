@@ -1,4 +1,5 @@
 ﻿//NEW
+using Bannerlord.PartyAI.Domain;
 using Helpers;
 using System;
 using System.Collections.Generic;
@@ -194,10 +195,11 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
 
         // buy horses while waiting in settlements
-        //if (party.CurrentSettlement != null)
-        //{
-        //    PartiesBuyHorseCampaignBehaviorPatch.Prefix(party, party.CurrentSettlement, party.LeaderHero);
-        //}
+        if (party.CurrentSettlement != null)
+        {
+            PartyHorseTrading.TryBuyAndSellHorses(party, party.CurrentSettlement);
+        }
+
         var partySettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
         if (partySettings == null) return;
         PartyAIClanPartySettings settings = partySettings;
