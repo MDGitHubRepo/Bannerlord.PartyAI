@@ -196,10 +196,10 @@ namespace Bannerlord.PartyAI.CampaignBehaviors
             }
 
             // buy horses while waiting in settlements
-            if (party.CurrentSettlement != null)
-            {
-                PartiesBuyHorseCampaignBehaviorPatch.Prefix(party, party.CurrentSettlement, party.LeaderHero);
-            }
+            //if (party.CurrentSettlement != null)
+            //{
+            //    PartiesBuyHorseCampaignBehaviorPatch.Prefix(party, party.CurrentSettlement, party.LeaderHero);
+            //}
             var partySettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
             if (partySettings == null) return;
             PartyAIClanPartySettings settings = partySettings;
@@ -391,24 +391,27 @@ namespace Bannerlord.PartyAI.CampaignBehaviors
 
         internal void ProcessOrder(MobileParty party, PartyThinkParams thinkParams)
         {
-            if (party?.LeaderHero == null) return;
-            if (!SubModule.PartySettingsManager.IsHeroManageable(party.LeaderHero))
+            if (party?.LeaderHero is null
+                || !SubModule.PartySettingsManager.IsHeroManageable(party.LeaderHero))
             {
                 return;
             }
-            if (party.Army != null && party.Army.LeaderParty != party)
-            {
-                return;
-            }
+
             PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
-            if (settings == null) return;
+            if (settings is null)
+            {
+                return;
+            }
+
             ImplementAllowRaidingVillages(party, thinkParams, settings);
             ImplementAllowJoiningArmies(party, thinkParams, settings);
             ImplementAllowBesieging(party, thinkParams, settings);
+
             if (!settings.HasActiveOrder)
             {
                 return;
             }
+
             if (settings.Order.Behavior != OrderType.PatrolAroundPoint &&
                 settings.Order.Behavior != OrderType.PatrolClanLands)
             {
@@ -418,6 +421,7 @@ namespace Bannerlord.PartyAI.CampaignBehaviors
                     return;
                 }
             }
+
             IMapPoint target = settings.Order.Target;
             PartyObjective existingObjective = party.Objective;
             List<(AIBehaviorData, float)> newParams;
@@ -1312,13 +1316,16 @@ namespace Bannerlord.PartyAI.CampaignBehaviors
 
         private void ImplementAllowJoiningArmies(MobileParty party, PartyThinkParams thinkParams, PartyAIClanPartySettings settings)
         {
-            if (settings.AllowAllowJoinArmies)
+            var army = party.Army;
+            if (army is null)
             {
                 return;
             }
 
-            // leave army if setting is disabled
-            if (party.Army != null && !party.Army.LeaderParty.LeaderHero.Equals(party.LeaderHero) && !party.Army.LeaderParty.LeaderHero.Equals(Hero.MainHero))
+            var armyLeaderHero = army.LeaderParty?.LeaderHero;
+            if (!settings.AllowAllowJoinArmies
+                && armyLeaderHero != party.LeaderHero
+                && armyLeaderHero != Hero.MainHero)
             {
                 LeaveArmy(party, thinkParams);
             }

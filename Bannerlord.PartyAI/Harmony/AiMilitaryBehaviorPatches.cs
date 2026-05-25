@@ -16,10 +16,15 @@ namespace Bannerlord.PartyAI.HarmonyPatches
                     .Postfix(AiHourlyTickPostfix);
         }
 
-        private static void AiHourlyTickPostfix(MobileParty mobileParty, PartyThinkParams partyThinkParams)
+        private static void AiHourlyTickPostfix(MobileParty mobileParty, PartyThinkParams p)
         {
-            PreventSoloRaidingAndSieging(mobileParty, partyThinkParams);
-            RemoveBusyArmyMemberCandidates(mobileParty, partyThinkParams);
+            PreventSoloRaidingAndSieging(mobileParty, p);
+
+            var leaderParty = mobileParty.Army?.LeaderParty;
+            if (leaderParty is not null && mobileParty == leaderParty)
+            {
+                RemoveBusyArmyMemberCandidates(leaderParty, p);
+            }
         }
 
         private static void PreventSoloRaidingAndSieging(MobileParty mobileParty, PartyThinkParams partyThinkParams)
@@ -58,10 +63,14 @@ namespace Bannerlord.PartyAI.HarmonyPatches
             }
         }
 
-        private static void RemoveBusyArmyMemberCandidates(MobileParty mobileParty, PartyThinkParams p)
+        private static void RemoveBusyArmyMemberCandidates(MobileParty leaderParty, PartyThinkParams partyThinkParams)
         {
-            List<MobileParty> armyMembers = p.PossibleArmyMembersUponArmyCreation;
-            var leaderParty = mobileParty.Army.LeaderParty;
+            List<MobileParty> armyMembers = partyThinkParams.PossibleArmyMembersUponArmyCreation;
+
+            if (armyMembers is null)
+            {
+                return;
+            }
 
             for (int index = armyMembers.Count - 1; index >= 0; index--)
             {
