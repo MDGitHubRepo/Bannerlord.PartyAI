@@ -16,7 +16,7 @@ namespace Bannerlord.PartyAI;
 public class PartyAIClanPartySettings
 {
     [SaveableProperty(1)] public Hero Hero { get; private set; }
-    [SaveableProperty(2)] public bool AllowAllowJoinArmies { get; set; } = true;
+    [SaveableProperty(2)] public bool AllowJoinArmies { get; set; } = true;
     [SaveableProperty(3)] public bool AllowDonateTroops { get; set; } = true;
     [SaveableProperty(4)] public bool AllowRaidVillages { get; set; } = true;
     [SaveableProperty(5)] public PAICustomTemplate PartyTemplate { get; set; }
@@ -114,7 +114,7 @@ public class PartyAIClanPartySettings
 
     internal void CopyOptionsFrom(PartyAIClanPartySettings settings)
     {
-        AllowAllowJoinArmies = settings.AllowAllowJoinArmies;
+        AllowJoinArmies = settings.AllowJoinArmies;
         AllowDonateTroops = settings.AllowDonateTroops;
         AllowSieging = settings.AllowSieging;
         AllowRaidVillages = settings.AllowRaidVillages;

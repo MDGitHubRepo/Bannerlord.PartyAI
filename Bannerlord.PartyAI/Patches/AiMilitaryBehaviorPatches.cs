@@ -89,7 +89,7 @@ internal class AiMilitaryBehaviorPatches
 
             PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(candidate.LeaderHero);
 
-            if (!settings.AllowAllowJoinArmies)
+            if (!settings.AllowJoinArmies)
             {
                 armyMembers.RemoveAt(index);
                 continue;

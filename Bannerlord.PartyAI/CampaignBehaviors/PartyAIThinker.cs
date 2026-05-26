@@ -1323,7 +1323,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
 
         var armyLeaderHero = army.LeaderParty?.LeaderHero;
-        if (!settings.AllowAllowJoinArmies
+        if (!settings.AllowJoinArmies
             && armyLeaderHero != party.LeaderHero
             && armyLeaderHero != Hero.MainHero)
         {

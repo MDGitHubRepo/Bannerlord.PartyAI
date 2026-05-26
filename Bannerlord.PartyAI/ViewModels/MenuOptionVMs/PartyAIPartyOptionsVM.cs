@@ -33,7 +33,7 @@ public class PartyAIPartyOptionsVM : ViewModel
             TitleText = new TextObject("{=PAIgiGgAlAm}Edit Party Options").ToString();
         }
 
-        AllowJoinArmiesToggle = new PartyAIOptionToggleVM(new TextObject("{=PAClaZBMEprx}May Join Armies"), _settings.AllowAllowJoinArmies, new TextObject("{=PAD5Oih6uaW}Allow this party to join kingdom armies. Even with this setting disabled the party will be allowed to join your army."));
+        AllowJoinArmiesToggle = new PartyAIOptionToggleVM(new TextObject("{=PAClaZBMEprx}May Join Armies"), _settings.AllowJoinArmies, new TextObject("{=PAD5Oih6uaW}Allow this party to join kingdom armies. Even with this setting disabled the party will be allowed to join your army."));
         AllowDonateTroopsToggle = new PartyAIOptionToggleVM(new TextObject("{=PAhInSCxPlc}May Donate Troops To Garrisons"), _settings.AllowDonateTroops, new TextObject("{=PAIYcYomRnV}Allow this party to donate troops to friendly garrisons."));
         AllowTakeTroopsFromSettlementToggle = new PartyAIOptionToggleVM(new TextObject("{=PAhQoukaUbN}May Take Troops From Settlements"), _settings.AllowTakeTroopsFromSettlement, new TextObject("{=PAIRCSZxGNl}Allow this party to take troops from your garrisons."));
         AllowSiegingToggle = new PartyAIOptionToggleVM(new TextObject("{=PAIJB8EuhJN}May Besiege"), _settings.AllowSieging, new TextObject("{=PAIHANhrppA}Allow this party to besiege towns and castles. If disabled, parties will leave armies that are sieging, refunding the influence to the army leader."));
@@ -146,7 +146,7 @@ public class PartyAIPartyOptionsVM : ViewModel
 
     public void AcceptEditPartyOptions()
     {
-        _settings.AllowAllowJoinArmies = AllowJoinArmiesToggle.IsSelected;
+        _settings.AllowJoinArmies = AllowJoinArmiesToggle.IsSelected;
         _settings.AllowDonateTroops = AllowDonateTroopsToggle.IsSelected;
         _settings.AllowTakeTroopsFromSettlement = AllowTakeTroopsFromSettlementToggle.IsSelected;
         _settings.AllowSieging = AllowSiegingToggle.IsSelected;
