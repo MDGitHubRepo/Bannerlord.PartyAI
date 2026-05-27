@@ -1,17 +1,13 @@
 ﻿using Bannerlord.PartyAI.CampaignBehaviors;
+using Bannerlord.PartyAI.Domain;
 using Bannerlord.PartyAI.Models;
 using Bannerlord.PartyAI.Patches;
 using Bannerlord.UIExtenderEx;
 using HarmonyLib;
-using System.Collections.Generic;
-using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.GameState;
-using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
-using TaleWorlds.Core.ImageIdentifiers;
-using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 using TaleWorlds.MountAndBlade;
@@ -21,20 +17,40 @@ namespace Bannerlord.PartyAI;
 public class SubModule : MBSubModuleBase
 {
     private static readonly string Namespace = typeof(SubModule).Namespace;
+    private static bool Applied = false;
 
     private Harmony _harmony = new(Namespace);
-
-    private bool _isChoosePartiesPopupOpenAlready = false;
 
     internal static PartyAIClanPartySettingsManager PartySettingsManager;
     internal static PartyAITroopRecruiter PartyTroopRecruiter;
     internal static PartyAIThinker PartyThinker;
-    internal static PartyAIDetachmentManager DetachmentManager;
     internal static PAInformationManager InformationManager;
+
+    protected override void OnSubModuleLoad()
+    {
+        ApplyPatches(_harmony);
+
+        var extender = UIExtender.Create(Namespace);
+        extender.Register(typeof(SubModule).Assembly);
+        extender.Enable();
+
+        base.OnSubModuleLoad();
+    }
+
+    protected override void OnBeforeInitialModuleScreenSetAsRoot()
+    {
+        if (!Applied) // TODO: Figure out a better way
+        {
+            TryApplyBannerKingsConflictPatches(_harmony);
+            Applied = true;
+        }
+
+        base.OnBeforeInitialModuleScreenSetAsRoot();
+    }
 
     protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
     {
-        if ((game.GameType is not Campaign))
+        if (game.GameType is not Campaign)
         {
             return;
         }
@@ -49,11 +65,6 @@ public class SubModule : MBSubModuleBase
 
         PartyThinker = new PartyAIThinker();
         campaignGameStarter.AddBehavior(PartyThinker);
-
-        //DetachmentManager = new();
-        //campaignGameStarter.AddBehavior(DetachmentManager);
-
-        //campaignGameStarter.AddBehavior(new PartyAIFoodBuyer());
 
         AddGameModels(campaignGameStarter);
 
@@ -77,108 +88,34 @@ public class SubModule : MBSubModuleBase
         TaleWorlds.Library.InformationManager.DisplayMessage(new InformationMessage(new TextObject("{=PAIEUwVpMPm}Thank you for using Party AI Controls! To access the configuration panel, press {KEYBIND}!").SetTextVariable("KEYBIND", keycombo).ToString(), Colors.Green));
     }
 
-    private void ValidateGameModel(GameModel model)
-    {
-        var modelType = model.GetType();
-        var modelAssembly = model.GetType().Assembly;
-        var thisAssembly = GetType().Assembly;
-
-        if (modelAssembly == thisAssembly)
-        {
-            return;
-        }
-
-        if (!modelType.BaseType.IsAbstract)
-        {
-            var thisAssemblyName = thisAssembly.GetName().Name;
-            var modelAssemblyName = modelAssembly.GetName().Name;
-
-            TextObject error = new($"{{=I2LlBDKr}}Game Model Error: Please move {thisAssemblyName} "
-                + $"below {modelAssemblyName} in your load order to ensure mod compatibility");
-
-            TaleWorlds.Library.InformationManager.DisplayMessage(new InformationMessage(error.ToString(), Colors.Red));
-        }
-    }
-
     protected override void OnApplicationTick(float dt)
     {
         var activeState = Game.Current?.GameStateManager?.ActiveState;
 
         if (activeState == null
-                  || activeState is not MapState
-                  || activeState.IsMenuState
-                  || activeState is MissionState
-                  || Mission.Current != null
-           )
+            || activeState is not MapState
+            || activeState.IsMenuState
+            || activeState is MissionState
+            || Mission.Current != null)
         {
             return;
         }
 
-        if ((Input.IsKeyDown(PartySettingsManager.ControlPanelModiferKey)
-            || PartySettingsManager.ControlPanelModiferKey == InputKey.Invalid)
-            && Input.IsKeyDown(PartySettingsManager.ControlPanelKey))
+        if (ControlPanel.IsKeyCombinationDown())
         {
-            GameStateManager.Current.PushState(GameStateManager.Current.CreateState<PartyAIControlsMenuState>());
+            ControlPanel.Open();
             return;
         }
 
-        if ((Input.IsKeyDown(PartySettingsManager.CommandedPartiesModiferKey) || PartySettingsManager.CommandedPartiesModiferKey == InputKey.Invalid) && Input.IsKeyDown(PartySettingsManager.CommandedPartiesKey))
+        if (ControlAssumption.IsKeyCombinationDown())
         {
-            if (_isChoosePartiesPopupOpenAlready) { return; }
-            CampaignTimeControlMode mode = Campaign.Current.TimeControlMode;
-            Campaign.Current.TimeControlMode = CampaignTimeControlMode.FastForwardStop;
-            string title = new TextObject("{=PAIFHytp3D7}Choose which parties to directly command").ToString();
-            string desc = new TextObject("{=PAIRzSgh49H}Parties must be manageable and in visual range to appear here.").ToString();
-            List<InquiryElement> list = MobileParty.AllLordParties.Where(m => PartySettingsManager.IsHeroManageable(m.LeaderHero) && m.GetPosition2D.Distance(MobileParty.MainParty.GetPosition2D) <= MobileParty.MainParty.SeeingRange).Where(m => m.Army == null || m.Army.LeaderParty == m).OrderByDescending(m => m.ActualClan.Equals(Clan.PlayerClan)).ThenBy(m => m.Name?.ToString()).ToList().ConvertAll(m => new InquiryElement(m, m.Name.ToString(), new CharacterImageIdentifier(CharacterCode.CreateFrom(m.LeaderHero?.CharacterObject))));
-
-            MBInformationManager.ShowMultiSelectionInquiry(
-              new(title, desc, list, isExitShown: true, minSelectableOptionCount: 0, maxSelectableOptionCount: list.Count, GameTexts.FindText("str_done").ToString(), GameTexts.FindText("str_cancel").ToString(),
-                affirmativeAction: (List<InquiryElement> results) =>
-                {
-                    PartyThinker.ClearAssumingDirectControl();
-                    foreach (InquiryElement e in results)
-                    {
-                        if (e.Identifier is MobileParty m)
-                        {
-                            PartyThinker.AddToAssumingDirectControl(m);
-                        }
-                    }
-                    _isChoosePartiesPopupOpenAlready = false;
-                    Campaign.Current.TimeControlMode = mode;
-                },
-                (List<InquiryElement> results) =>
-                {
-                    _isChoosePartiesPopupOpenAlready = false;
-                    Campaign.Current.TimeControlMode = mode;
-                }, isSeachAvailable: true
-              )
-            );
-            _isChoosePartiesPopupOpenAlready = true;
+            ControlAssumption.OpenPopup();
+            return;
         }
-    }
-
-    protected override void OnSubModuleLoad()
-    {
-        ApplyPatches(_harmony);
-
-        var extender = UIExtender.Create(Namespace);
-        extender.Register(typeof(SubModule).Assembly);
-        extender.Enable();
-
-        base.OnSubModuleLoad();
-    }
-
-    protected override void OnBeforeInitialModuleScreenSetAsRoot()
-    {
-        TryApplyBannerKingsConflictPatches(_harmony);
-
-        base.OnBeforeInitialModuleScreenSetAsRoot();
     }
 
     private static void ApplyPatches(Harmony harmony)
     {
-        harmony.PatchAll();
-
         AiMilitaryBehaviorPatches.Apply(harmony);
         AiVisitSettlementBehaviorPatches.Apply(harmony);
         ArmyPatches.Apply(harmony);
@@ -214,6 +151,29 @@ public class SubModule : MBSubModuleBase
         // but as of 1.4.5 the base GameModel isn't initialized in the non-generic method
         // Great job as always TaleWorlds
         starter.AddModel<TModel>(new TDecorator());
+    }
+
+    private void ValidateGameModel(GameModel model)
+    {
+        var modelType = model.GetType();
+        var modelAssembly = model.GetType().Assembly;
+        var thisAssembly = GetType().Assembly;
+
+        if (modelAssembly == thisAssembly)
+        {
+            return;
+        }
+
+        if (!modelType.BaseType.IsAbstract)
+        {
+            var thisAssemblyName = thisAssembly.GetName().Name;
+            var modelAssemblyName = modelAssembly.GetName().Name;
+
+            TextObject error = new($"{{=I2LlBDKr}}Game Model Error: Please move {thisAssemblyName} "
+                + $"below {modelAssemblyName} in your load order to ensure mod compatibility");
+
+            TaleWorlds.Library.InformationManager.DisplayMessage(new InformationMessage(error.ToString(), Colors.Red));
+        }
     }
 
     private static void TryApplyBannerKingsConflictPatches(Harmony harmony)
