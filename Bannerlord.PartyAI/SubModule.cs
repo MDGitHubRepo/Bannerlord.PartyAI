@@ -56,6 +56,7 @@ public class SubModule : MBSubModuleBase
         //campaignGameStarter.AddBehavior(new PartyAIFoodBuyer());
 
         campaignGameStarter.AddModel(new PAITroopUpgradeModel(GetGameModel<PartyTroopUpgradeModel>(gameStarterObject)));
+        campaignGameStarter.AddModel(new PAIArmyManagementCalculationModel(GetGameModel<ArmyManagementCalculationModel>(gameStarterObject)));
         campaignGameStarter.AddModel(new PAIPrisonerRecruitmentCalculationModel(GetGameModel<PrisonerRecruitmentCalculationModel>(gameStarterObject)));
         campaignGameStarter.AddModel(new PAISettlementGarrisonModel(GetGameModel<SettlementGarrisonModel>(gameStarterObject)));
         campaignGameStarter.AddModel(new PAIPartyFoodBuyingModel(GetGameModel<PartyFoodBuyingModel>(gameStarterObject)));
