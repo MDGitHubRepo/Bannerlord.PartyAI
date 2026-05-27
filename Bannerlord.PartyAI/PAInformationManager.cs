@@ -144,16 +144,6 @@ internal class PAInformationManager : GlobalLayer
         _layer3.RegisterState();
     }
 
-    public void ShowDetachmentsInquiry()
-    {
-        if (!CheckContext()) { return; }
-        _layer1.LoadMovie("PartyAIDetachments", new PartyAIDetachmentsVM(() =>
-        {
-            _layer1.CloseQuery();
-        }));
-        _layer1.RegisterState();
-    }
-
     public void ShowNumberPickerInquiry(int initialValue, int minValue, int maxValue, string title, string description, Action<int> callback, bool isPercentage = true)
     {
         if (!CheckContext()) { return; }

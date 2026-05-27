@@ -5,7 +5,6 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.InputSystem;
 using TaleWorlds.SaveSystem;
 using static Bannerlord.PartyAI.PAICustomOrder;
-using static Bannerlord.PartyAI.PAIDetachmentConfig;
 
 namespace Bannerlord.PartyAI;
 
@@ -20,14 +19,12 @@ internal class PAISaveableTypeDefiner : SaveableTypeDefiner
         AddClassDefinition(typeof(PartyCompositionObect), 3);
         AddClassDefinition(typeof(PAICustomOrder), 4);
         AddClassDefinition(typeof(PAISettlementVisitLog), 5);
-        AddClassDefinition(typeof(PAIDetachmentConfig), 6);
     }
 
     protected override void DefineEnumTypes()
     {
         AddEnumDefinition(typeof(OrderType), 1001);
         AddEnumDefinition(typeof(InputKey), 1002);
-        AddEnumDefinition(typeof(DetachmentType), 1003);
     }
 
     protected override void DefineContainerDefinitions()
@@ -40,6 +37,5 @@ internal class PAISaveableTypeDefiner : SaveableTypeDefiner
         ConstructContainerDefinition(typeof(Dictionary<Settlement, CampaignTime>));
         ConstructContainerDefinition(typeof(List<PAISettlementVisitLog>));
         ConstructContainerDefinition(typeof(List<PAICustomOrder>));
-        ConstructContainerDefinition(typeof(List<PAIDetachmentConfig>));
     }
 }
