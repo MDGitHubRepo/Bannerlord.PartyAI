@@ -82,10 +82,23 @@ public class SubModule : MBSubModuleBase
 
     private void ValidateGameModel(GameModel model)
     {
-        if (model.GetType().Assembly == GetType().Assembly) { return; }
-        if (!model.GetType().BaseType.IsAbstract)
+        var modelType = model.GetType();
+        var modelAssembly = model.GetType().Assembly;
+        var thisAssembly = GetType().Assembly;
+
+        if (modelAssembly == thisAssembly)
         {
-            TextObject error = new("{=I2LlBDKr}Game Model Error: Please move " + GetType().Assembly.GetName().Name + " below " + model.GetType().Assembly.GetName().Name + " in your load order to ensure mod compatibility");
+            return;
+        }
+
+        if (!modelType.BaseType.IsAbstract)
+        {
+            var thisAssemblyName = thisAssembly.GetName().Name;
+            var modelAssemblyName = modelAssembly.GetName().Name;
+
+            TextObject error = new($"{{=I2LlBDKr}}Game Model Error: Please move {thisAssemblyName} "
+                + $"below {modelAssemblyName} in your load order to ensure mod compatibility");
+
             TaleWorlds.Library.InformationManager.DisplayMessage(new InformationMessage(error.ToString(), Colors.Red));
         }
     }
