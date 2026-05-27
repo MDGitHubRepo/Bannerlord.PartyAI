@@ -24,7 +24,7 @@ internal class PartyAIFoodBuyer : CampaignBehaviorBase
 
     public void HourlyTickParty(MobileParty mobileParty)
     {
-        if (!SubModule.DetatchmentManager.IsDetatchment(mobileParty)) { return; }
+        if (!SubModule.DetachmentManager.IsDetachment(mobileParty)) { return; }
         Settlement currentSettlementOfMobilePartyForAICalculation = MobilePartyHelper.GetCurrentSettlementOfMobilePartyForAICalculation(mobileParty);
         if (currentSettlementOfMobilePartyForAICalculation != null)
         {
@@ -34,7 +34,7 @@ internal class PartyAIFoodBuyer : CampaignBehaviorBase
 
     public void OnSettlementEntered(MobileParty mobileParty, Settlement settlement, Hero hero)
     {
-        if (!SubModule.DetatchmentManager.IsDetatchment(mobileParty)) { return; }
+        if (!SubModule.DetachmentManager.IsDetachment(mobileParty)) { return; }
         TryBuyingFood(mobileParty, settlement);
     }
 

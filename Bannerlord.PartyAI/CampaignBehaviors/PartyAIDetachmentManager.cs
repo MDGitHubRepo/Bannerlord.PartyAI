@@ -11,7 +11,7 @@ namespace Bannerlord.PartyAI.CampaignBehaviors;
 
 internal class PartyAIDetachmentManager : CampaignBehaviorBase
 {
-    private List<PAIDetatchmentConfig> _detatchments = new();
+    private List<PAIDetachmentConfig> _detachments = new();
 
     public override void RegisterEvents()
     {
@@ -24,11 +24,11 @@ internal class PartyAIDetachmentManager : CampaignBehaviorBase
         return PartyAIThinker.SafeGet(() => settlement.GatePosition, PartyAIThinker.SafeGet(() => new CampaignVec2(settlement.GetPosition2D, true), CampaignVec2.Zero));
     }
 
-    internal void CreateNewDetatchment(TroopRoster roster, PAIDetatchmentConfig config)
+    internal void CreateNewDetachment(TroopRoster roster, PAIDetachmentConfig config)
     {
         CampaignVec2 spawnPoint;
         Settlement home;
-        TextObject name = new("{=PAIxQtQFzxH}Detatchment of {NAME}");
+        TextObject name = new("{=PAIxQtQFzxH}Detachment of {NAME}");
         Clan clan;
 
         if (config.Target is Settlement s)
@@ -63,13 +63,13 @@ internal class PartyAIDetachmentManager : CampaignBehaviorBase
             customPartyBaseSpeed: 4f            // same as old code
         );
 
-        _detatchments.Add(config);
+        _detachments.Add(config);
     }
 
-    internal bool IsDetatchment(MobileParty party) => party != null && _detatchments.Any(d => d.Party == party);
+    internal bool IsDetachment(MobileParty party) => party != null && _detachments.Any(d => d.Party == party);
 
     public override void SyncData(IDataStore dataStore)
     {
-        dataStore.SyncData("_detatchments", ref _detatchments);
+        dataStore.SyncData("_detachments", ref _detachments);
     }
 }

@@ -19,7 +19,7 @@ internal class PartyAIDetachmentsVM : ViewModel
 
     public PartyAIDetachmentsVM(Action callback)
     {
-        TitleText = new TextObject("{=PAIgAsElRcK}Detatchment Management").ToString();
+        TitleText = new TextObject("{=PAIgAsElRcK}Detachment Management").ToString();
         IsVisible = true;
 
         _onClose = callback;
@@ -68,9 +68,9 @@ internal class PartyAIDetachmentsVM : ViewModel
 
             List<InquiryElement> typeList = new();
             IMapPoint target = party.IsGarrison ? party.CurrentSettlement : party;
-            typeList.Add(new(new PAIDetatchmentConfig(PAIDetatchmentConfig.DetatchmentType.Recruiter, target), new TextObject("{=PAINxQlJwm0}Recruiter").ToString(), null));
+            typeList.Add(new(new PAIDetachmentConfig(PAIDetachmentConfig.DetachmentType.Recruiter, target), new TextObject("{=PAINxQlJwm0}Recruiter").ToString(), null));
 
-            MBInformationManager.ShowMultiSelectionInquiry(new(new TextObject("{=PAIlhut21a1}Choose Detatchment Type").ToString(),
+            MBInformationManager.ShowMultiSelectionInquiry(new(new TextObject("{=PAIlhut21a1}Choose Detachment Type").ToString(),
         string.Empty, typeList, true, 1, 1, GameTexts.FindText("str_next").ToString(), GameTexts.FindText("str_cancel").ToString(), (List<InquiryElement> config) =>
         {
             VMUtilities.OpenPartyScreen(TroopRoster.CreateDummyTroopRoster(), party.MemberRoster,
@@ -83,7 +83,7 @@ internal class PartyAIDetachmentsVM : ViewModel
         },
         doneDelegate: (TroopRoster leftMemberRoster, TroopRoster leftPrisonRoster, TroopRoster rightMemberRoster, TroopRoster rightPrisonRoster, FlattenedTroopRoster takenPrisonerRoster, FlattenedTroopRoster releasedPrisonerRoster, bool isForced, PartyBase leftParty, PartyBase rightParty) =>
         {
-            SubModule.DetatchmentManager.CreateNewDetatchment(leftMemberRoster, config.First().Identifier as PAIDetatchmentConfig);
+            SubModule.DetachmentManager.CreateNewDetachment(leftMemberRoster, config.First().Identifier as PAIDetachmentConfig);
             IsVisible = true;
             return true;
         },

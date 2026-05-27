@@ -248,18 +248,18 @@ public class PartyCompositionObect
     }
 }
 
-public class PAIDetatchmentConfig
+public class PAIDetachmentConfig
 {
-    public enum DetatchmentType
+    public enum DetachmentType
     {
         Recruiter
     }
 
     [SaveableProperty(1)] public IMapPoint Target { get; set; }
-    [SaveableProperty(2)] public DetatchmentType Type { get; set; }
+    [SaveableProperty(2)] public DetachmentType Type { get; set; }
     [SaveableProperty(3)] public MobileParty Party { get; set; }
 
-    public PAIDetatchmentConfig(DetatchmentType type, IMapPoint target)
+    public PAIDetachmentConfig(DetachmentType type, IMapPoint target)
     {
         Type = type;
         Target = target;

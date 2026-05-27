@@ -29,7 +29,7 @@ public class SubModule : MBSubModuleBase
     internal static PartyAIClanPartySettingsManager PartySettingsManager;
     internal static PartyAITroopRecruiter PartyTroopRecruiter;
     internal static PartyAIThinker PartyThinker;
-    internal static PartyAIDetachmentManager DetatchmentManager;
+    internal static PartyAIDetachmentManager DetachmentManager;
     internal static PAInformationManager InformationManager;
 
     protected override void OnGameStart(Game game, IGameStarter gameStarterObject)
@@ -50,8 +50,8 @@ public class SubModule : MBSubModuleBase
         PartyThinker = new PartyAIThinker();
         campaignGameStarter.AddBehavior(PartyThinker);
 
-        //DetatchmentManager = new();
-        //campaignGameStarter.AddBehavior(DetatchmentManager);
+        //DetachmentManager = new();
+        //campaignGameStarter.AddBehavior(DetachmentManager);
 
         //campaignGameStarter.AddBehavior(new PartyAIFoodBuyer());
 
