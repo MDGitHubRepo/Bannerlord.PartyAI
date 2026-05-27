@@ -55,11 +55,7 @@ public class SubModule : MBSubModuleBase
 
         //campaignGameStarter.AddBehavior(new PartyAIFoodBuyer());
 
-        campaignGameStarter.AddModel(new PAITroopUpgradeModel(GetGameModel<PartyTroopUpgradeModel>(gameStarterObject)));
-        campaignGameStarter.AddModel(new PAIArmyManagementCalculationModel(GetGameModel<ArmyManagementCalculationModel>(gameStarterObject)));
-        campaignGameStarter.AddModel(new PAIPrisonerRecruitmentCalculationModel(GetGameModel<PrisonerRecruitmentCalculationModel>(gameStarterObject)));
-        campaignGameStarter.AddModel(new PAISettlementGarrisonModel(GetGameModel<SettlementGarrisonModel>(gameStarterObject)));
-        campaignGameStarter.AddModel(new PAIPartyFoodBuyingModel(GetGameModel<PartyFoodBuyingModel>(gameStarterObject)));
+        AddGameModels(campaignGameStarter);
 
         InformationManager = new();
     }
@@ -201,6 +197,25 @@ public class SubModule : MBSubModuleBase
         TakePrisonerActionPatches.Apply(harmony);
     }
 
+    private static void AddGameModels(CampaignGameStarter starter)
+    {
+        AddModel<PartyTroopUpgradeModel, PAITroopUpgradeModel>(starter);
+        AddModel<ArmyManagementCalculationModel, PAIArmyManagementCalculationModel>(starter);
+        AddModel<PrisonerRecruitmentCalculationModel, PAIPrisonerRecruitmentCalculationModel>(starter);
+        AddModel<SettlementGarrisonModel, PAISettlementGarrisonModel>(starter);
+        AddModel<PartyFoodBuyingModel, PAIPartyFoodBuyingModel>(starter);
+    }
+
+    private static void AddModel<TModel, TDecorator>(CampaignGameStarter starter)
+        where TModel : GameModel
+        where TDecorator : MBGameModel<TModel>, new()
+    {
+        // static analysis is suggesting to remove the generic argument from method
+        // but as of 1.4.5 the base GameModel isn't initialized in the non-generic method
+        // Great job as always TaleWorlds
+        starter.AddModel<TModel>(new TDecorator());
+    }
+
     private static void TryApplyBannerKingsConflictPatches(Harmony harmony)
     {
         var bannerKingsLoaded = AccessTools.TypeByName("BannerKings.Main") != null;
@@ -211,16 +226,5 @@ public class SubModule : MBSubModuleBase
         {
             ArmyManagementVMPatches.Apply(harmony);
         }
-    }
-
-    private T GetGameModel<T>(IGameStarter gameStarterObject) where T : GameModel
-    {
-        GameModel[] array = gameStarterObject.Models.ToArray();
-        for (int index = array.Length - 1; index >= 0; --index)
-        {
-            if (array[index] is T gameModel)
-                return gameModel;
-        }
-        return default(T);
     }
 }

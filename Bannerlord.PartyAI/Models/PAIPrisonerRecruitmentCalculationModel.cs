@@ -7,37 +7,29 @@ namespace Bannerlord.PartyAI.Models;
 
 internal class PAIPrisonerRecruitmentCalculationModel : PrisonerRecruitmentCalculationModel
 {
-    readonly PrisonerRecruitmentCalculationModel _previousModel;
-
-    public PAIPrisonerRecruitmentCalculationModel(PrisonerRecruitmentCalculationModel previousModel)
-    {
-        _previousModel = previousModel;
-        _previousModel ??= new DefaultPrisonerRecruitmentCalculationModel();
-    }
-
     public override int CalculateRecruitableNumber(PartyBase party, CharacterObject character)
     {
-        return _previousModel.CalculateRecruitableNumber(party, character);
+        return BaseModel.CalculateRecruitableNumber(party, character);
     }
 
     public override ExplainedNumber GetConformityChangePerHour(PartyBase party, CharacterObject character)
     {
-        return _previousModel.GetConformityChangePerHour(party, character);
+        return BaseModel.GetConformityChangePerHour(party, character);
     }
 
     public override int GetConformityNeededToRecruitPrisoner(CharacterObject character)
     {
-        return _previousModel.GetConformityNeededToRecruitPrisoner(character);
+        return BaseModel.GetConformityNeededToRecruitPrisoner(character);
     }
 
     public override int GetPrisonerRecruitmentMoraleEffect(PartyBase party, CharacterObject character, int num)
     {
-        return _previousModel.GetPrisonerRecruitmentMoraleEffect(party, character, num);
+        return BaseModel.GetPrisonerRecruitmentMoraleEffect(party, character, num);
     }
 
     public override bool IsPrisonerRecruitable(PartyBase party, CharacterObject character, out int conformityNeeded)
     {
-        bool result = _previousModel.IsPrisonerRecruitable(party, character, out conformityNeeded);
+        bool result = BaseModel.IsPrisonerRecruitable(party, character, out conformityNeeded);
 
         if (!SubModule.PartySettingsManager.IsHeroManageable(party.LeaderHero))
         {
@@ -68,6 +60,6 @@ internal class PAIPrisonerRecruitmentCalculationModel : PrisonerRecruitmentCalcu
 
     public override bool ShouldPartyRecruitPrisoners(PartyBase party)
     {
-        return _previousModel.ShouldPartyRecruitPrisoners(party);
+        return BaseModel.ShouldPartyRecruitPrisoners(party);
     }
 }

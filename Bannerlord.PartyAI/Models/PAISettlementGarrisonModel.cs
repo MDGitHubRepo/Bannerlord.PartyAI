@@ -8,32 +8,24 @@ namespace Bannerlord.PartyAI.Models;
 
 internal class PAISettlementGarrisonModel : SettlementGarrisonModel
 {
-    readonly SettlementGarrisonModel _previousModel;
-
-    public PAISettlementGarrisonModel(SettlementGarrisonModel previousModel)
-    {
-        _previousModel = previousModel;
-        _previousModel ??= new DefaultSettlementGarrisonModel();
-    }
-
     public override ExplainedNumber CalculateBaseGarrisonChange(Settlement settlement, bool includeDescriptions = false)
     {
-        return _previousModel.CalculateBaseGarrisonChange(settlement, includeDescriptions);
+        return BaseModel.CalculateBaseGarrisonChange(settlement, includeDescriptions);
     }
 
     public override int GetMaximumDailyAutoRecruitmentCount(Town town)
     {
-        return _previousModel.GetMaximumDailyAutoRecruitmentCount(town);
+        return BaseModel.GetMaximumDailyAutoRecruitmentCount(town);
     }
 
     public override float GetMaximumDailyRepairAmount(Settlement settlement)
     {
-        return _previousModel.GetMaximumDailyRepairAmount(settlement);
+        return BaseModel.GetMaximumDailyRepairAmount(settlement);
     }
 
     public override int FindNumberOfTroopsToLeaveToGarrison(MobileParty mobileParty, Settlement settlement)
     {
-        int result = _previousModel.FindNumberOfTroopsToLeaveToGarrison(mobileParty, settlement);
+        int result = BaseModel.FindNumberOfTroopsToLeaveToGarrison(mobileParty, settlement);
 
         if (!SubModule.PartySettingsManager.IsHeroManageable(mobileParty.LeaderHero))
         {
@@ -52,7 +44,7 @@ internal class PAISettlementGarrisonModel : SettlementGarrisonModel
 
     public override int FindNumberOfTroopsToTakeFromGarrison(MobileParty mobileParty, Settlement settlement, float idealGarrisonStrengthPerWalledCenter = 0)
     {
-        int result = _previousModel.FindNumberOfTroopsToTakeFromGarrison(mobileParty, settlement, idealGarrisonStrengthPerWalledCenter);
+        int result = BaseModel.FindNumberOfTroopsToTakeFromGarrison(mobileParty, settlement, idealGarrisonStrengthPerWalledCenter);
 
         if (!SubModule.PartySettingsManager.IsHeroManageable(mobileParty.LeaderHero))
         {

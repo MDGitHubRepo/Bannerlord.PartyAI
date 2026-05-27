@@ -4,7 +4,6 @@ using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CharacterDevelopment;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
-using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Core;
 
@@ -12,24 +11,16 @@ namespace Bannerlord.PartyAI.Models;
 
 internal class PAITroopUpgradeModel : PartyTroopUpgradeModel
 {
-    readonly PartyTroopUpgradeModel _previousModel;
-
-    public PAITroopUpgradeModel(PartyTroopUpgradeModel previousModel)
-    {
-        _previousModel = previousModel;
-        _previousModel ??= new DefaultPartyTroopUpgradeModel();
-    }
-
     public override bool CanPartyUpgradeTroopToTarget(PartyBase party, CharacterObject character, CharacterObject target)
     {
-        return _previousModel.CanPartyUpgradeTroopToTarget(party, character, target);
+        return BaseModel.CanPartyUpgradeTroopToTarget(party, character, target);
     }
 
     public override bool DoesPartyHaveRequiredItemsForUpgrade(PartyBase party, CharacterObject upgradeTarget)
     {
         if (party.Owner?.Equals(Hero.MainHero) ?? false)
         {
-            return _previousModel.DoesPartyHaveRequiredItemsForUpgrade(party, upgradeTarget);
+            return BaseModel.DoesPartyHaveRequiredItemsForUpgrade(party, upgradeTarget);
         }
 
         // let AI always upgrade regardless of items
@@ -38,32 +29,32 @@ internal class PAITroopUpgradeModel : PartyTroopUpgradeModel
 
     public override bool DoesPartyHaveRequiredPerksForUpgrade(PartyBase party, CharacterObject character, CharacterObject upgradeTarget, out PerkObject requiredPerk)
     {
-        return _previousModel.DoesPartyHaveRequiredPerksForUpgrade(party, character, upgradeTarget, out requiredPerk);
+        return BaseModel.DoesPartyHaveRequiredPerksForUpgrade(party, character, upgradeTarget, out requiredPerk);
     }
 
     public override ExplainedNumber GetGoldCostForUpgrade(PartyBase party, CharacterObject characterObject, CharacterObject upgradeTarget)
     {
-        return _previousModel.GetGoldCostForUpgrade(party, characterObject, upgradeTarget);
+        return BaseModel.GetGoldCostForUpgrade(party, characterObject, upgradeTarget);
     }
 
     public override int GetSkillXpFromUpgradingTroops(PartyBase party, CharacterObject troop, int numberOfTroops)
     {
-        return _previousModel.GetSkillXpFromUpgradingTroops(party, troop, numberOfTroops);
+        return BaseModel.GetSkillXpFromUpgradingTroops(party, troop, numberOfTroops);
     }
 
     public override float GetUpgradeChanceForTroopUpgrade(PartyBase party, CharacterObject troop, int upgradeTargetIndex)
     {
-        if (party.MobileParty == null) return _previousModel.GetUpgradeChanceForTroopUpgrade(party, troop, upgradeTargetIndex);
+        if (party.MobileParty == null) return BaseModel.GetUpgradeChanceForTroopUpgrade(party, troop, upgradeTargetIndex);
         if (party.MobileParty.IsGarrison)
         {
             if (!SubModule.PartySettingsManager.IsGarrisonManageable(party.MobileParty.CurrentSettlement))
             {
-                return _previousModel.GetUpgradeChanceForTroopUpgrade(party, troop, upgradeTargetIndex);
+                return BaseModel.GetUpgradeChanceForTroopUpgrade(party, troop, upgradeTargetIndex);
             }
         }
         else if (!SubModule.PartySettingsManager.IsManageable(party.LeaderHero))
         {
-            return _previousModel.GetUpgradeChanceForTroopUpgrade(party, troop, upgradeTargetIndex);
+            return BaseModel.GetUpgradeChanceForTroopUpgrade(party, troop, upgradeTargetIndex);
         }
 
         if (upgradeTargetIndex < 0 || upgradeTargetIndex >= troop.UpgradeTargets.Length || troop.UpgradeTargets.Length == 0)
@@ -118,12 +109,12 @@ internal class PAITroopUpgradeModel : PartyTroopUpgradeModel
 
     public override int GetXpCostForUpgrade(PartyBase party, CharacterObject characterObject, CharacterObject upgradeTarget)
     {
-        return _previousModel.GetXpCostForUpgrade(party, characterObject, upgradeTarget);
+        return BaseModel.GetXpCostForUpgrade(party, characterObject, upgradeTarget);
     }
 
     public override bool IsTroopUpgradeable(PartyBase party, CharacterObject character)
     {
-        bool result = _previousModel.IsTroopUpgradeable(party, character);
+        bool result = BaseModel.IsTroopUpgradeable(party, character);
 
         if (!result || party.MobileParty == null) return result;
         if (party.MobileParty.IsGarrison)
