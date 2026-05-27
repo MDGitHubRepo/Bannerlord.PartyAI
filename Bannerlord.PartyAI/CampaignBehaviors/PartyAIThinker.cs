@@ -300,24 +300,42 @@ internal class PartyAIThinker : CampaignBehaviorBase
 
     private void OnPartyJoinedArmy(MobileParty mobileParty)
     {
-        if (mobileParty?.LeaderHero == null) return;
-        if (SubModule.PartySettingsManager.IsHeroManageable(mobileParty.LeaderHero))
+        if (mobileParty is null)
         {
-            if (!SubModule.PartySettingsManager.HasActiveOrder(mobileParty.LeaderHero))
-            {
-                return;
-            }
-            TextObject text = new TextObject("{=PAIOEWao2aI}{PARTY} is no longer {ORDER} because they were called to {ARMY}")
-              .SetTextVariable("PARTY", mobileParty.Name)
-              .SetTextVariable("ORDER", SubModule.PartySettingsManager.GetOrderText(mobileParty.LeaderHero))
-              .SetTextVariable("ARMY", (mobileParty.Army != null && mobileParty.Army.Name != null) ? mobileParty.Army.Name.ToString() : "an army");
-            InformationManager.DisplayMessage(new InformationMessage(text.ToString(), Colors.Magenta));
-            PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
-            if (settings != null)
-            {
-                settings.ClearOrder();
-                settings.OrderQueue.Clear();
-            }
+            return;
+        }
+
+        var leaderHero = mobileParty.LeaderHero;
+
+        if (leaderHero is null
+            || !SubModule.PartySettingsManager.IsHeroManageable(leaderHero)
+            || !SubModule.PartySettingsManager.HasActiveOrder(leaderHero))
+        {
+            return;
+        }
+
+        // TODO: Check AllowJoinArmies OR (better) prefix Kingdom.Gather (CreateArmy)
+        // to make sure that disallowed heroes aren't included
+        // remembering to remove the same logic from AiMilitaryBehavior.AiHourlyTick patch
+
+        var partyText = mobileParty.Name;
+        var orderText = SubModule.PartySettingsManager.GetOrderText(leaderHero);
+        var armyText = mobileParty.Army?.Name is null
+            ? "an army"
+            : mobileParty.Army.Name.ToString();
+        
+        TextObject text = new TextObject("{=PAIOEWao2aI}{PARTY} is no longer {ORDER} because they were called to {ARMY}")
+          .SetTextVariable("PARTY", partyText)
+          .SetTextVariable("ORDER", orderText)
+          .SetTextVariable("ARMY", armyText);
+        
+        InformationManager.DisplayMessage(new InformationMessage(text.ToString(), Colors.Magenta));
+
+        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
+        if (settings != null)
+        {
+            settings.ClearOrder();
+            settings.OrderQueue.Clear();
         }
     }
 
