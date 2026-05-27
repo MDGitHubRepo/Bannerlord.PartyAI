@@ -293,8 +293,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         if (SubModule.PartySettingsManager.IsHeroManageable(prisoner))
         {
             PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(prisoner);
-            settings.ClearOrder();
-            settings.OrderQueue.Clear();
+            settings.ClearAllOrders();
         }
     }
 
@@ -331,12 +330,8 @@ internal class PartyAIThinker : CampaignBehaviorBase
         
         InformationManager.DisplayMessage(new InformationMessage(text.ToString(), Colors.Magenta));
 
-        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
-        if (settings != null)
-        {
-            settings.ClearOrder();
-            settings.OrderQueue.Clear();
-        }
+        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(leaderHero);
+        settings.ClearAllOrders();
     }
 
     private void OnMobilePartyDestroyed(MobileParty mobileParty, PartyBase destroyerParty)
@@ -344,12 +339,9 @@ internal class PartyAIThinker : CampaignBehaviorBase
         if (mobileParty?.LeaderHero != null && SubModule.PartySettingsManager.IsHeroManageable(mobileParty.LeaderHero))
         {
             PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
-            if (settings != null)
-            {
-                settings.ClearOrder();
-                settings.OrderQueue.Clear();
-            }
+            settings.ClearAllOrders();
         }
+
         foreach (PartyAIClanPartySettings settings in SubModule.PartySettingsManager.HeroesWithOrders)
         {
             PAICustomOrder order = settings.Order;
@@ -394,15 +386,13 @@ internal class PartyAIThinker : CampaignBehaviorBase
         if (SubModule.PartySettingsManager.IsHeroManageable(mobileParty.LeaderHero))
         {
             PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
-            if (settings != null)
+
+            settings.ClearAllOrders();
+            settings.ResetBudgets();
+
+            if (settings.FallbackOrder != null && settings.FallbackOrder.Behavior != OrderType.None)
             {
-                settings.ClearOrder();
-                settings.OrderQueue.Clear();
-                settings.ResetBudgets();
-                if (settings.FallbackOrder != null && settings.FallbackOrder.Behavior != OrderType.None)
-                {
-                    settings.SetOrder(settings.FallbackOrder);
-                }
+                settings.SetOrder(settings.FallbackOrder);
             }
         }
     }

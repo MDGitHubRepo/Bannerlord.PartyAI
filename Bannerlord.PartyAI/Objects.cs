@@ -112,6 +112,12 @@ public class PartyAIClanPartySettings
         }
     }
 
+    internal void ClearAllOrders()
+    {
+        OrderQueue.Clear();
+        ClearOrder();
+    }
+
     internal void CopyOptionsFrom(PartyAIClanPartySettings settings)
     {
         AllowJoinArmies = settings.AllowJoinArmies;
