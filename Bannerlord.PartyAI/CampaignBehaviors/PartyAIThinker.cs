@@ -1,5 +1,4 @@
-﻿//NEW
-using Bannerlord.PartyAI.Domain;
+﻿using Bannerlord.PartyAI.Domain;
 using Helpers;
 using System;
 using System.Collections.Generic;
@@ -37,13 +36,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
 {
     private List<MobileParty> _assumingDirectControl = new();
     private List<PAISettlementVisitLog> _recentlyRecruitedFromSettlements = new();
-
-    private static CampaignVec2 TryGetMapPointPosition(IMapPoint mapPoint)
-    {
-        if (mapPoint == null)
-            return CampaignVec2.Zero;
-        return SafeGet(() => mapPoint.Position, CampaignVec2.Zero);
-    }
 
     private static MobileParty.NavigationType SanitizeNavigationType(MobileParty.NavigationType navigationType)
     {
@@ -312,10 +304,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         {
             return;
         }
-
-        // TODO: Check AllowJoinArmies OR (better) prefix Kingdom.Gather (CreateArmy)
-        // to make sure that disallowed heroes aren't included
-        // remembering to remove the same logic from AiMilitaryBehavior.AiHourlyTick patch
 
         var partyText = mobileParty.Name;
         var orderText = SubModule.PartySettingsManager.GetOrderText(leaderHero);
@@ -1003,13 +991,10 @@ internal class PartyAIThinker : CampaignBehaviorBase
         int daysOfFood = party.GetNumDaysForFoodToLast();
         if (daysOfFood <= 8)
         {
-            Settlement town = FindNearestReachableSettlement(
+            Settlement town = SettlementHelper.FindNearestSettlementToMobileParty(
                 party,
-                s => (s.IsTown || s.IsVillage) &&
-                     (s.MapFaction == party.MapFaction ||
-                      FactionManager.IsNeutralWithFaction(party.MapFaction, s.MapFaction)),
-                safeNavType
-            );
+                safeNavType,
+                condition: settlement => IsFriendlyTownOrVillage(party, settlement));
 
             if (town != null && TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType townNavType, out bool townIsFromPort, out bool townIsTargetingPort))
             {
@@ -1025,17 +1010,16 @@ internal class PartyAIThinker : CampaignBehaviorBase
             return;
 
         // Find nearest clan settlement to patrol around
-        Settlement nearestClan = FindNearestSettlement(s => s.OwnerClan == hero.Clan, party);
-        if (nearestClan == null)
+        Settlement nearestClanSettlement = FindNearestSettlement(s => s.OwnerClan == hero.Clan, party);
+
+        if (nearestClanSettlement == null)
             return;
 
         // 5% chance to switch to a random clan settlement (variety in patrol)
         if (MBRandom.RandomFloat < 0.05f && hero.Clan.Settlements.Count > 0)
         {
-            nearestClan = hero.Clan.Settlements.GetRandomElementInefficiently();
+            nearestClanSettlement = hero.Clan.Settlements.GetRandomElementInefficiently();
         }
-
-        Vec2 clanPos = nearestClan.GetPosition2D;
 
         // === PRIORITY: React to clan settlements in danger ===
         foreach (Settlement clanSettlement in hero.Clan.Settlements)
@@ -1081,12 +1065,16 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
 
         // === If too far from clan lands, issue command to walk there ===
-        if (party.GetPosition2D.Distance(clanPos) > range * 4)
+        var distance = DistanceHelper.FindClosestDistanceFromMobilePartyToSettlement(
+            party,
+            nearestClanSettlement,
+            safeNavType);
+        if (distance > range * 4)
         {
-            if (TryGetBestNavigationDataForSettlement(party, nearestClan, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
+            if (TryGetBestNavigationDataForSettlement(party, nearestClanSettlement, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
             {
                 newParams.Add((
-                    new AIBehaviorData(nearestClan, AiBehavior.GoToSettlement, navType, false, isFromPort, isTargetingPort),
+                    new AIBehaviorData(nearestClanSettlement, AiBehavior.GoToSettlement, navType, false, isFromPort, isTargetingPort),
                     5f
                 ));
             }
@@ -1095,23 +1083,19 @@ internal class PartyAIThinker : CampaignBehaviorBase
         // === ALWAYS filter vanilla AI behaviors by distance ===
         foreach ((AIBehaviorData behavior, float weight) in thinkParams.AIBehaviorScores)
         {
-            CampaignVec2 behaviorTarget = CampaignVec2.Zero;
-
-            if (behavior.Position != CampaignVec2.Zero)
-            {
-                behaviorTarget = behavior.Position;
-            }
-            else if (behavior.Party != null)
-            {
-                behaviorTarget = TryGetMapPointPosition(behavior.Party);
-                if (behaviorTarget == CampaignVec2.Zero)
-                    continue;
-            }
+            var behaviorTarget = ExtractPositionFromBehavior(behavior);
 
             if (behaviorTarget == CampaignVec2.Zero)
+            {
                 continue;
+            }
 
-            float distToTarget = behaviorTarget.ToVec2().Distance(clanPos);
+            float distToTarget = DistanceHelper.FindClosestDistanceFromSettlementToPoint(
+                    nearestClanSettlement,
+                    behaviorTarget,
+                    safeNavType,
+                    isFromPort: out bool _);
+
             if (distToTarget < range)
             {
                 newParams.Add((behavior, weight));
@@ -1134,13 +1118,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
 
         // Range is a filtering/"too far" heuristic; navigation routing uses vanilla-derived data.
         float range = GetSafeAverageDistanceBetweenClosestTwoTownsWithNavigationType(MobileParty.NavigationType.Default) * 0.9f * distanceFactor;
-        Vec2 centerPos = TryGetSettlementPos2D(centerSettlement);
-        if (centerPos == Vec2.Zero)
-        {
-            // Skip this tick if position is unavailable
-            newParams = thinkParams.AIBehaviorScores.ConvertAll(s => (s.Item1, s.Item2));
-            return;
-        }
 
         // Compute best navigation and port flags for reaching the patrol center.
         if (!TryGetBestNavigationDataForSettlement(party, centerSettlement, out MobileParty.NavigationType centerNavType, out bool centerIsFromPort, out bool centerIsTargetingPort))
@@ -1153,13 +1130,10 @@ internal class PartyAIThinker : CampaignBehaviorBase
         int daysOfFood = party.GetNumDaysForFoodToLast();
         if (daysOfFood <= 8)
         {
-            Settlement town = FindNearestReachableSettlement(
+            Settlement town = SettlementHelper.FindNearestSettlementToMobileParty(
                 party,
-                s => (s.IsTown || s.IsVillage) &&
-                     (s.MapFaction == party.MapFaction ||
-                      FactionManager.IsNeutralWithFaction(party.MapFaction, s.MapFaction)),
-                safeNavType
-            );
+                safeNavType,
+                condition: settlement => IsFriendlyTownOrVillage(party, settlement));
 
             if (town != null && TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType townNavType, out bool townIsFromPort, out bool townIsTargetingPort))
             {
@@ -1172,26 +1146,26 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
 
         // === PRIORITY: Defend nearby same-faction settlements under attack ===
-        foreach (Settlement s in Settlement.All)
+        foreach (Settlement settlement in Settlement.All)
         {
-            if (s.MapFaction != party.MapFaction)
+            if (settlement.MapFaction != party.MapFaction)
                 continue;
 
-            Vec2 sPos = TryGetSettlementPos2D(s);
-            if (sPos == Vec2.Zero)
-                continue;
+            float distToSettlement = DistanceHelper.FindClosestDistanceFromMobilePartyToSettlement(
+                party,
+                settlement,
+                safeNavType);
 
-            float distToSettlement = sPos.Distance(centerPos);
             if (distToSettlement > range)
                 continue;
 
-            if ((s.IsFortification && s.IsUnderSiege) || (s.IsVillage && s.Village?.VillageState == Village.VillageStates.BeingRaided))
+            if (IsSettlementUnderAttack(settlement))
             {
-                if (TryGetBestNavigationDataForSettlement(party, s, out MobileParty.NavigationType defendNavType, out bool defendIsFromPort, out bool defendIsTargetingPort))
+                if (TryGetBestNavigationDataForSettlement(party, settlement, out MobileParty.NavigationType defendNavType, out bool defendIsFromPort, out bool defendIsTargetingPort))
                 {
                     SetPartyAiAction.GetActionForDefendingSettlement(
                         party,
-                        s,
+                        settlement,
                         defendNavType,
                         defendIsFromPort,
                         defendIsTargetingPort
@@ -1201,8 +1175,13 @@ internal class PartyAIThinker : CampaignBehaviorBase
             }
         }
 
+        var distanceToCenter = DistanceHelper.FindClosestDistanceFromMobilePartyToSettlement(
+            party,
+            centerSettlement,
+            safeNavType);
+
         // If too far from patrol center: walk there
-        if (party.GetPosition2D.Distance(centerPos) > range * 4)
+        if (distanceToCenter > range * 4)
         {
             SetPartyAiAction.GetActionForVisitingSettlement(
                 party,
@@ -1229,23 +1208,19 @@ internal class PartyAIThinker : CampaignBehaviorBase
         // In range: filter vanilla behavior scores by distance to center
         foreach ((AIBehaviorData behavior, float weight) in thinkParams.AIBehaviorScores)
         {
-            CampaignVec2 behaviorTarget = CampaignVec2.Zero;
-
-            if (behavior.Position != CampaignVec2.Zero)
-            {
-                behaviorTarget = behavior.Position;
-            }
-            else if (behavior.Party != null)
-            {
-                behaviorTarget = TryGetMapPointPosition(behavior.Party);
-                if (behaviorTarget == CampaignVec2.Zero)
-                    continue;
-            }
+            var behaviorTarget = ExtractPositionFromBehavior(behavior);
 
             if (behaviorTarget == CampaignVec2.Zero)
+            {
                 continue;
+            }
 
-            float distToTarget = behaviorTarget.ToVec2().Distance(centerPos);
+            float distToTarget = DistanceHelper.FindClosestDistanceFromSettlementToPoint(
+                    centerSettlement,
+                    behaviorTarget,
+                    safeNavType,
+                    isFromPort: out bool _);
+
             if (distToTarget < range)
             {
                 newParams.Add((behavior, weight));
@@ -1256,48 +1231,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         {
             party.SetPartyObjective(PartyObjective.Aggressive);
         }
-    }
-
-    /// <summary>
-    /// Find the nearest settlement that is actually reachable using the specified navigation type
-    /// </summary>
-    private Settlement FindNearestReachableSettlement(
-        MobileParty party,
-        Func<Settlement, bool> condition,
-        MobileParty.NavigationType navigationType)
-    {
-        Settlement result = null;
-        float bestDistance = float.MaxValue;
-
-        foreach (Settlement settlement in Settlement.All)
-        {
-            if (condition != null && !condition(settlement))
-                continue;
-
-            // Use SafeGet to check if settlement.GatePosition is available
-            CampaignVec2 gatePos = TryGetSettlementGatePosition(settlement);
-            if (gatePos == CampaignVec2.Zero)
-                continue;
-
-            float distance = Campaign.Current.Models.MapDistanceModel.GetDistance(
-                party,
-                gatePos,
-                navigationType,
-                out float _
-            );
-
-            // Skip unreachable settlements (float.MaxValue means no path exists)
-            if (distance >= float.MaxValue - 1f)
-                continue;
-
-            if (distance < bestDistance)
-            {
-                bestDistance = distance;
-                result = settlement;
-            }
-        }
-
-        return result;
     }
 
     private void ImplementAllowRaidingVillages(MobileParty party, PartyThinkParams thinkParams, PartyAIClanPartySettings settings)
@@ -1528,33 +1461,48 @@ internal class PartyAIThinker : CampaignBehaviorBase
         return navigationType != MobileParty.NavigationType.None;
     }
 
-    /// <summary>
-    /// Safely gets the 2D position of a settlement, falling back if GatePosition throws.
-    /// </summary>
-    private static Vec2 TryGetSettlementPos2D(Settlement settlement)
+    private static CampaignVec2 ExtractPositionFromBehavior(AIBehaviorData behavior)
     {
-        if (settlement == null)
-            return Vec2.Zero;
-        return SafeGet(() => settlement.GatePosition.ToVec2(), SafeGet(() => settlement.GetPosition2D, Vec2.Zero));
+        CampaignVec2 position;
+        if (behavior.Position != CampaignVec2.Zero)
+        {
+            position = behavior.Position;
+        }
+        else if (behavior.Party is not null && behavior.Party.Position != CampaignVec2.Zero)
+        {
+            position = behavior.Party.Position;
+        }
+        else
+        {
+            position = CampaignVec2.Zero;
+        }
+
+        return position;
     }
 
-    /// <summary>
-    /// Safely gets the CampaignVec2 gate position of a settlement, falling back if GatePosition throws.
-    /// </summary>
-    private static CampaignVec2 TryGetSettlementGatePosition(Settlement settlement)
+    private static bool IsFriendlyTownOrVillage(MobileParty party, Settlement settlement)
     {
-        if (settlement == null)
-            return CampaignVec2.Zero;
-        return SafeGet(() => settlement.GatePosition, SafeGet(() => new CampaignVec2(settlement.GetPosition2D, true), CampaignVec2.Zero));
+        if (!settlement.IsTown && !settlement.IsVillage)
+        {
+            return false;
+        }
+
+        return !FactionManager.IsAtWarAgainstFaction(party.MapFaction, settlement.MapFaction);
     }
 
-    /// <summary>
-    /// Generic safe property access helper. Returns fallback if exception occurs.
-    /// </summary>
-    internal static T SafeGet<T>(Func<T> getter, T fallback = default(T))
+    private static bool IsSettlementUnderAttack(Settlement settlement)
     {
-        try { return getter(); }
-        catch { return fallback; }
+        if (settlement.IsFortification)
+        {
+            return settlement.IsUnderSiege;
+        }
+
+        if (settlement.IsVillage)
+        {
+            return settlement.Village?.VillageState == Village.VillageStates.BeingRaided;
+        }
+
+        return false;
     }
 
     private static bool IsArmyRaiding(Army army)
