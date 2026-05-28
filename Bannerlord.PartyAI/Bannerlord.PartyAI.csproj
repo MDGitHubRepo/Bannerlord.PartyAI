@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>$(ModuleName).$(GameVersion)</AssemblyName>
+    <AssemblyName>$(ModuleId).$(GameVersion)</AssemblyName>
     <Configurations>Debug</Configurations>
     <Platforms>x64</Platforms>
   </PropertyGroup>

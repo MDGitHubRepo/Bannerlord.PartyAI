@@ -1,7 +1,7 @@
 ﻿﻿<?xml version="1.0" encoding="UTF-8"?>
 <Module xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/BUTR/Bannerlord.XmlSchemas/master/SubModule.xsd" >
-  <Id value="$modulename$" />
+  <Id value="$moduleid$" />
   <Name value="$displayname$" />
   <Version value="v$version$" />
   <DefaultModule value="false" />
@@ -22,10 +22,10 @@
     <!-- Bannerlord Module Loader. Do not change the name! -->
     <SubModule>
       <Name value="Bannerlord Module Loader" />
-      <DLLName value="Bannerlord.ModuleLoader.$modulename$.dll" />
-      <SubModuleClassType value="Bannerlord.ModuleLoader.Bannerlord_PartyAI" />
+      <DLLName value="Bannerlord.ModuleLoader.$moduleid$.dll" />
+      <SubModuleClassType value="Bannerlord.ModuleLoader.$modulename$" />
       <Tags>
-        <Tag key="LoaderFilter" value ="$modulename$.*.dll" />
+        <Tag key="LoaderFilter" value ="$moduleid$.*.dll" />
       </Tags>
     </SubModule>
   </SubModules>

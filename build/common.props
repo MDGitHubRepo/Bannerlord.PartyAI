@@ -38,6 +38,17 @@
         <RootNamespace>$(ModuleId)</RootNamespace>
     </PropertyGroup>
 
+    <!-- Local build overrides -->
+    <PropertyGroup Condition="'$(Version)' == '0.0.0.0'">
+        <ModuleId>$(ModuleId).Local</ModuleId>
+        <ModuleName>$(ModuleName).Local</ModuleName>
+        <DisplayName>$(DisplayName) (LOCAL)</DisplayName>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <ModuleName>$([System.String]::Copy('$(ModuleName)').Replace('.', '_'))</ModuleName>
+    </PropertyGroup>
+
     <PropertyGroup>
         <SGVFile>$([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)/../supported-game-versions.txt))</SGVFile>
     </PropertyGroup>
