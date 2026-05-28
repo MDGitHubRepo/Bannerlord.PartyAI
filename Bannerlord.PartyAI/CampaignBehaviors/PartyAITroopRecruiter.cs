@@ -16,6 +16,10 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
     private readonly Dictionary<CharacterObject, List<CharacterObject>> _upgradeTargetCache = new();
     private bool _firingEvent = false;
 
+    public override void SyncData(IDataStore dataStore)
+    {
+    }
+
     public override void RegisterEvents()
     {
         CampaignEvents.OnTroopRecruitedEvent.AddNonSerializedListener(this, OnTroopRecruited);
@@ -331,17 +335,21 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
 
     internal bool ShouldRecruit(PartyCompositionObect comp, PartyAIClanPartySettings heroSettings, CharacterObject troop, PartyBase party, bool mustBeOnePlus = true)
     {
-        IEnumerable<FormationClass> targets = UpgradeTargets(troop, true, heroSettings.PartyTemplate).ConvertAll(c => FormationClassExtensions.FallbackClass(c.DefaultFormationClass)).Distinct();
+        var upgradeTargets = UpgradeTargets(troop, true, heroSettings.PartyTemplate);
+        var formationClasses = upgradeTargets
+            .ConvertAll(c => c.DefaultFormationClass.FallbackClass())
+            .Distinct()
+            .ToArray();
 
-        if (targets.Count() == 0 || OverMaxTier(troop, heroSettings.MaxTroopTier))
+        if (formationClasses.Length == 0 || OverMaxTier(troop, heroSettings.MaxTroopTier))
         {
             //TaleWorlds.Library.InformationManager.DisplayMessage(new("Will not recruit "+troop.Name+" because it has no valid upgrade paths.",TaleWorlds.Library.Colors.Red));
             return false;
         }
 
-        foreach (FormationClass target in targets)
+        foreach (FormationClass formationClass in formationClasses)
         {
-            float need = heroSettings.Composition[target] - comp[target];
+            float need = heroSettings.Composition[formationClass] - comp[formationClass];
             need *= party.PartySizeLimit;
 
             if (need >= (mustBeOnePlus ? 1f : 0.4f))
@@ -358,79 +366,78 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
     internal PartyCompositionObect GetPartyComposition(PartyBase party, PartyAIClanPartySettings heroSettings, CharacterObject ignore = null)
     {
         PAICustomTemplate template = heroSettings.PartyTemplate;
-        PartyCompositionObect comp = new();
+        PartyCompositionObect resultComposition = new();
         float total = party.PartySizeLimit;
 
         if (total <= 0)
         {
-            return comp;
+            return resultComposition;
         }
 
-        IEnumerable<(IEnumerable<FormationClass>, CharacterObject, int)> roster = party.MemberRoster.GetTroopRoster().ConvertAll(e =>
-          (UpgradeTargets(e.Character, true, template).ConvertAll(t => FormationClassExtensions.FallbackClass(t.DefaultFormationClass)).Distinct(), e.Character, e.Number)
-        ).OrderBy(e => e.Item1.Count());
+        var troopRoster = party.MemberRoster.GetTroopRoster();
+        var simplifiedRoster = troopRoster.ConvertAll(element => SimplifyRosterElement(element, template));
 
-        foreach ((IEnumerable<FormationClass>, CharacterObject, int) e in roster)
+        foreach (var element in simplifiedRoster)
         {
-            if (e.Item2.IsHero || (ignore != null && e.Item2.Equals(ignore)))
+            if (element.Character.IsHero || (ignore != null && element.Character.Equals(ignore)))
             {
                 continue;
             }
 
-            FormationClass troopClass = FormationClassExtensions.FallbackClass(e.Item2.DefaultFormationClass);
+            FormationClass troopClass = element.Character.DefaultFormationClass.FallbackClass();
 
-            if (e.Item1.Count() == 0)
+            if (element.FormationClasses.Length == 0)
             {
-                comp[troopClass] += e.Item3;
+                resultComposition[troopClass] += element.Number;
                 continue;
             }
 
-            if (e.Item1.Count() == 1)
+            if (element.FormationClasses.Length == 1)
             {
-                comp[e.Item1.First()] += e.Item3;
+                resultComposition[element.FormationClasses.First()] += element.Number;
                 continue;
             }
 
-            int Number = e.Item3;
+            int number = element.Number;
 
-            foreach (FormationClass distinctTargetPath in e.Item1)
+            foreach (FormationClass distinctTargetPath in element.FormationClasses)
             {
-                if (Number == 0)
+                if (number == 0)
                 {
                     break;
                 }
 
-                while (Number > 0)
+                while (number > 0)
                 {
-                    float currentSatisfaction = comp[distinctTargetPath] / total;
+                    float currentSatisfaction = resultComposition[distinctTargetPath] / total;
                     float need = heroSettings.Composition[distinctTargetPath] - currentSatisfaction;
                     need *= total;
                     if (need >= 1f)
                     {
-                        comp[distinctTargetPath] += 1f;
-                        Number--;
+                        resultComposition[distinctTargetPath] += 1f;
+                        number--;
                         continue;
                     }
                     break;
                 }
             }
 
-            if (Number > 0)
+            if (number > 0)
             {
-                comp[troopClass] += Number;
+                resultComposition[troopClass] += number;
             }
         }
 
-        comp[FormationClass.Infantry] /= total;
-        comp[FormationClass.Ranged] /= total;
-        comp[FormationClass.Cavalry] /= total;
-        comp[FormationClass.HorseArcher] /= total;
+        resultComposition[FormationClass.Infantry] /= total;
+        resultComposition[FormationClass.Ranged] /= total;
+        resultComposition[FormationClass.Cavalry] /= total;
+        resultComposition[FormationClass.HorseArcher] /= total;
 
         /*PartyCompositionObect comp2 = comp.Clone();
         comp2.Scale(100);
         TaleWorlds.Library.InformationManager.DisplayMessage(new(party.Name.ToString() + " Comp: I:" + ((int)comp2.Infantry).ToString() + "%, R:" + ((int)comp2.Ranged).ToString() + "%, C:" + ((int)comp2.Cavalry).ToString() + "%, H:" + ((int)comp2.HorseArcher).ToString() + "%", TaleWorlds.Library.Colors.Blue));*/
 
-        return comp;
+        return resultComposition;
     }
 
     internal List<CharacterObject> UpgradeTargets(CharacterObject troop, bool maxTierOnly = false, PAICustomTemplate template = null)
@@ -454,7 +461,9 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         if (maxTierOnly)
         {
             // Troops with no upgrade targets or no upgrade targets in the template
-            targets = targets.Where(c => (c?.UpgradeTargets == null || c.UpgradeTargets.Length == 0) || !c.UpgradeTargets.Any(t => (template != null && template.Troops != null) ? template.Troops.Contains(t) : true)).ToList();
+            targets = targets
+                .Where(c => HasNoFurtherUpgradeTargets(c, template))
+                .ToList();
         }
 
         if (template != null && template.Troops != null)
@@ -464,9 +473,41 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         return targets;
     }
 
+    private static bool HasNoFurtherUpgradeTargets(CharacterObject character, PAICustomTemplate template)
+    {
+        if (character?.UpgradeTargets is null || character.UpgradeTargets.Length == 0)
+        {
+            return false;
+        }
+
+        return !character.UpgradeTargets.Any(c => IsPartOfTemplate(c, template));
+    }
+
+    private static bool IsPartOfTemplate(CharacterObject character, PAICustomTemplate template)
+    {
+        if (template is null || template.Troops is null)
+        {
+            return false;
+        }
+
+        return template.Troops.Contains(character);
+    }
+
     private bool OverMaxTier(CharacterObject troop, int maxTier) => maxTier > 0 && troop?.Tier > maxTier;
 
-    public override void SyncData(IDataStore dataStore)
+    private SimpleRosterElement SimplifyRosterElement(TroopRosterElement element, PAICustomTemplate template)
     {
+        var character = element.Character;
+        var number = element.Number;
+        var upgradeTargets = UpgradeTargets(character, true, template);
+
+        var formationClasses = upgradeTargets
+            .Select(target => target.DefaultFormationClass.FallbackClass())
+            .Distinct()
+            .ToArray();
+
+        return new SimpleRosterElement(character, number, formationClasses);
     }
+
+    private record SimpleRosterElement(CharacterObject Character, int Number, FormationClass[] FormationClasses);
 }
