@@ -807,24 +807,10 @@ internal class PartyAIThinker : CampaignBehaviorBase
               (settings.RecruitFromEnemySettlements || !FactionManager.IsAtWarAgainstFaction(party.MapFaction, s.MapFaction)) &&
               (settings.PartyTemplate?.TroopCultures.Contains(s.Culture) ?? true));
 
-            currentTarget = FindNearestSettlement(s =>
-            {
-                if (s == party.CurrentSettlement || s.GetPosition2D.Distance(party.GetPosition2D) < 2f)
-                    return false;
-
-                if (_recentlyRecruitedFromSettlements.Any(l => l.Settlement == s && l.Party == party))
-                    return false;
-
-                int count = ComputeRecruitableVolunteersCount(party, s, settings);
-
-                if (count < 3 && freeSlots > 3)
-                    return false;
-
-                if (count == 0)
-                    return false;
-
-                return true;
-            }, party, settlements);
+            currentTarget = FindNearestSettlement(
+                s => IsGoodTargetForRecruiting(s, party, settings, freeSlots),
+                party,
+                settlements);
 
             if (currentTarget != null)
             {
@@ -868,6 +854,25 @@ internal class PartyAIThinker : CampaignBehaviorBase
             false,
             false
         );
+    }
+
+    private bool IsGoodTargetForRecruiting(Settlement settlement, MobileParty party, PartyAIClanPartySettings settings, int freeSlots)
+    {
+        if (settlement == party.CurrentSettlement || settlement.GetPosition2D.Distance(party.GetPosition2D) < 2f)
+            return false;
+
+        if (_recentlyRecruitedFromSettlements.Any(l => l.Settlement == settlement && l.Party == party))
+            return false;
+
+        int count = ComputeRecruitableVolunteersCount(party, settlement, settings);
+
+        if (count < 3 && freeSlots > 3)
+            return false;
+
+        if (count == 0)
+            return false;
+
+        return true;
     }
 
     private int ComputeRecruitableVolunteersCount(
@@ -930,8 +935,13 @@ internal class PartyAIThinker : CampaignBehaviorBase
             for (int i = 0; i <= max && i < notable.VolunteerTypes.Length; i++)
             {
                 CharacterObject troop = notable.VolunteerTypes[i];
-                if (troop != null &&
-                    SubModule.PartyTroopRecruiter.ShouldRecruit(comp, heroSettings, troop, party.Party))
+
+                if (troop is null)
+                {
+                    continue;
+                }
+
+                if (SubModule.PartyTroopRecruiter.ShouldRecruit(comp, heroSettings, troop, party.Party))
                 {
                     count++;
                 }

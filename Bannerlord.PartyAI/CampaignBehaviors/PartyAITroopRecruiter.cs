@@ -447,47 +447,38 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
             return new List<CharacterObject>();
         }
 
-        List<CharacterObject> targets;
-        if (_upgradeTargetCache.ContainsKey(troop))
+        if (!_upgradeTargetCache.ContainsKey(troop))
         {
-            targets = _upgradeTargetCache[troop];
+            var traversed = TraverseTree(troop);
+            _upgradeTargetCache.Add(troop, traversed);
         }
-        else
-        {
-            targets = TraverseTree(troop);
-            _upgradeTargetCache.Add(troop, targets);
-        }
+
+        var targets = _upgradeTargetCache[troop].AsEnumerable();
 
         if (maxTierOnly)
         {
             // Troops with no upgrade targets or no upgrade targets in the template
-            targets = targets
-                .Where(c => HasNoFurtherUpgradeTargets(c, template))
-                .ToList();
+            targets = targets.Where(c => HasNoFurtherUpgradeTargets(c, template));
         }
 
-        if (template != null && template.Troops != null)
-        {
-            return targets.Where(c => template.Troops.Contains(c)).ToList();
-        }
-        return targets;
+        return targets.Where(c => IsPartOfTemplate(c, template)).ToList();
     }
 
-    private static bool HasNoFurtherUpgradeTargets(CharacterObject character, PAICustomTemplate template)
+    private static bool HasNoFurtherUpgradeTargets(CharacterObject? character, PAICustomTemplate? template)
     {
         if (character?.UpgradeTargets is null || character.UpgradeTargets.Length == 0)
         {
-            return false;
+            return true;
         }
 
         return !character.UpgradeTargets.Any(c => IsPartOfTemplate(c, template));
     }
 
-    private static bool IsPartOfTemplate(CharacterObject character, PAICustomTemplate template)
+    private static bool IsPartOfTemplate(CharacterObject character, PAICustomTemplate? template)
     {
         if (template is null || template.Troops is null)
         {
-            return false;
+            return true;
         }
 
         return template.Troops.Contains(character);
