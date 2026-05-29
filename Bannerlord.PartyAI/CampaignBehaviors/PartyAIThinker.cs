@@ -7,9 +7,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Map;
 using TaleWorlds.CampaignSystem.Party;
-using TaleWorlds.CampaignSystem.Party.PartyComponents;
 using TaleWorlds.CampaignSystem.Settlements;
-using TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement.Categories;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
@@ -61,7 +59,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         CampaignEvents.HeroPrisonerTaken.AddNonSerializedListener(this, OnHeroPrisonerTaken);
         CampaignEvents.OnPartyJoinedArmyEvent.AddNonSerializedListener(this, OnPartyJoinedArmy);
         CampaignEvents.OnSettlementOwnerChangedEvent.AddNonSerializedListener(this, OnSettlementOwnerChanged);
-        CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, ImplementAutoCreateClanParties);
         CampaignEvents.MobilePartyCreated.AddNonSerializedListener(this, OnMobilePartyCreated);
         CampaignEvents.SettlementEntered.AddNonSerializedListener(this, OnSettlementEntered);
     }
@@ -91,53 +88,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
                 }
             }
         }
-    }
-
-    private void ImplementAutoCreateClanParties()
-    {
-        if (!SubModule.PartySettingsManager.AutoCreateClanParties)
-        {
-            return;
-        }
-
-        if (SubModule.PartySettingsManager.AutoCreateClanPartiesMax > 0 && ActiveClanParties(Clan.PlayerClan).Count() >= SubModule.PartySettingsManager.AutoCreateClanPartiesMax)
-        {
-            return;
-        }
-
-        do
-        {
-            ClanPartiesVM stockVM = new(() => { }, null, () => { }, (i) => { });
-
-            if (!stockVM.CanCreateNewParty)
-            {
-                return;
-            }
-
-            IEnumerable<Hero> eligibleLeaders = Clan.PlayerClan.Heroes.Where((Hero h) => !h.IsDisabled).Union(Clan.PlayerClan.Companions).Where(h =>
-              h.IsActive && !h.IsReleased && !h.IsFugitive && !h.IsPrisoner && !h.IsChild && h != Hero.MainHero && h.CanLeadParty() && !h.IsPartyLeader && h.GovernorOf == null && h.PartyBelongedTo == null && (!h.CurrentSettlement?.IsUnderSiege ?? true)
-            );
-
-            if (SubModule.PartySettingsManager.AutoCreateClanPartiesRoster.Count > 0)
-            {
-                eligibleLeaders = eligibleLeaders.Where(h => SubModule.PartySettingsManager.AutoCreateClanPartiesRoster.Contains(h));
-            }
-
-            if (eligibleLeaders.Count() == 0)
-            {
-                return;
-            }
-
-            Hero leader = TaleWorlds.Core.Extensions.GetRandomElementInefficiently(eligibleLeaders);
-            Settlement? settlement = Navigation.FindNearestSettlement(s => true, leader.GetMapPoint());
-            MobileParty newParty = MobilePartyHelper.CreateNewClanMobileParty(leader, Clan.PlayerClan);
-            InformationManager.DisplayMessage(new InformationMessage(new TextObject("{=PAIJPxU5978}{HERO} has created a new party near {SETTLEMENT}").SetTextVariable("HERO", leader.Name).SetTextVariable("SETTLEMENT", settlement?.Name).ToString(), Colors.Gray));
-
-            if (SubModule.PartySettingsManager.AutoCreateClanPartiesMax > 0 && ActiveClanParties(Clan.PlayerClan).Count() >= SubModule.PartySettingsManager.AutoCreateClanPartiesMax)
-            {
-                break;
-            }
-        } while (Clan.PlayerClan.WarPartyComponents.Count < Clan.PlayerClan.WarPartyLimit);
     }
 
     private void OnSettlementOwnerChanged(Settlement settlement, bool openToClaim, Hero newOwner, Hero oldOwner, Hero capturerHero, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail detail)
@@ -674,8 +624,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         party.Ai.RethinkAtNextHourlyTick = true;
         party.Ai.SetDoNotMakeNewDecisions(false);
     }
-
-    private IEnumerable<WarPartyComponent> ActiveClanParties(Clan c) => c.WarPartyComponents.Where(p => p.MobileParty != MobileParty.MainParty);
 
     private static CampaignVec2 ExtractPositionFromBehavior(AIBehaviorData behavior)
     {

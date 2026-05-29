@@ -26,9 +26,6 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
     internal bool ManageKingdomParties;
     internal bool ManageKingdomGarrisons;
     internal int TroopsConvertedPerDay = 4;
-    internal bool AutoCreateClanParties = false;
-    internal int AutoCreateClanPartiesMax = 0;
-    internal List<Hero> AutoCreateClanPartiesRoster = new();
     internal PartyAIClanPartySettings _defaultClanPartySettings = new((Hero)null);
     internal PartyAIClanPartySettings _defaultClanCaravanSettings = new((Hero)null);
     internal PartyAIClanPartySettings _defaultClanGarrisonSettings = new((Hero)null);
@@ -86,14 +83,6 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
             if (item.Value.Hero?.IsDead ?? true || item.Value.Hero.IsDisabled)
             {
                 _caravanSettings.Remove(item.Key);
-            }
-        }
-
-        foreach (Hero h in AutoCreateClanPartiesRoster.AsEnumerable().Reverse())
-        {
-            if (h?.IsDead ?? true || h.IsDisabled)
-            {
-                AutoCreateClanPartiesRoster.Remove(h);
             }
         }
     }
@@ -350,21 +339,6 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
         if (!dataStore.SyncData("TroopsConvertedPerDay", ref TroopsConvertedPerDay) && dataStore.IsLoading)
         {
             TroopsConvertedPerDay = 4;
-        }
-
-        if (!dataStore.SyncData("AutoCreateClanParties", ref AutoCreateClanParties) && dataStore.IsLoading)
-        {
-            AutoCreateClanParties = false;
-        }
-
-        if (!dataStore.SyncData("AutoCreateClanPartiesMax", ref AutoCreateClanPartiesMax) && dataStore.IsLoading)
-        {
-            AutoCreateClanPartiesMax = 0;
-        }
-
-        if (!dataStore.SyncData("AutoCreateClanPartiesRoster", ref AutoCreateClanPartiesRoster) && dataStore.IsLoading)
-        {
-            AutoCreateClanPartiesRoster = new List<Hero>();
         }
 
         if (!dataStore.SyncData("_defaultClanPartySettings", ref _defaultClanPartySettings) && dataStore.IsLoading)
