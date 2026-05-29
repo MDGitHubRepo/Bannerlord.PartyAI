@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.CampaignBehaviors;
+using Bannerlord.PartyAI.Domain;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
@@ -71,12 +72,12 @@ internal class PAITroopUpgradeModel : PartyTroopUpgradeModel
         {
             heroSettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
         }
-        PartyCompositionObect comp = SubModule.PartyTroopRecruiter.GetPartyComposition(party, heroSettings, troop);
-        PartyAITroopRecruiter recruiter = SubModule.PartyTroopRecruiter;
+
+        PartyCompositionObect comp = Recruitment.GetPartyComposition(party, heroSettings, troop);
 
         if (heroSettings.MaxTroopTier > 0 && troop.Tier >= heroSettings.MaxTroopTier) { return 0f; }
 
-        if (SubModule.PartyTroopRecruiter.ShouldRecruit(comp, heroSettings, troop.UpgradeTargets[upgradeTargetIndex], party))
+        if (Recruitment.ShouldRecruit(comp, heroSettings, troop.UpgradeTargets[upgradeTargetIndex], party))
         {
             return 1f;
         }
@@ -88,7 +89,7 @@ internal class PAITroopUpgradeModel : PartyTroopUpgradeModel
                 continue;
             }
 
-            if (SubModule.PartyTroopRecruiter.ShouldRecruit(comp, heroSettings, troop.UpgradeTargets[i], party))
+            if (Recruitment.ShouldRecruit(comp, heroSettings, troop.UpgradeTargets[i], party))
             {
                 return 0f;
             }
@@ -96,8 +97,8 @@ internal class PAITroopUpgradeModel : PartyTroopUpgradeModel
 
         if (heroSettings.PartyTemplate?.Troops.Contains(troop.UpgradeTargets[upgradeTargetIndex]) ?? true)
         {
-            IEnumerable<FormationClass> newTargets = recruiter.UpgradeTargets(troop.UpgradeTargets[upgradeTargetIndex], true, heroSettings.PartyTemplate).ConvertAll(c => FormationClassExtensions.FallbackClass(c.DefaultFormationClass)).Distinct();
-            IEnumerable<FormationClass> currentTargets = recruiter.UpgradeTargets(troop, true, heroSettings.PartyTemplate).ConvertAll(c => FormationClassExtensions.FallbackClass(c.DefaultFormationClass)).Distinct();
+            IEnumerable<FormationClass> newTargets = Recruitment.UpgradeTargets(troop.UpgradeTargets[upgradeTargetIndex], true, heroSettings.PartyTemplate).ConvertAll(c => FormationClassExtensions.FallbackClass(c.DefaultFormationClass)).Distinct();
+            IEnumerable<FormationClass> currentTargets = Recruitment.UpgradeTargets(troop, true, heroSettings.PartyTemplate).ConvertAll(c => FormationClassExtensions.FallbackClass(c.DefaultFormationClass)).Distinct();
             if (Enumerable.SequenceEqual(newTargets, currentTargets))
             {
                 return 1f;

@@ -468,7 +468,7 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
 
         // If this target has no recruitable volunteers (per template rules), don't get stuck.
         // Clear the target and let the next tick reselect.
-        int available = ComputeRecruitableVolunteersCount(party, currentTarget, settings);
+        int available = Recruitment.ComputeRecruitableVolunteersCount(party, currentTarget, settings);
         if (available == 0)
         {
             settings.Order.Target = null;
@@ -493,82 +493,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
         );
     }
 
-    private int ComputeRecruitableVolunteersCount(
-        MobileParty party,
-        Settlement settlement,
-        PartyAIClanPartySettings heroSettings)
-    {
-        if (party?.LeaderHero == null)
-            return 0;
-
-        if (settlement.IsVillage)
-        {
-            var village = settlement.Village;
-            if (village == null)
-                return 0;
-
-            if (village.VillageState == Village.VillageStates.Looted ||
-                village.VillageState == Village.VillageStates.BeingRaided)
-            {
-                return 0;
-            }
-        }
-
-        Hero hero = party.LeaderHero;
-
-        if (!SubModule.PartySettingsManager.IsHeroManageable(hero) ||
-            hero.PartyBelongedTo == null ||
-            hero.PartyBelongedTo.LeaderHero != hero)
-        {
-            return 0;
-        }
-
-        if (!heroSettings.AllowRecruitment)
-        {
-            return 0;
-        }
-
-        // Old comment: "if we're going to convert the troop anyway, it doesn't matter"
-        // In the original mod this early-return left __result at 0, so we preserve that.
-        //if (SubModule.PartySettingsManager.AllowTroopConversion && heroSettings.PartyTemplate != null)
-        //{
-        //    return 0;
-        //}
-
-        PartyCompositionObect comp =
-            SubModule.PartyTroopRecruiter.GetPartyComposition(party.Party, heroSettings);
-
-        int count = 0;
-
-        foreach (Hero notable in settlement.Notables)
-        {
-            if (!notable.IsAlive)
-                continue;
-
-            int max = Campaign.Current.Models.VolunteerModel
-                .MaximumIndexHeroCanRecruitFromHero(
-                    party.IsGarrison ? party.Party.Owner : party.LeaderHero,
-                    notable);
-
-            for (int i = 0; i <= max && i < notable.VolunteerTypes.Length; i++)
-            {
-                CharacterObject troop = notable.VolunteerTypes[i];
-
-                if (troop is null)
-                {
-                    continue;
-                }
-
-                if (SubModule.PartyTroopRecruiter.ShouldRecruit(comp, heroSettings, troop, party.Party))
-                {
-                    count++;
-                }
-            }
-        }
-
-        return count;
-    }
-
     private bool IsGoodTargetForRecruiting(Settlement settlement, MobileParty party, PartyAIClanPartySettings settings, int freeSlots)
     {
         if (settlement == party.CurrentSettlement || settlement.GetPosition2D.Distance(party.GetPosition2D) < 2f)
@@ -577,7 +501,7 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
         if (_recentlyRecruitedFromSettlements.Any(l => l.Settlement == settlement && l.Party == party))
             return false;
 
-        int count = ComputeRecruitableVolunteersCount(party, settlement, settings);
+        int count = Recruitment.ComputeRecruitableVolunteersCount(party, settlement, settings);
 
         if (count < 3 && freeSlots > 3)
             return false;

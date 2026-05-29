@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.PartyAI.Domain;
+using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors.AiBehaviors;
 using TaleWorlds.CampaignSystem.Party;
@@ -39,7 +40,7 @@ internal class AiVisitSettlementBehaviorPatches
             return;
         }
 
-        PartyCompositionObect comp = SubModule.PartyTroopRecruiter.GetPartyComposition(mobileParty.Party, heroSettings);
+        PartyCompositionObect comp = Recruitment.GetPartyComposition(mobileParty.Party, heroSettings);
 
         int allowedCount = 0;
         int totalWage = 0;
@@ -62,7 +63,7 @@ internal class AiVisitSettlementBehaviorPatches
                 if (troop == null)
                     continue;
 
-                if (SubModule.PartyTroopRecruiter.ShouldRecruit(comp, heroSettings, troop, mobileParty.Party))
+                if (Recruitment.ShouldRecruit(comp, heroSettings, troop, mobileParty.Party))
                 {
                     allowedCount++;
                     totalWage += Campaign.Current.Models.PartyWageModel.GetCharacterWage(troop);

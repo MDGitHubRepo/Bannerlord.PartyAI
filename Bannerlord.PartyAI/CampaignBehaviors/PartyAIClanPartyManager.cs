@@ -259,36 +259,6 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
 
     internal TextObject GetOrderText(Hero hero) => Settings(hero).Order?.Text ?? new TextObject("{=PAIZZ1tGdbA}No Active Order");
 
-    internal TroopRoster GetAllTopTierTroops()
-    {
-        TroopRoster results = TroopRoster.CreateDummyTroopRoster();
-        List<CharacterObject> characters = new();
-        Occupation[] occupations = new Occupation[3] { Occupation.Soldier, Occupation.Mercenary, Occupation.CaravanGuard };
-        List<CharacterObject> exclude = new();
-
-        foreach (CharacterObject troop in CharacterObject.All)
-        {
-            if (!characters.Contains(troop) && !troop.IsHero && troop.Culture != null && !troop.Culture.IsBandit && occupations.Contains(troop.Occupation))
-            {
-                characters.AppendList(SubModule.PartyTroopRecruiter.TraverseTree(troop).Where(co => co.UpgradeTargets?.Length == 0).ToList());
-            }
-        }
-
-        characters = characters.Distinct().ToList();
-
-        // check that it's a valid troop by running it through the encyclopedia 
-        EncyclopediaPage pageOf = Campaign.Current.EncyclopediaManager.GetPageOf(typeof(CharacterObject));
-        foreach (CharacterObject c in characters.OrderBy(co => co.Culture?.StringId))
-        {
-            if (pageOf.IsValidEncyclopediaItem(c))
-            {
-                results.AddToCounts(c, 1);
-            }
-        }
-
-        return results;
-    }
-
     public override void SyncData(IDataStore dataStore)
     {
         dataStore.SyncData("_partySettings", ref _partySettings);

@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.PartyAI.Domain;
+using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
@@ -36,8 +37,8 @@ internal class RecruitmentCampaignBehaviorPatches
             return true;
         }
 
-        PartyCompositionObect comp = SubModule.PartyTroopRecruiter.GetPartyComposition(side1Party.Party, heroSettings);
-        if (!SubModule.PartyTroopRecruiter.ShouldRecruit(comp, heroSettings, troop, side1Party.Party))
+        PartyCompositionObect comp = Recruitment.GetPartyComposition(side1Party.Party, heroSettings);
+        if (!Recruitment.ShouldRecruit(comp, heroSettings, troop, side1Party.Party))
         {
             return false;
         }

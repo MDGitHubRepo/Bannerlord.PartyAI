@@ -1,6 +1,6 @@
-﻿using TaleWorlds.CampaignSystem;
+﻿using Bannerlord.PartyAI.Domain;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
-using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
 
 namespace Bannerlord.PartyAI.Models;
@@ -37,7 +37,7 @@ internal class PAIPrisonerRecruitmentCalculationModel : PrisonerRecruitmentCalcu
         }
 
         PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
-        PartyCompositionObect comp = SubModule.PartyTroopRecruiter.GetPartyComposition(party, heroSettings);
+        PartyCompositionObect comp = Recruitment.GetPartyComposition(party, heroSettings);
 
         if (!heroSettings.AllowRecruitment)
         {
@@ -50,7 +50,7 @@ internal class PAIPrisonerRecruitmentCalculationModel : PrisonerRecruitmentCalcu
             return result;
         }
 
-        if (!SubModule.PartyTroopRecruiter.ShouldRecruit(comp, heroSettings, character, party))
+        if (!Recruitment.ShouldRecruit(comp, heroSettings, character, party))
         {
             result = false;
         }
