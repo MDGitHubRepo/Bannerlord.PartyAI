@@ -13,29 +13,15 @@ using TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement.Categories;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
-using TaleWorlds.SaveSystem;
 using static Bannerlord.PartyAI.PAICustomOrder;
-using static TaleWorlds.CampaignSystem.Party.MobileParty;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors;
 
-public class PAISettlementVisitLog
-{
-    [SaveableProperty(1)] public Settlement Settlement { get; private set; }
-    [SaveableProperty(2)] public CampaignTime Visited { get; private set; }
-    [SaveableProperty(3)] public MobileParty Party { get; private set; }
-    public PAISettlementVisitLog(Settlement settlement, CampaignTime visited, MobileParty party)
-    {
-        Settlement = settlement;
-        Visited = visited;
-        Party = party;
-    }
-}
-
 internal class PartyAIThinker : CampaignBehaviorBase
 {
-    private List<MobileParty> _assumingDirectControl = new();
-    private List<PAISettlementVisitLog> _recentlyRecruitedFromSettlements = new();
+    public override void SyncData(IDataStore dataStore)
+    {
+    }
 
     private static MobileParty.NavigationType SanitizeNavigationType(MobileParty.NavigationType navigationType)
     {
@@ -68,27 +54,16 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
     }
 
-    internal MBReadOnlyList<MobileParty> AssumingDirectControl { get => _assumingDirectControl.ToMBList(); }
-
-    internal void ClearAssumingDirectControl() => _assumingDirectControl.Clear();
-    internal void AddToAssumingDirectControl(MobileParty party) => _assumingDirectControl.Add(party);
-
     public override void RegisterEvents()
     {
-        CampaignEvents.MobilePartyDestroyed.AddNonSerializedListener(this, new Action<MobileParty, PartyBase>(OnMobilePartyDestroyed));
-        CampaignEvents.HeroPrisonerTaken.AddNonSerializedListener(this, new Action<PartyBase, Hero>(OnHeroPrisonerTaken));
-        CampaignEvents.OnPartyJoinedArmyEvent.AddNonSerializedListener(this, new Action<MobileParty>(OnPartyJoinedArmy));
-        CampaignEvents.OnSettlementOwnerChangedEvent.AddNonSerializedListener(this, new Action<Settlement, bool, Hero, Hero, Hero, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail>(OnSettlementOwnerChanged));
-        CampaignEvents.HourlyTickPartyEvent.AddNonSerializedListener(this, new Action<MobileParty>(OnHourlyTickParty));
-        CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, new Action(ImplementAutoCreateClanParties));
-        CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, new Action(OnDailyTick));
-        CampaignEvents.MobilePartyCreated.AddNonSerializedListener(this, new(OnMobilePartyCreated));
-        CampaignEvents.SettlementEntered.AddNonSerializedListener(this, new(OnSettlementEntered));
-    }
-
-    private void OnDailyTick()
-    {
-        _recentlyRecruitedFromSettlements.RemoveAll(l => l.Visited.ElapsedDaysUntilNow > 10f);
+        CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
+        CampaignEvents.MobilePartyDestroyed.AddNonSerializedListener(this, OnMobilePartyDestroyed);
+        CampaignEvents.HeroPrisonerTaken.AddNonSerializedListener(this, OnHeroPrisonerTaken);
+        CampaignEvents.OnPartyJoinedArmyEvent.AddNonSerializedListener(this, OnPartyJoinedArmy);
+        CampaignEvents.OnSettlementOwnerChangedEvent.AddNonSerializedListener(this, OnSettlementOwnerChanged);
+        CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, ImplementAutoCreateClanParties);
+        CampaignEvents.MobilePartyCreated.AddNonSerializedListener(this, OnMobilePartyCreated);
+        CampaignEvents.SettlementEntered.AddNonSerializedListener(this, OnSettlementEntered);
     }
 
     private void OnSettlementEntered(MobileParty party, Settlement settlement, Hero hero)
@@ -154,7 +129,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
             }
 
             Hero leader = TaleWorlds.Core.Extensions.GetRandomElementInefficiently(eligibleLeaders);
-            Settlement settlement = FindNearestSettlement(s => true, leader.GetMapPoint());
+            Settlement? settlement = Navigation.FindNearestSettlement(s => true, leader.GetMapPoint());
             MobileParty newParty = MobilePartyHelper.CreateNewClanMobileParty(leader, Clan.PlayerClan);
             InformationManager.DisplayMessage(new InformationMessage(new TextObject("{=PAIJPxU5978}{HERO} has created a new party near {SETTLEMENT}").SetTextVariable("HERO", leader.Name).SetTextVariable("SETTLEMENT", settlement?.Name).ToString(), Colors.Gray));
 
@@ -163,107 +138,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
                 break;
             }
         } while (Clan.PlayerClan.WarPartyComponents.Count < Clan.PlayerClan.WarPartyLimit);
-    }
-
-    private void OnHourlyTickParty(MobileParty party)
-    {
-        if (party?.LeaderHero == null) { return; }
-        if (!SubModule.PartySettingsManager.IsHeroManageable(party.LeaderHero))
-        {
-            if (party.Ai != null && party.Ai.DoNotMakeNewDecisions && party.DefaultBehavior == AiBehavior.Hold && party.IsLordParty)
-            {
-                party.Ai.SetDoNotMakeNewDecisions(false);
-            }
-            return;
-        }
-        else if (SubModule.PartyThinker.AssumingDirectControl.Contains(party) && !SubModule.PartySettingsManager.Settings(party.LeaderHero)?.HasActiveOrder == true)
-        {
-            if (party.DefaultBehavior == AiBehavior.Hold)
-            {
-                var directControlSettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
-                if (directControlSettings != null)
-                    directControlSettings.SetOrder(new(MobileParty.MainParty, OrderType.EscortParty));
-            }
-        }
-
-        // buy horses while waiting in settlements
-        if (party.CurrentSettlement != null)
-        {
-            PartyHorseTrading.TryBuyAndSellHorses(party, party.CurrentSettlement);
-        }
-
-        var partySettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
-        if (partySettings == null) return;
-        PartyAIClanPartySettings settings = partySettings;
-        if (settings.AutoRecruitment && party.PartySizeRatio < settings.AutoRecruitmentPercentage && !SubModule.PartyThinker.AssumingDirectControl.Contains(party) && party.Army == null)
-        {
-            if (settings.HasActiveOrder)
-            {
-                if (settings.Order.Behavior != OrderType.RecruitFromTemplate && !settings.OrderQueue.Any(o => o.Behavior == OrderType.RecruitFromTemplate))
-                {
-                    settings.SetOrder(new(null, OrderType.RecruitFromTemplate));
-                }
-            }
-            else
-            {
-                settings.SetOrder(new(null, OrderType.RecruitFromTemplate));
-            }
-        }
-        if (settings.DismissUnwantedTroops && party.PartySizeRatio > settings.DismissUnwantedTroopsPercentage)
-        {
-            int max = (int)((party.PartySizeRatio - settings.DismissUnwantedTroopsPercentage) * party.Party.PartySizeLimit);
-            if (max > 0)
-            {
-                SubModule.PartyTroopRecruiter.DismissUnwantedTroops(settings, party, max);
-            }
-        }
-        if (settings.HasActiveOrder)
-        {
-            // DON'T abandon patrol orders for low food - patrol logic handles it internally
-            if (settings.Order.Behavior != OrderType.PatrolAroundPoint &&
-                settings.Order.Behavior != OrderType.PatrolClanLands)
-            {
-                if (party.GetNumDaysForFoodToLast() < 3 && party.GetNumDaysForFoodToLast() > 0)
-                {
-                    AbandonOrderForNoFood(party, settings);
-                    return;
-                }
-            }
-            if (settings.Order.Behavior == OrderType.DefendSettlement)
-            {
-                ImplementDefendSettlement(settings, party, out _);
-                return;
-            }
-            if (settings.Order.Behavior == OrderType.StayInSettlement)
-            {
-                ImplementStayInSettlement(settings, party, out _);
-                return;
-            }
-            if (settings.Order.Behavior == OrderType.VisitSettlement)
-            {
-                ImplementVisitSettlement(settings, party, out _);
-                return;
-            }
-            if (settings.Order.Behavior == OrderType.AttackParty)
-            {
-                ImplementAttackParty(settings, party, settings.Order.Target, out _);
-                return;
-            }
-            if (settings.Order.Behavior == OrderType.EscortParty)
-            {
-                ImplementEscortParty(settings, party, settings.Order.Target, out _);
-                return;
-            }
-            if (settings.Order.Behavior == OrderType.RecruitFromTemplate)
-            {
-                ImplementRecruitFromTemplate(settings, party);
-                return;
-            }
-        }
-        else if (settings.FallbackOrder != null && settings.FallbackOrder.Behavior != OrderType.None && party.Army == null)
-        {
-            settings.SetOrder(settings.FallbackOrder);
-        }
     }
 
     private void OnSettlementOwnerChanged(Settlement settlement, bool openToClaim, Hero newOwner, Hero oldOwner, Hero capturerHero, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail detail)
@@ -342,16 +216,16 @@ internal class PartyAIThinker : CampaignBehaviorBase
                         continue;
                     }
                     settings.ClearOrder();
-                    if (SubModule.PartyThinker.AssumingDirectControl.Contains(settings.Hero?.PartyBelongedTo))
+                    if (ControlAssumption.IsUnderControlAssumption(settings.Hero?.PartyBelongedTo))
                     {
-                        settings.SetOrder(new(MainParty, OrderType.EscortParty));
+                        settings.SetOrder(new(MobileParty.MainParty, OrderType.EscortParty));
                         MobileParty escortingParty = settings.Hero?.PartyBelongedTo;
                         if (escortingParty != null)
                         {
                             SetPartyAiAction.GetActionForEscortingParty(
                                 escortingParty,
-                                MainParty,
-                                MainParty.DesiredAiNavigationType,
+                                MobileParty.MainParty,
+                                MobileParty.MainParty.DesiredAiNavigationType,
                                 false,
                                 false);
                             escortingParty.Ai.SetDoNotMakeNewDecisions(true);
@@ -385,7 +259,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
     }
 
-    internal void ProcessOrder(MobileParty party, PartyThinkParams thinkParams)
+    internal void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
     {
         if (party?.LeaderHero is null
             || !SubModule.PartySettingsManager.IsHeroManageable(party.LeaderHero))
@@ -399,6 +273,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
             return;
         }
 
+        // These three should probably be in the "doing" part instead of "thinking"
         ImplementAllowRaidingVillages(party, thinkParams, settings);
         ImplementAllowJoiningArmies(party, thinkParams, settings);
         ImplementAllowBesieging(party, thinkParams, settings);
@@ -408,45 +283,13 @@ internal class PartyAIThinker : CampaignBehaviorBase
             return;
         }
 
-        if (settings.Order.Behavior != OrderType.PatrolAroundPoint &&
-            settings.Order.Behavior != OrderType.PatrolClanLands)
-        {
-            if (party.GetNumDaysForFoodToLast() < 3 && party.GetNumDaysForFoodToLast() > 0)
-            {
-                AbandonOrderForNoFood(party, settings);
-                return;
-            }
-        }
-
         IMapPoint target = settings.Order.Target;
-        PartyObjective existingObjective = party.Objective;
+        MobileParty.PartyObjective existingObjective = party.Objective;
         List<(AIBehaviorData, float)> newParams;
         switch (settings.Order.Behavior)
         {
-            case OrderType.EscortParty:
-                ImplementEscortParty(settings, party, target, out newParams);
-                break;
-            case OrderType.RecruitFromTemplate:
-                ImplementRecruitFromTemplate(settings, party);
-                newParams = new(thinkParams.AIBehaviorScores);
-                break;
-            case OrderType.AttackParty:
-                ImplementAttackParty(settings, party, target, out newParams);
-                break;
             case OrderType.PatrolAroundPoint:
                 ImplementPatrolAroundSettlement(settings, party, target, thinkParams, out newParams, distanceFactor: settings.PatrolRadius);
-                break;
-            case OrderType.BesiegeSettlement:
-                ImplementBesiegeSettlement(settings, party, target, thinkParams, out newParams);
-                break;
-            case OrderType.StayInSettlement:
-                ImplementStayInSettlement(settings, party, out newParams);
-                break;
-            case OrderType.VisitSettlement:
-                ImplementVisitSettlement(settings, party, out newParams);
-                break;
-            case OrderType.DefendSettlement:
-                ImplementDefendSettlement(settings, party, out newParams);
                 break;
             case OrderType.PatrolClanLands:
                 ImplementPatrolClanLands(settings.Hero, party, target, thinkParams, out newParams);
@@ -477,513 +320,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
     }
 
-    private void ImplementStayInSettlement(PartyAIClanPartySettings settings, MobileParty party, out List<(AIBehaviorData, float)> newParams)
-    {
-        newParams = new List<(AIBehaviorData, float)>();
-        IMapPoint target = settings.Order.Target;
-        Settlement settlement = (Settlement)target;
-
-        if (FactionManager.IsAtWarAgainstFaction(target.MapFaction, party.MapFaction))
-        {
-            settings.ClearOrder();
-            return;
-        }
-
-        party.Ai.SetDoNotMakeNewDecisions(true);
-
-        // Low on food -> go to nearest friendly/neutral town
-        if (party.GetNumDaysForFoodToLast() < 4 && party.GetNumDaysForFoodToLast() > 0)
-        {
-            Settlement town = FindNearestSettlement(
-                s =>
-                    s.IsTown && // same faction OR neutral
-                    (s.MapFaction == party.MapFaction ||
-                     FactionManager.IsNeutralWithFaction(party.MapFaction, s.MapFaction)) &&
-                    (!(target is Settlement ts) || s != ts),
-                target
-            );
-            if (town != null && TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
-            {
-                SetPartyAiAction.GetActionForVisitingSettlement(
-                  party,
-                  town,
-                  navType,
-                  isFromPort,
-                  isTargetingPort);
-            }
-            return;
-        }
-
-        if (party.CurrentSettlement != target)
-        {
-            if (settlement.IsUnderSiege)
-            {
-                settings.ClearOrder();
-            }
-            else if (target is Settlement targetSettlement)
-            {
-                if (TryGetBestNavigationDataForSettlement(party, targetSettlement, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
-                {
-                    SetPartyAiAction.GetActionForVisitingSettlement(
-                      party,
-                      targetSettlement,
-                      navType,
-                      isFromPort,
-                      isTargetingPort
-                    );
-                }
-            }
-        }
-    }
-
-    private void ImplementVisitSettlement(PartyAIClanPartySettings settings, MobileParty party, out List<(AIBehaviorData, float)> newParams)
-    {
-        newParams = new List<(AIBehaviorData, float)>();
-        IMapPoint target = settings.Order.Target;
-        Settlement settlement = (Settlement)target;
-
-        if (FactionManager.IsAtWarAgainstFaction(target.MapFaction, party.MapFaction))
-        {
-            settings.ClearOrder();
-            return;
-        }
-
-        party.Ai.SetDoNotMakeNewDecisions(true);
-
-        // Low on food -> go to nearest friendly/neutral town
-        if (party.GetNumDaysForFoodToLast() < 4 && party.GetNumDaysForFoodToLast() > 0)
-        {
-            Settlement town = FindNearestSettlement(
-                s =>
-                    s.IsTown && // same faction OR neutral
-                    (s.MapFaction == party.MapFaction ||
-                     FactionManager.IsNeutralWithFaction(party.MapFaction, s.MapFaction)) &&
-                    (!(target is Settlement ts) || s != ts),
-                target
-            );
-            if (town != null && TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
-            {
-                SetPartyAiAction.GetActionForVisitingSettlement(
-                  party,
-                  town,
-                  navType,
-                  isFromPort,
-                  isTargetingPort);
-            }
-            return;
-        }
-
-        if (party.CurrentSettlement != target)
-        {
-            if (settlement.IsUnderSiege)
-            {
-                settings.ClearOrder();
-            }
-            else if (target is Settlement targetSettlement)
-            {
-                if (TryGetBestNavigationDataForSettlement(party, targetSettlement, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
-                {
-                    SetPartyAiAction.GetActionForVisitingSettlement(
-                      party,
-                      targetSettlement,
-                      navType,
-                      isFromPort,
-                      isTargetingPort
-                    );
-                }
-            }
-        }
-    }
-
-    private void ImplementDefendSettlement(PartyAIClanPartySettings settings, MobileParty party, out List<(AIBehaviorData, float)> newParams)
-    {
-        newParams = new List<(AIBehaviorData, float)>();
-        IMapPoint target = settings.Order.Target;
-        Settlement settlement = (Settlement)target;
-
-        if (target.MapFaction != party.MapFaction)
-        {
-            settings.ClearOrder();
-            return;
-        }
-
-        party.Ai.SetDoNotMakeNewDecisions(true);
-
-        // Low on food -> go to nearest friendly/neutral town
-        if (party.GetNumDaysForFoodToLast() < 4 && party.GetNumDaysForFoodToLast() > 0)
-        {
-            Settlement town = FindNearestSettlement(
-                s =>
-                    s.IsTown &&
-                    (s.MapFaction == party.MapFaction ||
-                     FactionManager.IsNeutralWithFaction(party.MapFaction, s.MapFaction)) &&
-                    (!(target is Settlement ts) || s != ts),
-                target
-            );
-
-            if (town != null && TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
-            {
-                SetPartyAiAction.GetActionForVisitingSettlement(
-                    party,
-                    town,
-                    navType,
-                    isFromPort,
-                    isTargetingPort
-                );
-            }
-
-            return;
-        }
-
-        // Not in the target settlement yet -> move there
-        if (party.CurrentSettlement != settlement)
-        {
-            if (TryGetBestNavigationDataForSettlement(party, settlement, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
-            {
-                if (settlement.IsUnderSiege)
-                {
-                    SetPartyAiAction.GetActionForDefendingSettlement(
-                        party,
-                        settlement,
-                        navType,
-                        isFromPort,
-                        isTargetingPort
-                    );
-                }
-                else
-                {
-                    SetPartyAiAction.GetActionForVisitingSettlement(
-                        party,
-                        settlement,
-                        navType,
-                        isFromPort,
-                        isTargetingPort
-                    );
-                }
-            }
-        }
-    }
-
-    private void ImplementEscortParty(PartyAIClanPartySettings settings, MobileParty party, IMapPoint target, out List<(AIBehaviorData, float)> newParams)
-    {
-        newParams = new();
-
-        if (target is not MobileParty targetParty || targetParty == null)
-        {
-            settings.ClearOrder();
-            ResetPartyAi(party);
-            return;
-        }
-
-        if (FactionManager.IsAtWarAgainstFaction(party.MapFaction, targetParty.MapFaction))
-        {
-            settings.ClearOrder();
-            ResetPartyAi(party);
-            return;
-        }
-
-        bool navMismatch = party.DesiredAiNavigationType != targetParty.DesiredAiNavigationType;
-
-        // Allow issuing the escort action when the AI is unlocked OR default hold OR navigation mode changed
-        if (!party.Ai.DoNotMakeNewDecisions || party.DefaultBehavior == AiBehavior.Hold || navMismatch)
-        {
-            SetPartyAiAction.GetActionForEscortingParty(
-                party,
-                targetParty,
-                targetParty.DesiredAiNavigationType, // use target's navigation type
-                false, // isFromPort
-                false  // isTargetingPort
-            );
-            party.Ai.SetDoNotMakeNewDecisions(true);
-        }
-    }
-
-    private void ImplementAttackParty(PartyAIClanPartySettings settings, MobileParty party, IMapPoint target, out List<(AIBehaviorData, float)> newParams)
-    {
-        newParams = new();
-
-        if (target is not MobileParty targetParty || targetParty == null)
-        {
-            settings.ClearOrder();
-            ResetPartyAi(party);
-            return;
-        }
-
-        if (!FactionManager.IsAtWarAgainstFaction(party.MapFaction, targetParty.MapFaction))
-        {
-            settings.ClearOrder();
-            ResetPartyAi(party);
-            return;
-        }
-
-        bool navMismatch = party.DesiredAiNavigationType != targetParty.DesiredAiNavigationType;
-
-        // Allow issuing the engage action when the AI is unlocked OR default hold OR navigation mode changed
-        if (!party.Ai.DoNotMakeNewDecisions || party.DefaultBehavior == AiBehavior.Hold || navMismatch)
-        {
-            SetPartyAiAction.GetActionForEngagingParty(
-                party,
-                targetParty,
-                targetParty.DesiredAiNavigationType, // use target's navigation type
-                false // isFromPort
-            );
-
-            party.Ai.SetDoNotMakeNewDecisions(true);
-        }
-    }
-
-    private void ImplementRecruitFromTemplate(PartyAIClanPartySettings settings, MobileParty party)
-    {
-        int freeSlots = (int)((1f - party.PartySizeRatio) * party.Party.PartySizeLimit);
-        if (freeSlots < 1)
-        {
-            settings.ClearOrder();
-            return;
-        }
-
-        // === THREAT CHECK: Yield to vanilla AI if enemies nearby ===
-        // Uses vanilla detection radius (3x encounter joining radius) and strength comparison
-        float encounterRadius = Campaign.Current.Models.EncounterModel.GetEncounterJoiningRadius;
-        float scanRadius = encounterRadius * 3f;
-
-        try
-        {
-            LocatableSearchData<MobileParty> scan = MobileParty.StartFindingLocatablesAroundPosition(
-                party.Position.ToVec2(),
-                scanRadius);
-
-            for (MobileParty enemy = MobileParty.FindNextLocatable(ref scan);
-                 enemy != null;
-                 enemy = MobileParty.FindNextLocatable(ref scan))
-            {
-                // Vanilla filters: skip self, inactive, in settlements (except garrisons), non-enemies
-                if (enemy == party || !enemy.IsActive || enemy.IsDisbanding)
-                    continue;
-
-                if (enemy.CurrentSettlement != null && !enemy.IsGarrison)
-                    continue;
-
-                if (!FactionManager.IsAtWarAgainstFaction(party.MapFaction, enemy.MapFaction))
-                    continue;
-
-                if (enemy.Army != null && enemy.Army.LeaderParty != enemy && enemy.AttachedTo != null)
-                    continue;
-
-                if (party.IsCurrentlyAtSea != enemy.IsCurrentlyAtSea)
-                    continue;
-
-                // Vanilla strength comparison: flee if enemy is stronger
-                float myStrength = (party.Army == null || party.AttachedTo == null && party.Army.LeaderParty != party)
-                    ? party.Party.EstimatedStrength
-                    : party.Army.EstimatedStrength;
-
-                float enemyStrength = (enemy.Army == null || enemy.AttachedTo == null && enemy.Army.LeaderParty != enemy)
-                    ? enemy.Party.EstimatedStrength
-                    : enemy.Army.EstimatedStrength;
-
-                // Vanilla flee condition: enemy is stronger AND aggressive/garrison
-                if (myStrength < enemyStrength && (enemy.Aggressiveness > 0.01f || enemy.IsGarrison))
-                {
-                    // Unlock AI - vanilla will handle flee behavior
-                    if (party.Ai.DoNotMakeNewDecisions)
-                    {
-                        party.Ai.SetDoNotMakeNewDecisions(false);
-                    }
-                    // Keep order active - party will resume recruiting once safe
-                    return;
-                }
-            }
-        }
-        catch (KeyNotFoundException)
-        {
-            // LocatorGrid error - skip threat check this tick
-        }
-
-        // === MOD BEHAVIOR: Safe to continue recruiting ===
-        if (settings.Order.Target is not Settlement currentTarget || party.CurrentSettlement == currentTarget)
-        {
-            IEnumerable<Settlement> settlements = Settlement.All.Where(s =>
-              (s.IsVillage || s.IsTown) &&
-              (settings.RecruitFromEnemySettlements || !FactionManager.IsAtWarAgainstFaction(party.MapFaction, s.MapFaction)) &&
-              (settings.PartyTemplate?.TroopCultures.Contains(s.Culture) ?? true));
-
-            currentTarget = FindNearestSettlement(
-                s => IsGoodTargetForRecruiting(s, party, settings, freeSlots),
-                party,
-                settlements);
-
-            if (currentTarget != null)
-            {
-                _recentlyRecruitedFromSettlements.Add(new(currentTarget, CampaignTime.Now, party));
-                settings.Order.Target = currentTarget;
-            }
-        }
-
-        if (currentTarget == null)
-        {
-            if (party.Ai.DoNotMakeNewDecisions)
-            {
-                party.Ai.SetDoNotMakeNewDecisions(false);
-                ResetPartyAi(party);
-            }
-            return;
-        }
-
-        // If this target has no recruitable volunteers (per template rules), don't get stuck.
-        // Clear the target and let the next tick reselect.
-        int available = ComputeRecruitableVolunteersCount(party, currentTarget, settings);
-        if (available == 0)
-        {
-            settings.Order.Target = null;
-            if (party.Ai.DoNotMakeNewDecisions)
-                party.Ai.SetDoNotMakeNewDecisions(false);
-            ResetPartyAi(party);
-            return;
-        }
-
-        // Safe to lock AI and navigate
-        party.Ai.SetDoNotMakeNewDecisions(true);
-
-        var navType = party.HasNavalNavigationCapability ? MobileParty.NavigationType.All : party.DesiredAiNavigationType;
-        party.DesiredAiNavigationType = navType;
-
-        SetPartyAiAction.GetActionForVisitingSettlement(
-            party,
-            currentTarget,
-            navType,
-            false,
-            false
-        );
-    }
-
-    private bool IsGoodTargetForRecruiting(Settlement settlement, MobileParty party, PartyAIClanPartySettings settings, int freeSlots)
-    {
-        if (settlement == party.CurrentSettlement || settlement.GetPosition2D.Distance(party.GetPosition2D) < 2f)
-            return false;
-
-        if (_recentlyRecruitedFromSettlements.Any(l => l.Settlement == settlement && l.Party == party))
-            return false;
-
-        int count = ComputeRecruitableVolunteersCount(party, settlement, settings);
-
-        if (count < 3 && freeSlots > 3)
-            return false;
-
-        if (count == 0)
-            return false;
-
-        return true;
-    }
-
-    private int ComputeRecruitableVolunteersCount(
-        MobileParty party,
-        Settlement settlement,
-        PartyAIClanPartySettings heroSettings)
-    {
-        if (party?.LeaderHero == null)
-            return 0;
-
-        if (settlement.IsVillage)
-        {
-            var village = settlement.Village;
-            if (village == null)
-                return 0;
-
-            if (village.VillageState == Village.VillageStates.Looted ||
-                village.VillageState == Village.VillageStates.BeingRaided)
-            {
-                return 0;
-            }
-        }
-
-        Hero hero = party.LeaderHero;
-
-        if (!SubModule.PartySettingsManager.IsHeroManageable(hero) ||
-            hero.PartyBelongedTo == null ||
-            hero.PartyBelongedTo.LeaderHero != hero)
-        {
-            return 0;
-        }
-
-        if (!heroSettings.AllowRecruitment)
-        {
-            return 0;
-        }
-
-        // Old comment: "if we're going to convert the troop anyway, it doesn't matter"
-        // In the original mod this early-return left __result at 0, so we preserve that.
-        //if (SubModule.PartySettingsManager.AllowTroopConversion && heroSettings.PartyTemplate != null)
-        //{
-        //    return 0;
-        //}
-
-        PartyCompositionObect comp =
-            SubModule.PartyTroopRecruiter.GetPartyComposition(party.Party, heroSettings);
-
-        int count = 0;
-
-        foreach (Hero notable in settlement.Notables)
-        {
-            if (!notable.IsAlive)
-                continue;
-
-            int max = Campaign.Current.Models.VolunteerModel
-                .MaximumIndexHeroCanRecruitFromHero(
-                    party.IsGarrison ? party.Party.Owner : party.LeaderHero,
-                    notable);
-
-            for (int i = 0; i <= max && i < notable.VolunteerTypes.Length; i++)
-            {
-                CharacterObject troop = notable.VolunteerTypes[i];
-
-                if (troop is null)
-                {
-                    continue;
-                }
-
-                if (SubModule.PartyTroopRecruiter.ShouldRecruit(comp, heroSettings, troop, party.Party))
-                {
-                    count++;
-                }
-            }
-        }
-
-        return count;
-    }
-
-    private void ImplementBesiegeSettlement(PartyAIClanPartySettings settings, MobileParty party, IMapPoint target, in PartyThinkParams thinkParams, out List<(AIBehaviorData, float)> newParams)
-    {
-        newParams = new List<(AIBehaviorData, float)>();
-
-        if (!FactionManager.IsAtWarAgainstFaction(party.MapFaction, target.MapFaction))
-        {
-            settings.ClearOrder();
-            ResetPartyAi(party);
-            return;
-        }
-
-        if (!party.Ai.DoNotMakeNewDecisions || party.DefaultBehavior == AiBehavior.Hold)
-        {
-            if (target is Settlement targetSettlement)
-            {
-                SetPartyAiAction.GetActionForBesiegingSettlement(
-                    party,
-                    targetSettlement,
-                    party.DesiredAiNavigationType,
-                    false // isFromPort
-                );
-
-                party.Ai.SetDoNotMakeNewDecisions(true);
-            }
-            else
-            {
-                // Safety fallback if target somehow isn't a settlement
-                settings.ClearOrder();
-                ResetPartyAi(party);
-            }
-        }
-    }
-
     private void ImplementPatrolClanLands(Hero hero, MobileParty party, IMapPoint target, in PartyThinkParams thinkParams, out List<(AIBehaviorData, float)> newParams, float distanceFactor = 1.0f, bool useQuickDistance = false)
     {
         newParams = new List<(AIBehaviorData, float)>();
@@ -1006,7 +342,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
                 safeNavType,
                 condition: settlement => IsFriendlyTownOrVillage(party, settlement));
 
-            if (town != null && TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType townNavType, out bool townIsFromPort, out bool townIsTargetingPort))
+            if (town != null && Navigation.TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType townNavType, out bool townIsFromPort, out bool townIsTargetingPort))
             {
                 newParams.Add((
                     new AIBehaviorData(town, AiBehavior.GoToSettlement, townNavType, false, townIsFromPort, townIsTargetingPort),
@@ -1020,7 +356,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
             return;
 
         // Find nearest clan settlement to patrol around
-        Settlement nearestClanSettlement = FindNearestSettlement(s => s.OwnerClan == hero.Clan, party);
+        Settlement nearestClanSettlement = Navigation.FindNearestSettlement(s => s.OwnerClan == hero.Clan, party);
 
         if (nearestClanSettlement == null)
             return;
@@ -1041,7 +377,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
 
             if (clanSettlement.IsFortification && clanSettlement.IsUnderSiege)
             {
-                if (TryGetBestNavigationDataForSettlement(party, clanSettlement, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
+                if (Navigation.TryGetBestNavigationDataForSettlement(party, clanSettlement, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
                 {
                     newParams.Add((
                         new AIBehaviorData(clanSettlement, AiBehavior.DefendSettlement, navType, false, isFromPort, isTargetingPort),
@@ -1049,16 +385,16 @@ internal class PartyAIThinker : CampaignBehaviorBase
                     ));
                 }
 
-                if (party.Objective != PartyObjective.Defensive)
+                if (party.Objective != MobileParty.PartyObjective.Defensive)
                 {
-                    party.SetPartyObjective(PartyObjective.Defensive);
+                    party.SetPartyObjective(MobileParty.PartyObjective.Defensive);
                 }
                 return;
             }
 
             if (clanSettlement.IsVillage && clanSettlement.Village?.VillageState == Village.VillageStates.BeingRaided)
             {
-                if (TryGetBestNavigationDataForSettlement(party, clanSettlement, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
+                if (Navigation.TryGetBestNavigationDataForSettlement(party, clanSettlement, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
                 {
                     newParams.Add((
                         new AIBehaviorData(clanSettlement, AiBehavior.DefendSettlement, navType, false, isFromPort, isTargetingPort),
@@ -1066,9 +402,9 @@ internal class PartyAIThinker : CampaignBehaviorBase
                     ));
                 }
 
-                if (party.Objective != PartyObjective.Defensive)
+                if (party.Objective != MobileParty.PartyObjective.Defensive)
                 {
-                    party.SetPartyObjective(PartyObjective.Defensive);
+                    party.SetPartyObjective(MobileParty.PartyObjective.Defensive);
                 }
                 return;
             }
@@ -1081,7 +417,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
             safeNavType);
         if (distance > range * 4)
         {
-            if (TryGetBestNavigationDataForSettlement(party, nearestClanSettlement, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
+            if (Navigation.TryGetBestNavigationDataForSettlement(party, nearestClanSettlement, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
             {
                 newParams.Add((
                     new AIBehaviorData(nearestClanSettlement, AiBehavior.GoToSettlement, navType, false, isFromPort, isTargetingPort),
@@ -1112,9 +448,9 @@ internal class PartyAIThinker : CampaignBehaviorBase
             }
         }
 
-        if (party.Objective != PartyObjective.Aggressive)
+        if (party.Objective != MobileParty.PartyObjective.Aggressive)
         {
-            party.SetPartyObjective(PartyObjective.Aggressive);
+            party.SetPartyObjective(MobileParty.PartyObjective.Aggressive);
         }
     }
 
@@ -1130,7 +466,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         float range = GetSafeAverageDistanceBetweenClosestTwoTownsWithNavigationType(MobileParty.NavigationType.Default) * 0.9f * distanceFactor;
 
         // Compute best navigation and port flags for reaching the patrol center.
-        if (!TryGetBestNavigationDataForSettlement(party, centerSettlement, out MobileParty.NavigationType centerNavType, out bool centerIsFromPort, out bool centerIsTargetingPort))
+        if (!Navigation.TryGetBestNavigationDataForSettlement(party, centerSettlement, out MobileParty.NavigationType centerNavType, out bool centerIsFromPort, out bool centerIsTargetingPort))
         {
             newParams = thinkParams.AIBehaviorScores.ConvertAll(s => (s.Item1, s.Item2));
             return;
@@ -1145,7 +481,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
                 safeNavType,
                 condition: settlement => IsFriendlyTownOrVillage(party, settlement));
 
-            if (town != null && TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType townNavType, out bool townIsFromPort, out bool townIsTargetingPort))
+            if (town != null && Navigation.TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType townNavType, out bool townIsFromPort, out bool townIsTargetingPort))
             {
                 newParams.Add((
                     new AIBehaviorData(town, AiBehavior.GoToSettlement, townNavType, false, townIsFromPort, townIsTargetingPort),
@@ -1171,7 +507,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
 
             if (IsSettlementUnderAttack(settlement))
             {
-                if (TryGetBestNavigationDataForSettlement(party, settlement, out MobileParty.NavigationType defendNavType, out bool defendIsFromPort, out bool defendIsTargetingPort))
+                if (Navigation.TryGetBestNavigationDataForSettlement(party, settlement, out MobileParty.NavigationType defendNavType, out bool defendIsFromPort, out bool defendIsTargetingPort))
                 {
                     SetPartyAiAction.GetActionForDefendingSettlement(
                         party,
@@ -1237,9 +573,9 @@ internal class PartyAIThinker : CampaignBehaviorBase
             }
         }
 
-        if (party.Objective != PartyObjective.Aggressive)
+        if (party.Objective != MobileParty.PartyObjective.Aggressive)
         {
-            party.SetPartyObjective(PartyObjective.Aggressive);
+            party.SetPartyObjective(MobileParty.PartyObjective.Aggressive);
         }
     }
 
@@ -1300,14 +636,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
     }
 
-    private void AbandonOrderForNoFood(MobileParty party, PartyAIClanPartySettings settings)
-    {
-        TextObject text = new TextObject("{=PAIw38SHHlH}{PARTY} is no longer {ORDER} because their food supplies ran low.").SetTextVariable("PARTY", party.Name).SetTextVariable("ORDER", SubModule.PartySettingsManager.GetOrderText(party.LeaderHero));
-        InformationManager.DisplayMessage(new InformationMessage(text.ToString(), Colors.Magenta));
-        settings.ClearOrder();
-        ResetPartyAi(party);
-    }
-
     private void LeaveArmy(MobileParty party, PartyThinkParams thinkParams)
     {
         // refund influence
@@ -1318,7 +646,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         party.Army = null;
 
         // Find nearest friendly/neutral fortification to send the party to
-        Settlement nearestFort = FindNearestSettlement(
+        Settlement? nearestFort = Navigation.FindNearestSettlement(
             s =>
                 s.IsFortification &&
                 (s.MapFaction == party.MapFaction ||
@@ -1326,7 +654,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
             party
         );
 
-        if (nearestFort != null && TryGetBestNavigationDataForSettlement(party, nearestFort, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
+        if (nearestFort != null && Navigation.TryGetBestNavigationDataForSettlement(party, nearestFort, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
         {
             SetPartyAiAction.GetActionForVisitingSettlement(
               party,
@@ -1348,128 +676,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
     }
 
     private IEnumerable<WarPartyComponent> ActiveClanParties(Clan c) => c.WarPartyComponents.Where(p => p.MobileParty != MobileParty.MainParty);
-
-    // made my own, native one sucks
-    public static Settlement FindNearestSettlement(
-      Func<Settlement, bool> condition,
-      IMapPoint toMapPoint,
-      IEnumerable<Settlement> settlements = null)
-    {
-        Settlement result = null;
-        settlements ??= Settlement.All;
-
-        // Get the "origin" position from the map point
-        Vec2 originPos;
-
-        if (toMapPoint is Settlement originSettlement)
-        {
-            originPos = originSettlement.GetPosition2D;
-        }
-        else if (toMapPoint is MobileParty originParty)
-        {
-            originPos = originParty.GetPosition2D;
-        }
-        else
-        {
-            // Fallback: use main party position if don't recognize the IMapPoint type
-            originPos = MobileParty.MainParty.GetPosition2D;
-        }
-
-        float bestDistSq = float.MaxValue;
-
-        foreach (Settlement item in settlements)
-        {
-            if (condition != null && !condition(item))
-                continue;
-
-            // Distance in 2D map space
-            float distSq = originPos.DistanceSquared(item.GetPosition2D);
-
-            if (distSq < bestDistSq)
-            {
-                bestDistSq = distSq;
-                result = item;
-            }
-        }
-
-        return result;
-    }
-
-    public override void SyncData(IDataStore dataStore)
-    {
-        dataStore.SyncData("_assumingDirectControl", ref _assumingDirectControl);
-        dataStore.SyncData("_recentlyRecruitedFromSettlements", ref _recentlyRecruitedFromSettlements);
-    }
-
-    /// <summary>
-    /// Mirrors vanilla AiVisitSettlementBehavior.GetBestNavigationDataForVisitingSettlement.
-    /// Computes the best navigation type and port transition flags for reaching a settlement.
-    /// </summary>
-    private static bool TryGetBestNavigationDataForSettlement(
-      MobileParty party,
-      Settlement settlement,
-      out MobileParty.NavigationType navigationType,
-      out bool isFromPort,
-      out bool isTargetingPort)
-    {
-        navigationType = MobileParty.NavigationType.None;
-        isFromPort = false;
-        isTargetingPort = false;
-
-        if (party == null || settlement == null)
-        {
-            return false;
-        }
-
-        // Normalize to canonical Settlement instance to avoid cache-key identity mismatches
-        Settlement normalizedSettlement = Settlement.Find(settlement.StringId) ?? settlement;
-
-        MobileParty.NavigationType bestNavType = MobileParty.NavigationType.None;
-        float bestDistance = float.MaxValue;
-        bool bestIsFromPort = false;
-
-        bool portBlocked = normalizedSettlement.HasPort &&
-                           normalizedSettlement.SiegeEvent != null &&
-                           normalizedSettlement.SiegeEvent.IsBlockadeActive;
-
-        // Try non-port targeting first (unless blockade prevents portless approach for naval-capable parties).
-        if (!portBlocked || !party.HasNavalNavigationCapability)
-        {
-            AiHelper.GetBestNavigationTypeAndAdjustedDistanceOfSettlementForMobileParty(
-              party,
-              normalizedSettlement,
-              false,
-              out bestNavType,
-              out bestDistance,
-              out bestIsFromPort);
-        }
-
-        // If the party can travel by sea and the settlement has a port, also try targeting the port.
-        if (party.HasNavalNavigationCapability && normalizedSettlement.HasPort)
-        {
-            AiHelper.GetBestNavigationTypeAndAdjustedDistanceOfSettlementForMobileParty(
-              party,
-              normalizedSettlement,
-              true,
-              out MobileParty.NavigationType portNavType,
-              out float portDistance,
-              out bool portIsFromPort);
-
-            if (portDistance < bestDistance)
-            {
-                navigationType = portNavType;
-                isFromPort = portIsFromPort;
-                isTargetingPort = true;
-                return navigationType != MobileParty.NavigationType.None;
-            }
-        }
-
-        navigationType = bestNavType;
-        isFromPort = bestIsFromPort;
-        isTargetingPort = false;
-
-        return navigationType != MobileParty.NavigationType.None;
-    }
 
     private static CampaignVec2 ExtractPositionFromBehavior(AIBehaviorData behavior)
     {

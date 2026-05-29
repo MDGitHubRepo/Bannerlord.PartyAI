@@ -65,6 +65,7 @@ public class SubModule : MBSubModuleBase
 
         PartyThinker = new PartyAIThinker();
         campaignGameStarter.AddBehavior(PartyThinker);
+        campaignGameStarter.AddBehavior(new PartyOrderExecutionCampaignBehavior());
 
         AddGameModels(campaignGameStarter);
 
@@ -119,7 +120,6 @@ public class SubModule : MBSubModuleBase
         AiMilitaryBehaviorPatches.Apply(harmony);
         AiVisitSettlementBehaviorPatches.Apply(harmony);
         ArmyPatches.Apply(harmony);
-        CampaignEventDispatcherPatches.Apply(harmony);
         CaravansCampaignBehaviorPatches.Apply(harmony);
         DisbandArmyActionPatches.Apply(harmony);
         FixModdedGameStateScreenCrashOnShow.Apply(harmony);

@@ -14,7 +14,12 @@ public static class ControlAssumption
     private static readonly TextObject TitleText = new("{=PAIFHytp3D7}Choose which parties to directly command");
     private static readonly TextObject DescriptionText = new("{=PAIRzSgh49H}Parties must be manageable and in visual range to appear here.");
 
+    public static List<MobileParty> AssumingDirectControl = new();
+
     private static bool IsPopupOpen = false;
+
+    public static bool IsUnderControlAssumption(MobileParty? party)
+        => party is not null && AssumingDirectControl.Contains(party);
 
     public static bool IsKeyCombinationDown()
     {
@@ -60,12 +65,12 @@ public static class ControlAssumption
             GameTexts.FindText("str_cancel").ToString(),
             affirmativeAction: results =>
             {
-                SubModule.PartyThinker.ClearAssumingDirectControl();
+                AssumingDirectControl.Clear();
                 foreach (InquiryElement e in results)
                 {
                     if (e.Identifier is MobileParty m)
                     {
-                        SubModule.PartyThinker.AddToAssumingDirectControl(m);
+                        AssumingDirectControl.Add(m);
                     }
                 }
                 IsPopupOpen = false;

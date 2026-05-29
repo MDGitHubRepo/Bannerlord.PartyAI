@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.PartyAI.Domain;
+using HarmonyLib;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
@@ -41,7 +42,7 @@ internal class MobilePartyPatches
             return;
         }
 
-        foreach (MobileParty controlling in SubModule.PartyThinker.AssumingDirectControl)
+        foreach (MobileParty controlling in ControlAssumption.AssumingDirectControl)
         {
             if (controlling?.LeaderHero == null)
                 continue;
@@ -96,7 +97,7 @@ internal class MobilePartyPatches
             return;
         }
 
-        foreach (MobileParty controlling in SubModule.PartyThinker.AssumingDirectControl)
+        foreach (MobileParty controlling in ControlAssumption.AssumingDirectControl)
         {
             if (controlling?.LeaderHero == null)
                 continue;
@@ -175,7 +176,7 @@ internal class MobilePartyPatches
             return;
         }
 
-        foreach (MobileParty controlling in SubModule.PartyThinker.AssumingDirectControl)
+        foreach (MobileParty controlling in ControlAssumption.AssumingDirectControl)
         {
             if (controlling?.LeaderHero == null)
                 continue;
