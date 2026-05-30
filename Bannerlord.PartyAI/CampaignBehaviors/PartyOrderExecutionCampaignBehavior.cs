@@ -1,5 +1,7 @@
 ﻿using Bannerlord.PartyAI.Domain;
+using Helpers;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -27,6 +29,24 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
     {
         CampaignEvents.HourlyTickPartyEvent.AddNonSerializedListener(this, OnHourlyTickParty);
         CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
+        CampaignEvents.OnTroopRecruitedEvent.AddNonSerializedListener(this, OnTroopRecruited);
+    }
+
+    private void OnTroopRecruited(Hero recruiter, Settlement settlement, Hero source, CharacterObject troop, int amount)
+    {
+        if (!SubModule.PartySettingsManager.IsHeroManageable(recruiter) || settlement is null)
+        {
+            return;
+        }
+
+        var settings = SubModule.PartySettingsManager.Settings(recruiter);
+        if (settings.Order?.Behavior != OrderType.RecruitFromTemplate
+            || Recruitment.ComputeRecruitableVolunteersCount(recruiter.PartyBelongedTo, settlement, settings) > 0)
+        {
+            return;
+        }
+
+        _recentlyRecruitedFromSettlements.Add(new(settlement, CampaignTime.Now, recruiter.PartyBelongedTo));
     }
 
     private void OnDailyTick()
@@ -436,78 +456,95 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
             // LocatorGrid error - skip threat check this tick
         }
 
-        // === MOD BEHAVIOR: Safe to continue recruiting ===
-        if (settings.Order.Target is not Settlement currentTarget || party.CurrentSettlement == currentTarget)
+        var targetSettlement = settings.Order?.Target as Settlement;
+        if (ShouldPickNewRecruitmentTarget(settings, party, targetSettlement))
         {
-             IEnumerable<Settlement> settlements = Settlement.All.Where(s =>
-                (s.IsVillage || s.IsTown) &&
-                (settings.RecruitFromEnemySettlements || !FactionManager.IsAtWarAgainstFaction(party.MapFaction, s.MapFaction)) &&
-                (settings.PartyTemplate?.TroopCultures.Contains(s.Culture) ?? true));
+            var newTarget = Navigation.FindNearestSettlement(
+                s => IsGoodTargetForRecruiting(s, party, settings),
+                party);
 
-            currentTarget = Navigation.FindNearestSettlement(
-                s => IsGoodTargetForRecruiting(s, party, settings, freeSlots),
-                party,
-                settlements);
+            settings.Order?.Target = newTarget;
+            targetSettlement = newTarget;
 
-            if (currentTarget != null)
+            if (targetSettlement is null)
             {
-                _recentlyRecruitedFromSettlements.Add(new(currentTarget, CampaignTime.Now, party));
-                settings.Order.Target = currentTarget;
-            }
-        }
-
-        if (currentTarget == null)
-        {
-            if (party.Ai.DoNotMakeNewDecisions)
-            {
-                party.Ai.SetDoNotMakeNewDecisions(false);
                 ResetPartyAi(party);
+                return;
             }
-            return;
         }
 
-        // If this target has no recruitable volunteers (per template rules), don't get stuck.
-        // Clear the target and let the next tick reselect.
-        int available = Recruitment.ComputeRecruitableVolunteersCount(party, currentTarget, settings);
-        if (available == 0)
+        var currentSettlement = MobilePartyHelper.GetCurrentSettlementOfMobilePartyForAICalculation(party);
+        if (currentSettlement != targetSettlement)
         {
-            settings.Order.Target = null;
-            if (party.Ai.DoNotMakeNewDecisions)
-                party.Ai.SetDoNotMakeNewDecisions(false);
-            ResetPartyAi(party);
-            return;
+            SetVisitSettlement(party, targetSettlement);
+        }
+    }
+
+    private static void SetVisitSettlement(MobileParty party, Settlement settlement)
+    {
+        // Safe to lock AI and navigate
+        if (!party.Ai.DoNotMakeNewDecisions)
+        {
+            party.Ai.SetDoNotMakeNewDecisions(true);
         }
 
-        // Safe to lock AI and navigate
-        party.Ai.SetDoNotMakeNewDecisions(true);
+        var navType = party.HasNavalNavigationCapability
+            ? MobileParty.NavigationType.All
+            : party.DesiredAiNavigationType;
 
-        var navType = party.HasNavalNavigationCapability ? MobileParty.NavigationType.All : party.DesiredAiNavigationType;
         party.DesiredAiNavigationType = navType;
 
         SetPartyAiAction.GetActionForVisitingSettlement(
             party,
-            currentTarget,
+            settlement,
             navType,
             false,
             false
         );
     }
 
-    private bool IsGoodTargetForRecruiting(Settlement settlement, MobileParty party, PartyAIClanPartySettings settings, int freeSlots)
+    private bool ShouldPickNewRecruitmentTarget(
+        PartyAIClanPartySettings settings,
+        MobileParty party,
+        [NotNullWhen(false)]Settlement? currentSettlement)
     {
-        if (settlement == party.CurrentSettlement || settlement.GetPosition2D.Distance(party.GetPosition2D) < 2f)
+        if (currentSettlement is null)
+        {
+            return true;
+        }
+
+        return _recentlyRecruitedFromSettlements.Any(l => l.Settlement == currentSettlement && l.Party == party)
+            || Recruitment.ComputeRecruitableVolunteersCount(party, currentSettlement, settings) == 0;
+    }
+
+    private bool IsGoodTargetForRecruiting(Settlement settlement, MobileParty party, PartyAIClanPartySettings settings)
+    {
+        if (!settlement.IsVillage && !settlement.IsTown)
+        {
             return false;
+        }
+
+        if (!settings.RecruitFromEnemySettlements && FactionManager.IsAtWarAgainstFaction(party.MapFaction, settlement.MapFaction))
+        {
+            return false;
+        }
+
+        var template = settings.PartyTemplate;
+        if (template is not null && !template.TroopCultures.Contains(settlement.Culture))
+        {
+            return false;
+        }
 
         if (_recentlyRecruitedFromSettlements.Any(l => l.Settlement == settlement && l.Party == party))
+        {
             return false;
+        }
 
         int count = Recruitment.ComputeRecruitableVolunteersCount(party, settlement, settings);
-
-        if (count < 3 && freeSlots > 3)
-            return false;
-
         if (count == 0)
+        {
             return false;
+        }
 
         return true;
     }

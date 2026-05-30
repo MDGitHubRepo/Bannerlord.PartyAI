@@ -1,20 +1,34 @@
 ﻿using Bannerlord.PartyAI.Domain;
 using HarmonyLib;
+using HarmonyLib.BUTR.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using TaleWorlds.Core;
 using static TaleWorlds.CampaignSystem.CampaignBehaviors.RecruitmentCampaignBehavior;
 
 namespace Bannerlord.PartyAI.Patches;
 
 internal class RecruitmentCampaignBehaviorPatches
 {
+    private static MethodInfo GetRecruitVolunteerFromIndividualMethod = default!;
+
     public static void Apply(Harmony harmony)
     {
+        GetRecruitVolunteerFromIndividualMethod = AccessTools2.Method(
+            typeof(RecruitmentCampaignBehavior),
+            "GetRecruitVolunteerFromIndividual")
+            ?? throw new Exception("GetRecruitVolunteerFromIndividual is missing from RecruitmentCampaignBehavior");
+
         harmony.Patch<RecruitmentCampaignBehavior>()
             .Method("ApplyInternal")
-                .Prefix(ApplyInternalPrefix);
+                .Prefix(ApplyInternalPrefix)
+            .Method("RecruitVolunteersFromNotable")
+                .Prefix(RecruitVolunteersFromNotablePrefix);
     }
 
     private static bool ApplyInternalPrefix(MobileParty side1Party, Settlement settlement, Hero individual, CharacterObject troop, int number, int bitCode, RecruitingDetail detail)
@@ -45,4 +59,98 @@ internal class RecruitmentCampaignBehaviorPatches
 
         return true;
     }
+
+    private static bool RecruitVolunteersFromNotablePrefix(
+        RecruitmentCampaignBehavior __instance,
+        MobileParty mobileParty,
+        Settlement settlement)
+    {
+        var hero = mobileParty.LeaderHero;
+        if (hero is null || !SubModule.PartySettingsManager.IsManageable(hero))
+        {
+            return true;
+        }
+
+        var settings = SubModule.PartySettingsManager.Settings(hero);
+        if (settings.Order?.Behavior != PAICustomOrder.OrderType.RecruitFromTemplate)
+        {
+            return true;
+        }
+
+        var missingMembers = mobileParty.Party.PartySizeLimit - mobileParty.Party.NumberOfAllMembers;
+        if (missingMembers <= 0)
+        {
+            return true;
+        }
+
+        PartyCompositionObect partyComposition = Recruitment.GetPartyComposition(mobileParty.Party, settings);
+
+        var eligibleVolunteers = new List<NotableVolunteer>();
+        foreach (var notable in settlement.Notables)
+        {
+            if (!notable.IsAlive)
+            {
+                continue;
+            }
+
+            var buyer = mobileParty.IsGarrison ? mobileParty.Party.Owner : mobileParty.LeaderHero;
+            int maxIndex = Campaign.Current.Models.VolunteerModel.MaximumIndexHeroCanRecruitFromHero(buyer, hero);
+
+            for (int troopIndex = 0; troopIndex < maxIndex; troopIndex++)
+            {
+                var troop = notable.VolunteerTypes[troopIndex];
+
+                if (troop is null)
+                {
+                    continue;
+                }
+
+                var recruitmentCost = Campaign.Current.Models.PartyWageModel.GetTroopRecruitmentCost(troop, buyer).RoundedResultNumber;
+                var wage = Campaign.Current.Models.PartyWageModel.GetCharacterWage(troop);
+                var budget = mobileParty.GetAvailableWageBudget();
+                if (mobileParty.PartyTradeGold < recruitmentCost
+                    || budget < wage
+                    || !Recruitment.ShouldRecruit(partyComposition, settings, troop, mobileParty.Party))
+                {
+                    continue;
+                }
+
+                eligibleVolunteers.Add(new(notable, troop, troopIndex));
+            }
+        }
+
+        var howMany = eligibleVolunteers.Count == 1
+            ? 1 // RandomInt(0, 1) seems to be biased towards 0, so let's just force it
+            : MBRandom.RandomInt(0, eligibleVolunteers.Count);
+        var randomVolunteers = GetRandomElements(eligibleVolunteers, howMany);
+
+        foreach (var volunteer in randomVolunteers)
+        {
+            var troop = volunteer.Troop;
+            var notable = volunteer.Notable;
+            var troopIndex = volunteer.Index;
+            GetRecruitVolunteerFromIndividualMethod.Invoke(__instance, [mobileParty, troop, notable, troopIndex]);
+        }
+
+        return false;
+    }
+
+    private static List<T> GetRandomElements<T>(List<T> source, int count)
+    {
+        List<T> pool = new List<T>(source);
+        List<T> result = new List<T>();
+
+        count = Math.Min(count, pool.Count);
+
+        for (int i = 0; i < count; i++)
+        {
+            T element = pool.GetRandomElement();
+            result.Add(element);
+            pool.Remove(element);
+        }
+
+        return result;
+    }
+
+    private record NotableVolunteer(Hero Notable, CharacterObject Troop, int Index);
 }

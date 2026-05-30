@@ -73,20 +73,12 @@ internal class PartyAIThinker : CampaignBehaviorBase
         {
             return;
         }
+
         PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
-        if (settings != null && settings.HasActiveOrder && (settings.Order.Behavior == OrderType.RecruitFromTemplate || settings.Order.Behavior == OrderType.VisitSettlement))
+        if (settings.Order?.Behavior == OrderType.VisitSettlement
+            && settings.Order.Target == settlement)
         {
-            if (settlement == settings.Order.Target)
-            {
-                if (settings.Order.Behavior == OrderType.VisitSettlement)
-                {
-                    settings.ClearOrder();
-                }
-                else
-                {
-                    settings.Order.Target = null;
-                }
-            }
+            settings.ClearOrder();
         }
     }
 

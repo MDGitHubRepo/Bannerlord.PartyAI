@@ -22,7 +22,7 @@ public class PartyAIClanPartySettings
     [SaveableProperty(5)] public PAICustomTemplate PartyTemplate { get; set; }
     [SaveableProperty(6)] public PartyCompositionObect Composition { get; set; }
     [SaveableProperty(7)] public bool AllowLordPrisoners { get; set; } = true;
-    [SaveableProperty(8)] public PAICustomOrder Order { get; private set; }
+    [SaveableProperty(8)] public PAICustomOrder? Order { get; private set; }
     [SaveableProperty(9)] public PartyObjective CachedPartyObjective { get; set; }
     [SaveableProperty(10)] public bool AllowSieging { get; set; } = true;
     [SaveableProperty(11)] public Settlement Settlement { get; private set; }
@@ -263,7 +263,7 @@ public class PAICustomOrder
         RecruitFromTemplate,
         VisitSettlement
     }
-    [SaveableProperty(1)] public IMapPoint Target { get; set; }
+    [SaveableProperty(1)] public IMapPoint? Target { get; set; }
     [SaveableProperty(2)] public OrderType Behavior { get; set; }
 
     public PAICustomOrder(IMapPoint target, OrderType behavior)
