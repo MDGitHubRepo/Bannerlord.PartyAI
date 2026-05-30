@@ -216,11 +216,11 @@
 								<TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" PositionYOffset="1" Brush="Clan.TabControl.Text" Text="@DeletePartyTemplateText"/>
 							  </Children>
 							</ButtonWidget>
-							<ButtonWidget DoNotPassEventsToChildren="true" Command.Click="CopyPasteSettings" MarginLeft="10" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="200" SuggestedHeight="51" MarginTop="6" HorizontalAlignment="Center" VerticalAlignment="Top" Brush="Header.Tab.Center">
+							<!--<ButtonWidget DoNotPassEventsToChildren="true" Command.Click="CopyPasteSettings" MarginLeft="10" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="200" SuggestedHeight="51" MarginTop="6" HorizontalAlignment="Center" VerticalAlignment="Top" Brush="Header.Tab.Center">
 							  <Children>
 								<TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" PositionYOffset="1" Brush="Clan.TabControl.Text" Text="@CopyPasteText"/>
 							  </Children>
-							</ButtonWidget>
+							</ButtonWidget>-->
 							<ButtonWidget DoNotPassEventsToChildren="true" Command.Click="OpenModOptions" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="200" SuggestedHeight="60" MarginBottom="3"  HorizontalAlignment="Center" VerticalAlignment="Top" Brush="Header.Tab.Right">
 							  <Children>
 								<TextWidget WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" PositionYOffset="1" Brush="Clan.TabControl.Text" Text="@ModOptionsText"/>
