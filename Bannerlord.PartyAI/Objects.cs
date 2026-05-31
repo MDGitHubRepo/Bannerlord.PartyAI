@@ -128,6 +128,7 @@ public class PartyAIClanPartySettings
         AllowRaidVillages = settings.AllowRaidVillages;
         AllowLordPrisoners = settings.AllowLordPrisoners;
         BuyHorses = settings.BuyHorses;
+        Composition = settings.Composition?.Clone();
         BuyHorsesBudget = settings.BuyHorsesBudget;
         MaxTroopTier = settings.MaxTroopTier;
         FallbackOrder = settings.FallbackOrder?.Clone();
