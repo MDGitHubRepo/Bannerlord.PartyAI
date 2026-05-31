@@ -274,6 +274,11 @@ public class PAICustomOrder
         Behavior = behavior;
     }
 
+    public PAICustomOrder Clone()
+    {
+        return new PAICustomOrder(Target, Behavior);
+    }
+
     public TextObject Text
     {
         get
