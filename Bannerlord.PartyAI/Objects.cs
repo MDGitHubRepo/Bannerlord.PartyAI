@@ -130,10 +130,11 @@ public class PartyAIClanPartySettings
         BuyHorses = settings.BuyHorses;
         BuyHorsesBudget = settings.BuyHorsesBudget;
         MaxTroopTier = settings.MaxTroopTier;
-        FallbackOrder = settings.FallbackOrder;
+        FallbackOrder = settings.FallbackOrder?.Clone();
         AllowRecruitment = settings.AllowRecruitment;
         FilterSettlements = settings.FilterSettlements;
         FilteredSettlements = settings.FilteredSettlements?.ToList() ?? new();
+        OrderQueue = settings.OrderQueue?.Select(o => o.Clone()).ToList() ?? new List<PAICustomOrder>();
         AutoRecruitment = settings.AutoRecruitment;
         AutoRecruitmentPercentage = settings.AutoRecruitmentPercentage;
         DismissUnwantedTroops = settings.DismissUnwantedTroops;
