@@ -100,7 +100,7 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
         }
         else if (settings.FallbackOrder != null && settings.FallbackOrder.Behavior != OrderType.None && party.Army == null)
         {
-            settings.SetOrder(settings.FallbackOrder);
+            settings.SetOrder(settings.FallbackOrder.Clone());
         }
     }
 
