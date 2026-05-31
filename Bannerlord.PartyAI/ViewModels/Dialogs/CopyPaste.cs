@@ -153,11 +153,24 @@ internal static class CopyPaste
         if (source.Identifier is PAICustomOrder)
         {
             PAICustomOrder order = (PAICustomOrder)source.Identifier;
-            if (order.Behavior == OrderType.None)
+
+            // Explicitly wipe the target's existing order state
+            settings.OrderQueue.Clear();
+            settings.ClearOrder();
+
+            if (order.Behavior != OrderType.None)
             {
-                settings.ClearOrder();
+                // Reconstruct the order state using Clones to avoid reference sharing
+                if (_source.Order != null)
+                {
+                    settings.SetOrder(_source.Order.Clone());
+                }
+
+                foreach (PAICustomOrder queuedOrder in _source.OrderQueue)
+                {
+                    settings.OrderQueue.Add(queuedOrder.Clone());
+                }
             }
-            settings.SetOrder(order);
         }
 
         if (source.Identifier is PartyAIClanPartySettings)
