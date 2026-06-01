@@ -21,37 +21,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
     {
     }
 
-    private static MobileParty.NavigationType SanitizeNavigationType(MobileParty.NavigationType navigationType)
-    {
-        if (navigationType == MobileParty.NavigationType.None)
-        {
-            return MobileParty.NavigationType.Default;
-        }
-
-        // If the runtime value is outside the defined enum, treat it as Default.
-        // This does not guarantee campaign caches support the value, so callers should still use safe wrappers.
-        if (!Enum.IsDefined(typeof(MobileParty.NavigationType), navigationType))
-        {
-            return MobileParty.NavigationType.Default;
-        }
-
-        return navigationType;
-    }
-
-    private static float GetSafeAverageDistanceBetweenClosestTwoTownsWithNavigationType(MobileParty.NavigationType navigationType)
-    {
-        var safeNavType = SanitizeNavigationType(navigationType);
-
-        try
-        {
-            return Campaign.Current.GetAverageDistanceBetweenClosestTwoTownsWithNavigationType(safeNavType);
-        }
-        catch (KeyNotFoundException)
-        {
-            return Campaign.Current.GetAverageDistanceBetweenClosestTwoTownsWithNavigationType(MobileParty.NavigationType.Default);
-        }
-    }
-
     public override void RegisterEvents()
     {
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
@@ -239,7 +208,9 @@ internal class PartyAIThinker : CampaignBehaviorBase
             default:
                 return;
         }
+
         SwapParams(thinkParams, party, newParams);
+
         if (existingObjective != party.Objective)
         {
             settings.CachedPartyObjective = existingObjective;
@@ -266,8 +237,8 @@ internal class PartyAIThinker : CampaignBehaviorBase
     {
         newParams = new List<(AIBehaviorData, float)>();
 
-        var safeNavType = SanitizeNavigationType(party.DesiredAiNavigationType);
-        float range = GetSafeAverageDistanceBetweenClosestTwoTownsWithNavigationType(safeNavType) * 0.9f * distanceFactor;
+        var safeNavType = Navigation.SanitizeNavigationType(party.DesiredAiNavigationType);
+        float range = Navigation.GetSafeDistanceBetweenClosestTwoTowns(safeNavType) * 0.9f * distanceFactor;
 
         if (hero?.Clan?.Settlements?.Count == 0)
         {
@@ -298,10 +269,12 @@ internal class PartyAIThinker : CampaignBehaviorBase
             return;
 
         // Find nearest clan settlement to patrol around
-        Settlement nearestClanSettlement = Navigation.FindNearestSettlement(s => s.OwnerClan == hero.Clan, party);
+        Settlement? nearestClanSettlement = Navigation.FindNearestSettlement(s => s.OwnerClan == hero.Clan, party);
 
         if (nearestClanSettlement == null)
+        {
             return;
+        }
 
         // 5% chance to switch to a random clan settlement (variety in patrol)
         if (MBRandom.RandomFloat < 0.05f && hero.Clan.Settlements.Count > 0)
@@ -400,12 +373,12 @@ internal class PartyAIThinker : CampaignBehaviorBase
     {
         newParams = new List<(AIBehaviorData, float)>();
 
-        var safeNavType = SanitizeNavigationType(party.DesiredAiNavigationType);
+        var safeNavType = Navigation.SanitizeNavigationType(party.DesiredAiNavigationType);
 
         Settlement centerSettlement = (Settlement)target;
 
         // Range is a filtering/"too far" heuristic; navigation routing uses vanilla-derived data.
-        float range = GetSafeAverageDistanceBetweenClosestTwoTownsWithNavigationType(MobileParty.NavigationType.Default) * 0.9f * distanceFactor;
+        float range = Navigation.GetSafeDistanceBetweenClosestTwoTowns(MobileParty.NavigationType.Default) * 0.9f * distanceFactor;
 
         // Compute best navigation and port flags for reaching the patrol center.
         if (!Navigation.TryGetBestNavigationDataForSettlement(party, centerSettlement, out MobileParty.NavigationType centerNavType, out bool centerIsFromPort, out bool centerIsTargetingPort))
@@ -589,21 +562,20 @@ internal class PartyAIThinker : CampaignBehaviorBase
 
         // Find nearest friendly/neutral fortification to send the party to
         Settlement? nearestFort = Navigation.FindNearestSettlement(
-            s =>
-                s.IsFortification &&
-                (s.MapFaction == party.MapFaction ||
-                 FactionManager.IsNeutralWithFaction(party.MapFaction, s.MapFaction)),
+            s => s.IsFortification
+                && (s.MapFaction == party.MapFaction
+                ||  FactionManager.IsNeutralWithFaction(party.MapFaction, s.MapFaction)),
             party
         );
 
         if (nearestFort != null && Navigation.TryGetBestNavigationDataForSettlement(party, nearestFort, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
         {
             SetPartyAiAction.GetActionForVisitingSettlement(
-              party,
-              nearestFort,
-              navType,
-              isFromPort,
-              isTargetingPort
+                party,
+                nearestFort,
+                navType,
+                isFromPort,
+                isTargetingPort
             );
         }
 

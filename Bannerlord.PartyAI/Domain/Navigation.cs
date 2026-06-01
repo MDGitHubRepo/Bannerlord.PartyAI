@@ -1,6 +1,8 @@
 ﻿using Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Map;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -80,48 +82,72 @@ public static class Navigation
         return navigationType != MobileParty.NavigationType.None;
     }
 
+    public static MobileParty.NavigationType SanitizeNavigationType(MobileParty.NavigationType navigationType)
+    {
+        if (navigationType == MobileParty.NavigationType.None)
+        {
+            return MobileParty.NavigationType.Default;
+        }
+
+        // If the runtime value is outside the defined enum, treat it as Default.
+        // This does not guarantee campaign caches support the value, so callers should still use safe wrappers.
+        if (!Enum.IsDefined(typeof(MobileParty.NavigationType), navigationType))
+        {
+            return MobileParty.NavigationType.Default;
+        }
+
+        return navigationType;
+    }
+
+    public static float GetSafeDistanceBetweenClosestTwoTowns(MobileParty.NavigationType navigationType)
+    {
+        var safeNavType = SanitizeNavigationType(navigationType);
+
+        try
+        {
+            return Campaign.Current.GetAverageDistanceBetweenClosestTwoTownsWithNavigationType(safeNavType);
+        }
+        catch (KeyNotFoundException)
+        {
+            return Campaign.Current.GetAverageDistanceBetweenClosestTwoTownsWithNavigationType(MobileParty.NavigationType.Default);
+        }
+    }
+
     public static Settlement? FindNearestSettlement(
         Func<Settlement, bool> condition,
-        IMapPoint toMapPoint,
-        IEnumerable<Settlement>? settlements = null)
+        MobileParty mobileParty)
     {
-        Settlement? result = null;
-        settlements ??= Settlement.All;
+        return FindNearestSettlement(mobileParty, condition, mobileParty.DesiredAiNavigationType);
+    }
 
-        // Get the "origin" position from the map point
-        Vec2 originPos;
 
-        if (toMapPoint is Settlement originSettlement)
+    public static Settlement? FindNearestSettlement(
+        IMapPoint mapPoint)
+    {
+        return FindNearestSettlement(mapPoint, null);
+    }
+
+    private static Settlement? FindNearestSettlement(
+        IMapPoint mapPoint,
+        Func<Settlement, bool>? condition,
+        MobileParty.NavigationType navCapability = MobileParty.NavigationType.Default)
+    {
+        var sanitizedNavType = SanitizeNavigationType(navCapability);
+
+        var query = Settlement.All.AsEnumerable();
+
+        if (condition is not null)
         {
-            originPos = originSettlement.GetPosition2D;
-        }
-        else if (toMapPoint is MobileParty originParty)
-        {
-            originPos = originParty.GetPosition2D;
-        }
-        else
-        {
-            // Fallback: use main party position if don't recognize the IMapPoint type
-            originPos = MobileParty.MainParty.GetPosition2D;
-        }
-
-        float bestDistSq = float.MaxValue;
-
-        foreach (Settlement item in settlements)
-        {
-            if (condition != null && !condition(item))
-                continue;
-
-            // Distance in 2D map space
-            float distSq = originPos.DistanceSquared(item.GetPosition2D);
-
-            if (distSq < bestDistSq)
-            {
-                bestDistSq = distSq;
-                result = item;
-            }
+            query = query.Where(condition);
         }
 
-        return result;
+        return query
+            .OrderBy(settlement =>
+                DistanceHelper.FindClosestDistanceFromMapPointToSettlement(
+                    mapPoint,
+                    settlement,
+                    sanitizedNavType,
+                    out _))
+            .FirstOrDefault();
     }
 }

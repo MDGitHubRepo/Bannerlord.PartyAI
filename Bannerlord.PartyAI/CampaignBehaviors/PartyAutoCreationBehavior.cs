@@ -9,6 +9,7 @@ using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Party.PartyComponents;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.ViewModelCollection.ClanManagement.Categories;
+using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
@@ -96,7 +97,7 @@ public class PartyAutoCreationBehavior : CampaignBehaviorBase
                 return;
             }
 
-            IEnumerable<Hero> eligibleLeaders = Clan.PlayerClan.Heroes
+            IEnumerable<Hero> eligibleLeadersQuery = Clan.PlayerClan.Heroes
                 .Where((Hero h) => !h.IsDisabled)
                 .Union(Clan.PlayerClan.Companions)
                 .Where(h => h.IsActive
@@ -113,16 +114,18 @@ public class PartyAutoCreationBehavior : CampaignBehaviorBase
 
             if (_autoCreateClanPartiesRoster.Count > 0)
             {
-                eligibleLeaders = eligibleLeaders.Where(_autoCreateClanPartiesRoster.Contains);
+                eligibleLeadersQuery = eligibleLeadersQuery.Where(_autoCreateClanPartiesRoster.Contains);
             }
 
-            if (eligibleLeaders.Count() == 0)
+            if (eligibleLeadersQuery.Count() == 0)
             {
                 return;
             }
 
-            Hero leader = TaleWorlds.Core.Extensions.GetRandomElementInefficiently(eligibleLeaders);
-            Settlement? settlement = Navigation.FindNearestSettlement(s => true, leader.GetMapPoint());
+            var eligibleLeaders = eligibleLeadersQuery.ToArray();
+
+            Hero leader = eligibleLeaders.GetRandomElement();
+            Settlement? settlement = Navigation.FindNearestSettlement(leader.GetMapPoint());
             MobileParty newParty = MobilePartyHelper.CreateNewClanMobileParty(leader, Clan.PlayerClan);
 
             InformationManager.DisplayMessage(
