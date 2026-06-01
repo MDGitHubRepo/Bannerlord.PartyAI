@@ -117,7 +117,7 @@ public static class Navigation
         Func<Settlement, bool> condition,
         MobileParty mobileParty)
     {
-        return FindNearestSettlement(mobileParty, condition, mobileParty.DesiredAiNavigationType);
+        return FindNearestSettlement(mobileParty, condition, mobileParty.NavigationCapability);
     }
 
 

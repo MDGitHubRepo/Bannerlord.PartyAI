@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Encyclopedia;
-using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.InputSystem;
-using TaleWorlds.Library;
 using TaleWorlds.Localization;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors;
@@ -189,13 +187,23 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
 
     internal bool IsManageable(Hero hero) => IsHeroManageable(hero) || IsCaravanManageable(hero);
 
-    internal bool IsHeroManageable(Hero hero)
+    internal bool IsHeroManageable([NotNullWhen(true)]Hero? hero)
     {
-        if (hero == null || Hero.MainHero.Equals(hero)) { return false; }
+        if (hero == null
+            || Hero.MainHero.Equals(hero))
+        {
+            return false;
+        }
 
-        if (IsLeadingCaravan(hero)) { return false; }
+        if (IsLeadingCaravan(hero))
+        {
+            return false;
+        }
 
-        if (Clan.PlayerClan.Heroes.Contains(hero)) { return true; }
+        if (Clan.PlayerClan.Heroes.Contains(hero))
+        {
+            return true;
+        }
 
         // if we're not managing kingdom parties, we can skip the rest
         if (!ManageKingdomParties)
@@ -203,7 +211,9 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
             return false;
         }
 
-        if (Clan.PlayerClan.Kingdom == null || hero?.Clan?.Kingdom == null || !hero.Clan.Kingdom.Equals(Clan.PlayerClan.Kingdom))
+        if (Clan.PlayerClan.Kingdom == null
+            || hero?.Clan?.Kingdom == null
+            || !hero.Clan.Kingdom.Equals(Clan.PlayerClan.Kingdom))
         {
             return false;
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Inventory;
@@ -92,6 +93,7 @@ public class PartyAIClanPartySettings
         Order = order;
     }
 
+    [MemberNotNullWhen(true, nameof(Order))]
     internal bool HasActiveOrder => Order != null && Order.Behavior != OrderType.None;
 
     internal void ClearOrder()

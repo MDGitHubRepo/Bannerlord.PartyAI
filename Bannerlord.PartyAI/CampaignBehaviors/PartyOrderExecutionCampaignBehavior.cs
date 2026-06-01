@@ -1,7 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain;
 using Helpers;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -15,43 +13,15 @@ namespace Bannerlord.PartyAI.CampaignBehaviors;
 internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
 {
     private const int MinimumDaysOfFood = 3;
-    private const int RecruitmentSettlementCooldownDays = 10;
-
-    private List<PAISettlementVisitLog> _recentlyRecruitedFromSettlements = new();
 
     public override void SyncData(IDataStore dataStore)
     {
         dataStore.SyncData("_assumingDirectControl", ref ControlAssumption.AssumingDirectControl);
-        dataStore.SyncData("_recentlyRecruitedFromSettlements", ref _recentlyRecruitedFromSettlements);
     }
 
     public override void RegisterEvents()
     {
         CampaignEvents.HourlyTickPartyEvent.AddNonSerializedListener(this, OnHourlyTickParty);
-        CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
-        CampaignEvents.OnTroopRecruitedEvent.AddNonSerializedListener(this, OnTroopRecruited);
-    }
-
-    private void OnTroopRecruited(Hero recruiter, Settlement settlement, Hero source, CharacterObject troop, int amount)
-    {
-        if (!SubModule.PartySettingsManager.IsHeroManageable(recruiter) || settlement is null)
-        {
-            return;
-        }
-
-        var settings = SubModule.PartySettingsManager.Settings(recruiter);
-        if (settings.Order?.Behavior != OrderType.RecruitFromTemplate
-            || Recruitment.ComputeRecruitableVolunteersCount(recruiter.PartyBelongedTo, settlement, settings) > 0)
-        {
-            return;
-        }
-
-        _recentlyRecruitedFromSettlements.Add(new(settlement, CampaignTime.Now, recruiter.PartyBelongedTo));
-    }
-
-    private void OnDailyTick()
-    {
-        _recentlyRecruitedFromSettlements.RemoveAll(l => l.Visited.ElapsedDaysUntilNow > RecruitmentSettlementCooldownDays);
     }
 
     private void OnHourlyTickParty(MobileParty party)
@@ -133,10 +103,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
 
                 case OrderType.EscortParty:
                     ImplementEscortParty(settings, party, settings.Order.Target);
-                    return;
-
-                case OrderType.RecruitFromTemplate:
-                    ImplementRecruitFromTemplate(settings, party);
                     return;
             }
         }
@@ -387,166 +353,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
 
             party.Ai.SetDoNotMakeNewDecisions(true);
         }
-    }
-
-    private void ImplementRecruitFromTemplate(PartyAIClanPartySettings settings, MobileParty party)
-    {
-        int freeSlots = (int)((1f - party.PartySizeRatio) * party.Party.PartySizeLimit);
-        if (freeSlots < 1)
-        {
-            settings.ClearOrder();
-            return;
-        }
-
-        // === THREAT CHECK: Yield to vanilla AI if enemies nearby ===
-        // Uses vanilla detection radius (3x encounter joining radius) and strength comparison
-        float encounterRadius = Campaign.Current.Models.EncounterModel.GetEncounterJoiningRadius;
-        float scanRadius = encounterRadius * 3f;
-
-        try
-        {
-            LocatableSearchData<MobileParty> scan = MobileParty.StartFindingLocatablesAroundPosition(
-                party.Position.ToVec2(),
-                scanRadius);
-
-            for (MobileParty enemy = MobileParty.FindNextLocatable(ref scan);
-                 enemy != null;
-                 enemy = MobileParty.FindNextLocatable(ref scan))
-            {
-                // Vanilla filters: skip self, inactive, in settlements (except garrisons), non-enemies
-                if (enemy == party || !enemy.IsActive || enemy.IsDisbanding)
-                    continue;
-
-                if (enemy.CurrentSettlement != null && !enemy.IsGarrison)
-                    continue;
-
-                if (!FactionManager.IsAtWarAgainstFaction(party.MapFaction, enemy.MapFaction))
-                    continue;
-
-                if (enemy.Army != null && enemy.Army.LeaderParty != enemy && enemy.AttachedTo != null)
-                    continue;
-
-                if (party.IsCurrentlyAtSea != enemy.IsCurrentlyAtSea)
-                    continue;
-
-                // Vanilla strength comparison: flee if enemy is stronger
-                float myStrength = (party.Army == null || party.AttachedTo == null && party.Army.LeaderParty != party)
-                    ? party.Party.EstimatedStrength
-                    : party.Army.EstimatedStrength;
-
-                float enemyStrength = (enemy.Army == null || enemy.AttachedTo == null && enemy.Army.LeaderParty != enemy)
-                    ? enemy.Party.EstimatedStrength
-                    : enemy.Army.EstimatedStrength;
-
-                // Vanilla flee condition: enemy is stronger AND aggressive/garrison
-                if (myStrength < enemyStrength && (enemy.Aggressiveness > 0.01f || enemy.IsGarrison))
-                {
-                    // Unlock AI - vanilla will handle flee behavior
-                    if (party.Ai.DoNotMakeNewDecisions)
-                    {
-                        party.Ai.SetDoNotMakeNewDecisions(false);
-                    }
-                    // Keep order active - party will resume recruiting once safe
-                    return;
-                }
-            }
-        }
-        catch (KeyNotFoundException)
-        {
-            // LocatorGrid error - skip threat check this tick
-        }
-
-        var targetSettlement = settings.Order?.Target as Settlement;
-        if (ShouldPickNewRecruitmentTarget(settings, party, targetSettlement))
-        {
-            var newTarget = Navigation.FindNearestSettlement(
-                s => IsGoodTargetForRecruiting(s, party, settings),
-                party);
-
-            settings.Order?.Target = newTarget;
-            targetSettlement = newTarget;
-
-            if (targetSettlement is null)
-            {
-                ResetPartyAi(party);
-                return;
-            }
-        }
-
-        var currentSettlement = MobilePartyHelper.GetCurrentSettlementOfMobilePartyForAICalculation(party);
-        if (currentSettlement != targetSettlement)
-        {
-            SetVisitSettlement(party, targetSettlement);
-        }
-    }
-
-    private static void SetVisitSettlement(MobileParty party, Settlement settlement)
-    {
-        // Safe to lock AI and navigate
-        if (!party.Ai.DoNotMakeNewDecisions)
-        {
-            party.Ai.SetDoNotMakeNewDecisions(true);
-        }
-
-        var navType = party.HasNavalNavigationCapability
-            ? MobileParty.NavigationType.All
-            : party.DesiredAiNavigationType;
-
-        party.DesiredAiNavigationType = navType;
-
-        SetPartyAiAction.GetActionForVisitingSettlement(
-            party,
-            settlement,
-            navType,
-            false,
-            false
-        );
-    }
-
-    private bool ShouldPickNewRecruitmentTarget(
-        PartyAIClanPartySettings settings,
-        MobileParty party,
-        [NotNullWhen(false)]Settlement? currentSettlement)
-    {
-        if (currentSettlement is null)
-        {
-            return true;
-        }
-
-        return _recentlyRecruitedFromSettlements.Any(l => l.Settlement == currentSettlement && l.Party == party)
-            || Recruitment.ComputeRecruitableVolunteersCount(party, currentSettlement, settings) == 0;
-    }
-
-    private bool IsGoodTargetForRecruiting(Settlement settlement, MobileParty party, PartyAIClanPartySettings settings)
-    {
-        if (!settlement.IsVillage && !settlement.IsTown)
-        {
-            return false;
-        }
-
-        if (!settings.RecruitFromEnemySettlements && FactionManager.IsAtWarAgainstFaction(party.MapFaction, settlement.MapFaction))
-        {
-            return false;
-        }
-
-        var template = settings.PartyTemplate;
-        if (template is not null && !template.TroopCultures.Contains(settlement.Culture))
-        {
-            return false;
-        }
-
-        if (_recentlyRecruitedFromSettlements.Any(l => l.Settlement == settlement && l.Party == party))
-        {
-            return false;
-        }
-
-        int count = Recruitment.ComputeRecruitableVolunteersCount(party, settlement, settings);
-        if (count == 0)
-        {
-            return false;
-        }
-
-        return true;
     }
 
     private void ResetPartyAi(MobileParty party)

@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.CampaignBehaviors;
+using Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 using Bannerlord.PartyAI.Domain;
 using Bannerlord.PartyAI.Models;
 using Bannerlord.PartyAI.Patches;
@@ -67,6 +68,7 @@ public class SubModule : MBSubModuleBase
         campaignGameStarter.AddBehavior(PartyThinker);
         campaignGameStarter.AddBehavior(new PartyOrderExecutionCampaignBehavior());
         campaignGameStarter.AddBehavior(new PartyAutoCreationBehavior());
+        campaignGameStarter.AddBehavior(new RecruitmentBehavior());
 
         AddGameModels(campaignGameStarter);
 
