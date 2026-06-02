@@ -181,7 +181,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
             isTargetingPort);
 
         var partySizeRatio = MathF.Clamp(mobileParty.PartySizeRatio, 0, 1);
-        var partySizeScore = 25f + 225f * MathF.Pow(1f - partySizeRatio, 2f);
+        var partySizeScore = 5f * MathF.Pow(1f - partySizeRatio, 2f);
         if (partyThinkParams.TryGetBehaviorScore(in aibehaviorData, out float previousScore))
         {
             partyThinkParams.SetBehaviorScore(in aibehaviorData, partySizeScore + previousScore);
