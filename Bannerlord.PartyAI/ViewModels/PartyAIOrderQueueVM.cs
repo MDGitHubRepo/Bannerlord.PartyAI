@@ -61,7 +61,7 @@ public class PartyAIOrderQueueVM : ViewModel
         }
         else
         {
-            OrderList.Add(new(new(null, PAICustomOrder.OrderType.None), _settings, RefreshOrderQueue));
+            OrderList.Add(new(new(PAICustomOrder.OrderType.None), _settings, RefreshOrderQueue));
         }
         OnPropertyChanged("OrderList");
     }
@@ -73,8 +73,7 @@ public class PartyAIOrderQueueVM : ViewModel
         string title = new TextObject("{=PAIv8ekJ4gs}Are you sure?").ToString();
         InformationManager.ShowInquiry(new(title, string.Empty, true, true, GameTexts.FindText("str_yes").ToString(), GameTexts.FindText("str_cancel").ToString(), () =>
         {
-            _settings.OrderQueue.Clear();
-            _settings.ClearOrder();
+            _settings.ClearAllOrders();
             RefreshOrderQueue();
         }, null));
     }

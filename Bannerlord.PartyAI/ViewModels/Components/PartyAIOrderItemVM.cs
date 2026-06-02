@@ -51,7 +51,7 @@ public class PartyAIOrderItemVM : ViewModel
         if (index == 0)
         {
             _settings.OrderQueue.RemoveAt(index);
-            _settings.SetOrder(_order);
+            _settings.SetOrder(_order.Behavior, _order.Target);
         }
         else
         {

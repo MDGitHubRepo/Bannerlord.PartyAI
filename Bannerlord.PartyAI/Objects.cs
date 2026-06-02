@@ -32,7 +32,7 @@ public class PartyAIClanPartySettings
     [SaveableProperty(14)] public int BuyHorsesBudgetToday { get; private set; } = 500;
     [SaveableProperty(15)] public int MaxTroopTier { get; set; }
     [SaveableProperty(16)] public int TroopsConvertibleToday { get; private set; } = 5;
-    [SaveableProperty(17)] public PAICustomOrder FallbackOrder { get; set; }
+    [SaveableProperty(17)] public PAICustomOrder FallbackOrder { get; private set; }
     [SaveableProperty(18)] public bool AllowRecruitment { get; set; } = true;
     [SaveableProperty(19)] public bool FilterSettlements { get; set; } = false;
     [SaveableProperty(20)] public List<Settlement> FilteredSettlements { get; set; } = new();
@@ -74,12 +74,15 @@ public class PartyAIClanPartySettings
         CopyOptionsFrom(cloneFrom);
     }
 
-    internal void SetOrder(PAICustomOrder order)
+    internal void SetOrder(OrderType behavior, IMapPoint? target = null)
     {
-        if (order == null || Settlement != null)
+        var order = new PAICustomOrder(behavior, target);
+
+        if (Settlement != null)
         {
             return;
         }
+
         if (Hero.PartyBelongedTo?.Army != null && Hero.PartyBelongedTo.Army.LeaderParty.LeaderHero != Hero)
         {
             Hero.PartyBelongedTo.Army = null;
@@ -91,6 +94,18 @@ public class PartyAIClanPartySettings
         }
 
         Order = order;
+    }
+
+    internal void SetFallbackOrder(OrderType behavior, IMapPoint? target = null)
+    {
+        var order = new PAICustomOrder(behavior, target);
+
+        if (Settlement != null)
+        {
+            return;
+        }
+
+        FallbackOrder = order;
     }
 
     [MemberNotNullWhen(true, nameof(Order))]
@@ -131,17 +146,26 @@ public class PartyAIClanPartySettings
         Composition = settings.Composition?.Clone();
         BuyHorsesBudget = settings.BuyHorsesBudget;
         MaxTroopTier = settings.MaxTroopTier;
-        FallbackOrder = settings.FallbackOrder?.Clone();
         AllowRecruitment = settings.AllowRecruitment;
         FilterSettlements = settings.FilterSettlements;
         FilteredSettlements = settings.FilteredSettlements?.ToList() ?? new();
-        OrderQueue = settings.OrderQueue?.Select(o => o.Clone()).ToList() ?? new List<PAICustomOrder>();
+        OrderQueue = settings.OrderQueue?
+            .Select(order => new PAICustomOrder(order))
+            .ToList() ?? [];
         AutoRecruitment = settings.AutoRecruitment;
         AutoRecruitmentPercentage = settings.AutoRecruitmentPercentage;
         DismissUnwantedTroops = settings.DismissUnwantedTroops;
         DismissUnwantedTroopsPercentage = settings.DismissUnwantedTroopsPercentage;
         PatrolRadius = settings.PatrolRadius;
         RecruitFromEnemySettlements = settings.RecruitFromEnemySettlements;
+
+        if (settings.FallbackOrder is not null)
+        {
+            SetFallbackOrder(
+                settings.FallbackOrder.Behavior,
+                settings.FallbackOrder.Target);
+        }
+
         ResetBudgets();
     }
 
@@ -270,15 +294,16 @@ public class PAICustomOrder
     [SaveableProperty(1)] public IMapPoint? Target { get; set; }
     [SaveableProperty(2)] public OrderType Behavior { get; set; }
 
-    public PAICustomOrder(IMapPoint target, OrderType behavior)
+    public PAICustomOrder(OrderType behavior, IMapPoint? target = null)
     {
         Target = target;
         Behavior = behavior;
     }
 
-    public PAICustomOrder Clone()
+    public PAICustomOrder(PAICustomOrder original)
     {
-        return new PAICustomOrder(Target, Behavior);
+        Target = original.Target;
+        Behavior = original.Behavior;
     }
 
     public TextObject Text

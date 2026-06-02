@@ -44,19 +44,19 @@ internal class CreateOrder
 
         List<InquiryElement> list = new();
 
-        list.Add(new InquiryElement(new PAICustomOrder(null, OrderType.PatrolAroundPoint), _landpatrolText, null, true, _landpatrolHintText));
-        list.Add(new InquiryElement(new PAICustomOrder(null, OrderType.EscortParty), _escortText, null, true, _escortHintText));
-        list.Add(new InquiryElement(new PAICustomOrder(null, OrderType.StayInSettlement), _stayInSettlementText, null, true, _stayInSettlementHintText));
-        list.Add(new InquiryElement(new PAICustomOrder(null, OrderType.VisitSettlement), _visitText, null, true, _visitHintText));
+        list.Add(new InquiryElement(new PAICustomOrder(OrderType.PatrolAroundPoint), _landpatrolText, null, true, _landpatrolHintText));
+        list.Add(new InquiryElement(new PAICustomOrder(OrderType.EscortParty), _escortText, null, true, _escortHintText));
+        list.Add(new InquiryElement(new PAICustomOrder(OrderType.StayInSettlement), _stayInSettlementText, null, true, _stayInSettlementHintText));
+        list.Add(new InquiryElement(new PAICustomOrder(OrderType.VisitSettlement), _visitText, null, true, _visitHintText));
         if (!_fallback)
         {
-            list.Add(new InquiryElement(new PAICustomOrder(null, OrderType.BesiegeSettlement), _besiegeText, null, true, _besiegeHintText));
+            list.Add(new InquiryElement(new PAICustomOrder(OrderType.BesiegeSettlement), _besiegeText, null, true, _besiegeHintText));
         }
-        list.Add(new InquiryElement(new PAICustomOrder(null, OrderType.DefendSettlement), _defendText, null, true, _defendHintText));
-        list.Add(new InquiryElement(new PAICustomOrder(null, OrderType.RecruitFromTemplate), _recruitText, null, true, _recruitHint));
+        list.Add(new InquiryElement(new PAICustomOrder(OrderType.DefendSettlement), _defendText, null, true, _defendHintText));
+        list.Add(new InquiryElement(new PAICustomOrder(OrderType.RecruitFromTemplate), _recruitText, null, true, _recruitHint));
         if (_fallback)
         {
-            list.Add(new InquiryElement(new PAICustomOrder(null, OrderType.None), new TextObject("{=koX9okuG}None").ToString(), null, true, string.Empty));
+            list.Add(new InquiryElement(new PAICustomOrder(OrderType.None), new TextObject("{=koX9okuG}None").ToString(), null, true, string.Empty));
         }
 
         MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(_titleText, string.Empty, list, isExitShown: true, 1, 1, GameTexts.FindText("str_next").ToString(), GameTexts.FindText("str_cancel").ToString(), CreateCallback, null, "", true));
@@ -92,7 +92,7 @@ internal class CreateOrder
                 foreach (MobileParty mobileParty in parties.OrderByDescending(s => s?.ActualClan?.Equals(_hero?.Clan)).ThenBy(s => s?.Name?.ToString()).ToList())
                 {
                     if (mobileParty == null) { continue; }
-                    PAICustomOrder insert = new(mobileParty, order.Behavior);
+                    PAICustomOrder insert = new(order.Behavior, mobileParty);
                     CharacterObject character = ConversationHelper.GetConversationCharacterPartyLeader(mobileParty.Party);
                     if (character == null)
                     {
@@ -111,17 +111,17 @@ internal class CreateOrder
 
                 foreach (Settlement settlement in settlements.OrderByDescending(s => s.OwnerClan.Equals(_hero?.Clan)).ThenByDescending(s => s.IsTown).ThenByDescending(s => s.IsCastle).ThenBy(s => s.Name.ToString()).ToList())
                 {
-                    PAICustomOrder insert = new(settlement, order.Behavior);
+                    PAICustomOrder insert = new(order.Behavior, settlement);
 
                     newList.Add(new InquiryElement(insert, settlement.Name.ToString(), new BannerImageIdentifier(settlement.OwnerClan?.Banner, false)));
                 }
                 break;
             case OrderType.PatrolAroundPoint:
                 settlements = Settlement.All.Where(s => s.IsFortification || s.IsVillage).ToList();
-                newList.Add(new(new PAICustomOrder(null, OrderType.PatrolClanLands), new TextObject("{=PAIb2F6Hyfs}Patrol Clan Territory").ToString(), new BannerImageIdentifier(_hero?.ClanBanner, false)));
+                newList.Add(new(new PAICustomOrder(OrderType.PatrolClanLands), new TextObject("{=PAIb2F6Hyfs}Patrol Clan Territory").ToString(), new BannerImageIdentifier(_hero?.ClanBanner, false)));
                 foreach (Settlement settlement in settlements.OrderByDescending(s => s.OwnerClan.Equals(_hero?.Clan)).ThenByDescending(s => s.IsTown).ThenByDescending(s => s.IsCastle).ThenBy(s => s.Name.ToString()).ToList())
                 {
-                    PAICustomOrder insert = new(settlement, order.Behavior);
+                    PAICustomOrder insert = new(order.Behavior, settlement);
 
                     newList.Add(new InquiryElement(insert, settlement.Name.ToString(), new BannerImageIdentifier(settlement.MapFaction?.Banner, false)));
                 }
@@ -129,7 +129,7 @@ internal class CreateOrder
             case OrderType.BesiegeSettlement:
                 foreach (Settlement settlement in Settlement.All.Where(s => FactionManager.IsAtWarAgainstFaction(s.MapFaction, Hero.MainHero.MapFaction) && s.IsFortification).OrderByDescending(s => s.IsTown).ThenBy(s => s.Name.ToString()).ToList())
                 {
-                    PAICustomOrder insert = new(settlement, order.Behavior);
+                    PAICustomOrder insert = new(order.Behavior, settlement);
 
                     newList.Add(new InquiryElement(insert, settlement.Name.ToString(), new BannerImageIdentifier(settlement.MapFaction?.Banner, false)));
                 }
@@ -151,7 +151,7 @@ internal class CreateOrder
         PAICustomOrder order = (PAICustomOrder)list.First().Identifier;
         if (_fallback)
         {
-            _settings.FallbackOrder = order;
+            _settings.SetFallbackOrder(order.Behavior, order.Target);
         }
         else
         {
@@ -161,7 +161,7 @@ internal class CreateOrder
             }
             else
             {
-                _settings.SetOrder(order);
+                _settings.SetOrder(order.Behavior, order.Target);
             }
         }
 

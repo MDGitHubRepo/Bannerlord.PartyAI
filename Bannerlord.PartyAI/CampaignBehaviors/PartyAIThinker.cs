@@ -129,7 +129,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
                     settings.ClearOrder();
                     if (ControlAssumption.IsUnderControlAssumption(settings.Hero?.PartyBelongedTo))
                     {
-                        settings.SetOrder(new(MobileParty.MainParty, OrderType.EscortParty));
+                        settings.SetOrder(OrderType.EscortParty, MobileParty.MainParty);
                         MobileParty escortingParty = settings.Hero?.PartyBelongedTo;
                         if (escortingParty != null)
                         {
@@ -165,7 +165,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
 
             if (settings.FallbackOrder != null && settings.FallbackOrder.Behavior != OrderType.None)
             {
-                settings.SetOrder(settings.FallbackOrder);
+                settings.SetOrder(settings.FallbackOrder.Behavior, settings.FallbackOrder.Target);
             }
         }
     }

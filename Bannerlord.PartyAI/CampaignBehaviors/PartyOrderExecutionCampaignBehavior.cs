@@ -53,12 +53,12 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
                 if (settings.Order.Behavior != OrderType.RecruitFromTemplate
                     && !settings.OrderQueue.Any(o => o.Behavior == OrderType.RecruitFromTemplate))
                 {
-                    settings.SetOrder(new(null, OrderType.RecruitFromTemplate));
+                    settings.SetOrder(OrderType.RecruitFromTemplate);
                 }
             }
             else
             {
-                settings.SetOrder(new(null, OrderType.RecruitFromTemplate));
+                settings.SetOrder(OrderType.RecruitFromTemplate);
             }
         }
         if (settings.DismissUnwantedTroops && party.PartySizeRatio > settings.DismissUnwantedTroopsPercentage)
@@ -100,7 +100,7 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
         }
         else if (settings.FallbackOrder != null && settings.FallbackOrder.Behavior != OrderType.None && party.Army == null)
         {
-            settings.SetOrder(settings.FallbackOrder.Clone());
+            settings.SetOrder(settings.FallbackOrder.Behavior, settings.FallbackOrder.Target);
         }
     }
 

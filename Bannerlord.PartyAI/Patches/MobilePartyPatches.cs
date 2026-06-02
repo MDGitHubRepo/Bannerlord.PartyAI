@@ -81,7 +81,7 @@ internal class MobilePartyPatches
                 SubModule.PartySettingsManager.Settings(controlling.LeaderHero);
             settings.OrderQueue.Clear();
             settings.ClearOrder();
-            settings.SetOrder(new(MobileParty.MainParty, OrderType.EscortParty));
+            settings.SetOrder(OrderType.EscortParty, MobileParty.MainParty);
         }
     }
 
@@ -137,7 +137,7 @@ internal class MobilePartyPatches
                     controlling.DesiredAiNavigationType,
                     false
                 );
-                settings.SetOrder(new(party, OrderType.AttackParty));
+                settings.SetOrder(OrderType.AttackParty, party);
             }
             else
             {
@@ -149,7 +149,7 @@ internal class MobilePartyPatches
                     false,
                     false
                 );
-                settings.SetOrder(new(party, OrderType.EscortParty));
+                settings.SetOrder(OrderType.EscortParty, party);
             }
         }
     }
@@ -216,7 +216,7 @@ internal class MobilePartyPatches
                     controlling.DesiredAiNavigationType,
                     false
                 );
-                settings.SetOrder(new(settlement, OrderType.BesiegeSettlement));
+                settings.SetOrder(OrderType.BesiegeSettlement, settlement);
             }
             else
             {
@@ -230,7 +230,7 @@ internal class MobilePartyPatches
                         false,
                         false
                     );
-                    settings.SetOrder(new(settlement, OrderType.DefendSettlement));
+                    settings.SetOrder(OrderType.DefendSettlement, settlement);
                 }
                 else
                 {
@@ -245,7 +245,7 @@ internal class MobilePartyPatches
 
                     // If your OrderType enum has a VisitSettlement value,
                     // swap this to that to perfectly match original behavior.
-                    settings.SetOrder(new(settlement, OrderType.DefendSettlement));
+                    settings.SetOrder(OrderType.DefendSettlement, settlement);
                 }
             }
         }
