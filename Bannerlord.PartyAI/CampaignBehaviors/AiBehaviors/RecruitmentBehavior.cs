@@ -1,6 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain;
 using Helpers;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -8,7 +7,6 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Library;
-using TaleWorlds.Localization;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
@@ -23,7 +21,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
     {
         CampaignEvents.DailyTickEvent.AddNonSerializedListener(this, OnDailyTick);
         CampaignEvents.OnTroopRecruitedEvent.AddNonSerializedListener(this, OnTroopRecruited);
-        CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, AiHourlyTick);
+        CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
     }
 
     public override void SyncData(IDataStore dataStore)
@@ -52,7 +50,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
         _recentlyRecruitedFromSettlements.RemoveAll(l => l.Visited.ElapsedDaysUntilNow > RecruitmentSettlementCooldownDays);
     }
 
-    private void AiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
+    private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
     {
         if (!IsPartyOrderRelevant(party, RecruitOrderType, out var settings, out var order))
         {
@@ -84,13 +82,9 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
             return; // fallback to default AI
         }
 
-        if(!CalculateVisitSettlementScore(party, targetSettlement, thinkParams))
+        if (!CalculateVisitSettlementScore(party, targetSettlement, thinkParams))
         {
-            Message.Display(
-                new("{=PAI_target_unreachable}{PARTY} is no longer {ORDER} because their target is not reachable."),
-                Colors.Magenta,
-                ("PARTY", party.LeaderHero.Name.ToString()),
-                ("ORDER", SubModule.PartySettingsManager.GetOrderText(party.LeaderHero).ToString()));
+            Message.OrderStoppedTargetUnreachable(party, order);
 
             settings.ClearOrder();
         }

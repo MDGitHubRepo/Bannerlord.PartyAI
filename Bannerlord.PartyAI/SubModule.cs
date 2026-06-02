@@ -69,6 +69,7 @@ public class SubModule : MBSubModuleBase
         campaignGameStarter.AddBehavior(new PartyOrderExecutionCampaignBehavior());
         campaignGameStarter.AddBehavior(new PartyAutoCreationBehavior());
         campaignGameStarter.AddBehavior(new RecruitmentBehavior());
+        campaignGameStarter.AddBehavior(new EscortBehavior());
 
         AddGameModels(campaignGameStarter);
 
@@ -136,9 +137,9 @@ public class SubModule : MBSubModuleBase
         RecruitmentCampaignBehaviorPatches.Apply(harmony);
         TakePrisonerActionPatches.Apply(harmony);
 
-#if DEBUG
-        AiHourlyTickPatches.PatchAll(harmony);
-#endif
+//#if DEBUG
+//        AiHourlyTickPatches.PatchAll(harmony);
+//#endif
     }
 
     private static void AddGameModels(CampaignGameStarter starter)

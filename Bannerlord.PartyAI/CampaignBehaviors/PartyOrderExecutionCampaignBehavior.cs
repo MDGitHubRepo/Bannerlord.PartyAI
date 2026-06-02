@@ -11,8 +11,6 @@ namespace Bannerlord.PartyAI.CampaignBehaviors;
 
 internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
 {
-    private const int MinimumDaysOfFood = 3;
-
     public override void SyncData(IDataStore dataStore)
     {
         dataStore.SyncData("_assumingDirectControl", ref ControlAssumption.AssumingDirectControl);
@@ -93,8 +91,8 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
                     ImplementAttackParty(settings, party, settings.Order.Target);
                     return;
 
-                case OrderType.EscortParty:
-                    ImplementEscortParty(settings, party, settings.Order.Target);
+                default:
+                    ResetPartyAi(party);
                     return;
             }
         }
@@ -285,36 +283,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
                 targetParty,
                 targetParty.DesiredAiNavigationType, // use target's navigation type
                 false // isFromPort
-            );
-
-            party.Ai.SetDoNotMakeNewDecisions(true);
-        }
-    }
-
-    private void ImplementEscortParty(PartyAIClanPartySettings settings, MobileParty party, IMapPoint target)
-    {
-        if (target is not MobileParty targetParty
-            || targetParty == null
-            || FactionManager.IsAtWarAgainstFaction(party.MapFaction, targetParty.MapFaction))
-        {
-            settings.ClearOrder();
-            ResetPartyAi(party);
-            return;
-        }
-
-        bool navMismatch = party.DesiredAiNavigationType != targetParty.DesiredAiNavigationType;
-
-        // Allow issuing the escort action when the AI is unlocked OR default hold OR navigation mode changed
-        if (!party.Ai.DoNotMakeNewDecisions
-            || party.DefaultBehavior == AiBehavior.Hold
-            || navMismatch)
-        {
-            SetPartyAiAction.GetActionForEscortingParty(
-                party,
-                targetParty,
-                targetParty.DesiredAiNavigationType, // use target's navigation type
-                false, // isFromPort
-                false  // isTargetingPort
             );
 
             party.Ai.SetDoNotMakeNewDecisions(true);
