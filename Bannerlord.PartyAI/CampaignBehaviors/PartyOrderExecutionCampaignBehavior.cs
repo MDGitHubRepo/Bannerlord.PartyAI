@@ -1,5 +1,4 @@
 ﻿using Bannerlord.PartyAI.Domain;
-using Helpers;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -29,13 +28,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
         if (party?.LeaderHero == null
             || !SubModule.PartySettingsManager.IsHeroManageable(party.LeaderHero))
         {
-            return;
-        }
-
-        if (ShouldGetFood(party))
-        {
-            SetActionVisitNearestTownForFood(party);
-
             return;
         }
 
@@ -110,32 +102,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
         {
             settings.SetOrder(settings.FallbackOrder);
         }
-    }
-
-    private static void SetActionVisitNearestTownForFood(MobileParty party)
-    {
-        Settlement? town = Navigation.FindNearestSettlement(
-            s => s.IsTown
-                && (s.MapFaction == party.MapFaction
-                || FactionManager.IsNeutralWithFaction(party.MapFaction, s.MapFaction)),
-            party);
-
-        if (town != null
-            && Navigation.TryGetBestNavigationDataForSettlement(
-                party,
-                town,
-                out MobileParty.NavigationType navType,
-                out bool isFromPort,
-                out bool isTargetingPort))
-        {
-            SetPartyAiAction.GetActionForVisitingSettlement(
-                party,
-                town,
-                navType,
-                isFromPort,
-                isTargetingPort
-            );
-        } // TODO: else?
     }
 
     private void ImplementBesiegeSettlement(PartyAIClanPartySettings settings, MobileParty party)
@@ -359,10 +325,5 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
     {
         party.Ai.RethinkAtNextHourlyTick = true;
         party.Ai.SetDoNotMakeNewDecisions(false);
-    }
-
-    private bool ShouldGetFood(MobileParty party)
-    {
-        return party.GetNumDaysForFoodToLast() < MinimumDaysOfFood;
     }
 }

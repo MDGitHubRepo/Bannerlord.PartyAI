@@ -246,25 +246,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
             return;
         }
 
-        // === PRIORITY: Low on food -> go get food ===
-        int daysOfFood = party.GetNumDaysForFoodToLast();
-        if (daysOfFood <= 8)
-        {
-            Settlement town = SettlementHelper.FindNearestSettlementToMobileParty(
-                party,
-                safeNavType,
-                condition: settlement => IsFriendlyTownOrVillage(party, settlement));
-
-            if (town != null && Navigation.TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType townNavType, out bool townIsFromPort, out bool townIsTargetingPort))
-            {
-                newParams.Add((
-                    new AIBehaviorData(town, AiBehavior.GoToSettlement, townNavType, false, townIsFromPort, townIsTargetingPort),
-                    10f
-                ));
-            }
-            return;
-        }
-
         if (hero?.Clan == null)
             return;
 
@@ -384,25 +365,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         if (!Navigation.TryGetBestNavigationDataForSettlement(party, centerSettlement, out MobileParty.NavigationType centerNavType, out bool centerIsFromPort, out bool centerIsTargetingPort))
         {
             newParams = thinkParams.AIBehaviorScores.ConvertAll(s => (s.Item1, s.Item2));
-            return;
-        }
-
-        // === PRIORITY: Low on food -> go get food ===
-        int daysOfFood = party.GetNumDaysForFoodToLast();
-        if (daysOfFood <= 8)
-        {
-            Settlement town = SettlementHelper.FindNearestSettlementToMobileParty(
-                party,
-                safeNavType,
-                condition: settlement => IsFriendlyTownOrVillage(party, settlement));
-
-            if (town != null && Navigation.TryGetBestNavigationDataForSettlement(party, town, out MobileParty.NavigationType townNavType, out bool townIsFromPort, out bool townIsTargetingPort))
-            {
-                newParams.Add((
-                    new AIBehaviorData(town, AiBehavior.GoToSettlement, townNavType, false, townIsFromPort, townIsTargetingPort),
-                    10f
-                ));
-            }
             return;
         }
 
@@ -606,16 +568,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
 
         return position;
-    }
-
-    private static bool IsFriendlyTownOrVillage(MobileParty party, Settlement settlement)
-    {
-        if (!settlement.IsTown && !settlement.IsVillage)
-        {
-            return false;
-        }
-
-        return !FactionManager.IsAtWarAgainstFaction(party.MapFaction, settlement.MapFaction);
     }
 
     private static bool IsSettlementUnderAttack(Settlement settlement)
