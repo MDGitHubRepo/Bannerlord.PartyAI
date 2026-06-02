@@ -2,6 +2,7 @@
 using Bannerlord.PartyAI.ViewModels.Dialogs;
 using Bannerlord.PartyAI.ViewModels.Dropdowns;
 using System;
+using System.Runtime;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
@@ -167,7 +168,7 @@ public class PartyAIPartyOptionsVM : ViewModel
         {
             if (_settings.Hero?.PartyBelongedTo != null && _settings.Hero.PartyBelongedTo.Army == null)
             {
-                _settings.SetOrder(_settings.FallbackOrder);
+                _settings.SetOrder(_settings.FallbackOrder.Behavior, _settings.FallbackOrder.Target);
             }
         }
 
@@ -177,7 +178,10 @@ public class PartyAIPartyOptionsVM : ViewModel
     public void CancelEditPartyOptions()
     {
         // revert to original order if we're cancelling
-        _settings.FallbackOrder = _currentFallbackOrder;
+        if (_currentFallbackOrder is not null)
+        {
+            _settings.SetFallbackOrder(_currentFallbackOrder.Behavior, _currentFallbackOrder.Target);
+        }
         _onClosePartyOptions?.Invoke();
     }
 }

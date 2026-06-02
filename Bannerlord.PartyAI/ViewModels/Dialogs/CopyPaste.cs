@@ -62,7 +62,7 @@ internal static class CopyPaste
         {
             if (!SubModule.PartySettingsManager.IsCaravanManageable(_source.Hero))
             {
-                newList.Add(new InquiryElement(source.Order ?? new PAICustomOrder(null, OrderType.None), OrderText, null, true, hint.SetTextVariable("OPTION", OrderText).ToString()));
+                newList.Add(new InquiryElement(source.Order ?? new PAICustomOrder(OrderType.None), OrderText, null, true, hint.SetTextVariable("OPTION", OrderText).ToString()));
             }
             newList.Add(new InquiryElement(source, OptionsText, null, true, hint.SetTextVariable("OPTION", OptionsText).ToString()));
         }
@@ -153,11 +153,23 @@ internal static class CopyPaste
         if (source.Identifier is PAICustomOrder)
         {
             PAICustomOrder order = (PAICustomOrder)source.Identifier;
-            if (order.Behavior == OrderType.None)
+
+            // Explicitly wipe the target's existing order state
+            settings.ClearAllOrders();
+
+            if (order.Behavior != OrderType.None)
             {
-                settings.ClearOrder();
+                // Reconstruct the order state using Clones to avoid reference sharing
+                if (_source.Order != null)
+                {
+                    settings.SetOrder(_source.Order.Behavior, _source.Order.Target);
+                }
+
+                foreach (PAICustomOrder queuedOrder in _source.OrderQueue)
+                {
+                    settings.OrderQueue.Add(new(queuedOrder));
+                }
             }
-            settings.SetOrder(order);
         }
 
         if (source.Identifier is PartyAIClanPartySettings)
