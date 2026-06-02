@@ -15,6 +15,9 @@ internal class MobilePartyPatches
 {
     public static void Apply(Harmony harmony)
     {
+        // TODO: Instead of MobileParty, patch SandBox.View.Map.Visuals.MapEntityVisual<> types,
+        // patching SetMove(...) methods doesn't work for settlements
+        // or parties that are on water when we are on land or vice versa.
         harmony.Patch<MobileParty>()
             .Method(x => x.SetMoveGoToPoint(default, default))
                 .Postfix(SetMoveGoToPointPostfix)

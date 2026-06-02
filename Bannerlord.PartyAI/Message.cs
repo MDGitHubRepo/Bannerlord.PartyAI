@@ -22,7 +22,14 @@ public static class Message
 
     public static void OrderStoppedTargetEnemy(MobileParty party, PAICustomOrder order) =>
         Display(
-            new("{=PAI_order_stopped_war}{PARTY} is no longer {ORDER} because the target faction became an enemy."),
+            new("{=PAI_order_stopped_war}{PARTY} is no longer {ORDER} because the target's faction became an enemy."),
+            Colors.Magenta,
+            ("PARTY", party.LeaderHero.Name.ToString()),
+            ("ORDER", order.Text.ToString()));
+
+    public static void OrderStoppedTargetFriendly(MobileParty party, PAICustomOrder order) =>
+        Display(
+            new("{=PAI_order_stopped_peace}{PARTY} is no longer {ORDER} because the target's faction is no longer an enemy."),
             Colors.Magenta,
             ("PARTY", party.LeaderHero.Name.ToString()),
             ("ORDER", order.Text.ToString()));
