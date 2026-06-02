@@ -121,7 +121,7 @@ public class PartyAIPartyOptionsVM : ViewModel
     public void EditBuyHorsesBudget()
     {
         string titleText = new TextObject("{=PAID8JkoxK0}Buy Horses Budget").ToString();
-        SubModule.InformationManager.ShowNumberPickerInquiry((int)(_dismissUnwantedTroopsPercentage * 100f), 0, 50000, titleText, string.Empty, (int value) =>
+        SubModule.InformationManager.ShowNumberPickerInquiry(_buyHorsesBudget, 0, 50000, titleText, string.Empty, (int value) =>
         {
             _buyHorsesBudget = value;
             OnPropertyChanged("BuyHorsesBudgetAmount");
