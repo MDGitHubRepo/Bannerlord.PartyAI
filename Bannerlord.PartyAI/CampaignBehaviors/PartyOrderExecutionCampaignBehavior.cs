@@ -87,10 +87,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
                     ImplementVisitSettlement(settings, party);
                     return;
 
-                case OrderType.AttackParty:
-                    ImplementAttackParty(settings, party, settings.Order.Target);
-                    return;
-
                 default:
                     ResetPartyAi(party);
                     return;
@@ -257,35 +253,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
                     );
                 }
             }
-        }
-    }
-
-    private void ImplementAttackParty(PartyAIClanPartySettings settings, MobileParty party, IMapPoint target)
-    {
-        if (target is not MobileParty targetParty
-            || targetParty == null
-            || !FactionManager.IsAtWarAgainstFaction(party.MapFaction, targetParty.MapFaction))
-        {
-            settings.ClearOrder();
-            ResetPartyAi(party);
-            return;
-        }
-
-        bool navMismatch = party.DesiredAiNavigationType != targetParty.DesiredAiNavigationType;
-
-        // Allow issuing the engage action when the AI is unlocked OR default hold OR navigation mode changed
-        if (!party.Ai.DoNotMakeNewDecisions
-            || party.DefaultBehavior == AiBehavior.Hold
-            || navMismatch)
-        {
-            SetPartyAiAction.GetActionForEngagingParty(
-                party,
-                targetParty,
-                targetParty.DesiredAiNavigationType, // use target's navigation type
-                false // isFromPort
-            );
-
-            party.Ai.SetDoNotMakeNewDecisions(true);
         }
     }
 
