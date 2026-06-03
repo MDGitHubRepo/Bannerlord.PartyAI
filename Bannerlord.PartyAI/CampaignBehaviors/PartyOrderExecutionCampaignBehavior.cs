@@ -83,10 +83,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
                     ImplementStayInSettlement(settings, party);
                     return;
 
-                case OrderType.VisitSettlement:
-                    ImplementVisitSettlement(settings, party);
-                    return;
-
                 default:
                     ResetPartyAi(party);
                     return;
@@ -177,46 +173,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
     }
 
     private void ImplementStayInSettlement(PartyAIClanPartySettings settings, MobileParty party)
-    {
-        IMapPoint target = settings.Order.Target;
-        Settlement settlement = (Settlement)target;
-
-        if (FactionManager.IsAtWarAgainstFaction(target.MapFaction, party.MapFaction))
-        {
-            settings.ClearOrder();
-            return;
-        }
-
-        party.Ai.SetDoNotMakeNewDecisions(true);
-
-        if (party.CurrentSettlement != target)
-        {
-            if (settlement.IsUnderSiege)
-            {
-                settings.ClearOrder();
-            }
-            else if (target is Settlement targetSettlement)
-            {
-                if (Navigation.TryGetBestNavigationDataForSettlement(
-                    party,
-                    targetSettlement,
-                    out MobileParty.NavigationType navType,
-                    out bool isFromPort,
-                    out bool isTargetingPort))
-                {
-                    SetPartyAiAction.GetActionForVisitingSettlement(
-                        party,
-                        targetSettlement,
-                        navType,
-                        isFromPort,
-                        isTargetingPort
-                    );
-                }
-            }
-        }
-    }
-
-    private void ImplementVisitSettlement(PartyAIClanPartySettings settings, MobileParty party)
     {
         IMapPoint target = settings.Order.Target;
         Settlement settlement = (Settlement)target;

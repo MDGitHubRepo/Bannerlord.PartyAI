@@ -27,7 +27,7 @@ public class AttackPartyBehavior : PartyAiBehaviorBase
 
         party.Ai.SetInitiative(0, 0.33f, 24);
 
-        if (!CalculateAttackPartyScore(party, targetParty, thinkParams))
+        if (!CalculateAttackPartyScore(party, targetParty, order, thinkParams))
         {
             settings.ClearOrder();
         }
@@ -57,6 +57,7 @@ public class AttackPartyBehavior : PartyAiBehaviorBase
     private bool CalculateAttackPartyScore(
         MobileParty mobileParty,
         MobileParty targetParty,
+        PAICustomOrder order,
         PartyThinkParams partyThinkParams)
     {
         float navDistance = 0f;
@@ -86,6 +87,7 @@ public class AttackPartyBehavior : PartyAiBehaviorBase
 
         if (bestNavType == MobileParty.NavigationType.None)
         {
+            Message.OrderStoppedTargetUnreachable(mobileParty, order);
             return false;
         }
 

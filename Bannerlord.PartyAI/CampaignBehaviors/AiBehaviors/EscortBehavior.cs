@@ -33,10 +33,8 @@ public class EscortBehavior : PartyAiBehaviorBase
 
         party.Ai.SetInitiative(0, 0.33f, 24);
 
-        if (!CalculateEscortPartyScore(party, targetParty, thinkParams))
+        if (!CalculateEscortPartyScore(party, targetParty, order, thinkParams))
         {
-            Message.OrderStoppedTargetUnreachable(party, order);
-
             settings.ClearOrder();
         }
     }
@@ -44,6 +42,7 @@ public class EscortBehavior : PartyAiBehaviorBase
     private bool CalculateEscortPartyScore(
         MobileParty mobileParty,
         MobileParty targetParty,
+        PAICustomOrder order,
         PartyThinkParams partyThinkParams)
     {
         float navDistance = 0f;
@@ -73,6 +72,7 @@ public class EscortBehavior : PartyAiBehaviorBase
 
         if (bestNavType == MobileParty.NavigationType.None)
         {
+            Message.OrderStoppedTargetUnreachable(mobileParty, order);
             return false;
         }
 

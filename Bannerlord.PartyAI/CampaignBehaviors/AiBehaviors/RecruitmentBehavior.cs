@@ -82,10 +82,8 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
             return; // fallback to default AI
         }
 
-        if (!CalculateVisitSettlementScore(party, targetSettlement, thinkParams))
+        if (!CalculateVisitSettlementScore(party, targetSettlement, order, thinkParams))
         {
-            Message.OrderStoppedTargetUnreachable(party, order);
-
             settings.ClearOrder();
         }
     }
@@ -149,6 +147,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
     private bool CalculateVisitSettlementScore(
         MobileParty mobileParty,
         Settlement target,
+        PAICustomOrder order,
         PartyThinkParams partyThinkParams)
     {
         var isTargetingPort = target.HasPort && mobileParty.IsCurrentlyAtSea;
@@ -163,6 +162,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
 
         if (bestNavType == MobileParty.NavigationType.None)
         {
+            Message.OrderStoppedTargetUnreachable(mobileParty, order);
             return false;
         }
 

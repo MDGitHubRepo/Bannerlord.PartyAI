@@ -34,6 +34,13 @@ public static class Message
             ("PARTY", party.LeaderHero.Name.ToString()),
             ("ORDER", order.Text.ToString()));
 
+    public static void OrderStoppedTargetSieged(MobileParty party, PAICustomOrder order) =>
+        Display(
+            new("{=PAI_order_stopped_siege}{PARTY} is no longer {ORDER} because the target is under siege."),
+            Colors.Magenta,
+            ("PARTY", party.LeaderHero.Name.ToString()),
+            ("ORDER", order.Text.ToString()));
+
     public static void Display(TextObject message, Color color, params (string Tag, string Value)[] variables)
     {
         foreach (var variable in variables)
