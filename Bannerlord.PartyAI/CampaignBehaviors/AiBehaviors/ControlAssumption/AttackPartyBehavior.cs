@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
-using TaleWorlds.Library;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors.ControlAssumption;
 
@@ -99,13 +98,7 @@ public class AttackPartyBehavior : PartyAiBehaviorBase
             isTargetingPort);
 
         var score = 250;
-        if (partyThinkParams.TryGetBehaviorScore(in aibehaviorData, out float previousScore))
-        {
-            partyThinkParams.SetBehaviorScore(in aibehaviorData, score + previousScore);
-            return true;
-        }
-
-        partyThinkParams.AddBehaviorScore((aibehaviorData, score));
+        AddBehaviorScore(aibehaviorData, score, partyThinkParams);
         return true;
     }
 }

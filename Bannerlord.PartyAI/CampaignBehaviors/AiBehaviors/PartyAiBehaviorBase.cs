@@ -55,4 +55,15 @@ public abstract class PartyAiBehaviorBase : CampaignBehaviorBase
     {
         return IsPartyOrderRelevant(party?.LeaderHero, orderType, out settings, out order);
     }
+
+    protected void AddBehaviorScore(AIBehaviorData behaviorData, float score, PartyThinkParams thinkParams)
+    {
+        if (thinkParams.TryGetBehaviorScore(in behaviorData, out float previousScore))
+        {
+            thinkParams.SetBehaviorScore(in behaviorData, score + previousScore);
+            return;
+        }
+
+        thinkParams.AddBehaviorScore((behaviorData, score));
+    }
 }

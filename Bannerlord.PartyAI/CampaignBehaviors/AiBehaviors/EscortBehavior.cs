@@ -86,13 +86,7 @@ public class EscortBehavior : PartyAiBehaviorBase
 
         float t = MBMath.InverseLerp(FarDistance, CloseDistance, navDistance);
         float score = MBMath.Lerp(LowPriorityScore, HighPriorityScore, t * t);
-        if (partyThinkParams.TryGetBehaviorScore(in aibehaviorData, out float previousScore))
-        {
-            partyThinkParams.SetBehaviorScore(in aibehaviorData, score + previousScore);
-            return true;
-        }
-
-        partyThinkParams.AddBehaviorScore((aibehaviorData, score));
+        AddBehaviorScore(aibehaviorData, score, partyThinkParams);
         return true;
     }
 
