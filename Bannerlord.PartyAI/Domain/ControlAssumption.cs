@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
+using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ImageIdentifiers;
 using TaleWorlds.InputSystem;
+using TaleWorlds.Library;
 using TaleWorlds.Localization;
+using static Bannerlord.PartyAI.PAICustomOrder;
 
 namespace Bannerlord.PartyAI.Domain;
 
@@ -85,6 +89,216 @@ public static class ControlAssumption
         );
 
         IsPopupOpen = true;
+    }
+
+    public static void EscortMainParty(
+        MobileParty party,
+        CampaignVec2 point,
+        MobileParty.NavigationType navigationType)
+    {
+        // Only react when:
+        //  - Command key is held
+        //  - This order is coming from the MAIN PARTY
+        if (!Input.IsKeyDown(SubModule.PartySettingsManager.CommandPartiesKey)
+            || party != MobileParty.MainParty)
+        {
+            return;
+        }
+
+        foreach (MobileParty controlling in ControlAssumption.AssumingDirectControl)
+        {
+            if (controlling?.LeaderHero == null)
+                continue;
+            if (!SubModule.PartySettingsManager.IsHeroManageable(controlling.LeaderHero))
+                continue;
+            if (controlling.MapEvent != null)
+                continue;
+
+            if (controlling.GetPosition2D.Distance(MobileParty.MainParty.GetPosition2D) >
+                MobileParty.MainParty.SeeingRange)
+            {
+                InformationManager.DisplayMessage(
+                    new InformationMessage(
+                        new TextObject("{=PAIc1pTxSOA}{NAME} is out of range to be commanded directly")
+                            .SetTextVariable("NAME", controlling.Name)
+                            .ToString(),
+                        Colors.Magenta
+                    )
+                );
+                continue;
+            }
+
+            // Follow / escort the main party to that point
+            SetPartyAiAction.GetActionForEscortingParty(
+                controlling,
+                MobileParty.MainParty,
+                controlling.DesiredAiNavigationType,
+                false,
+                false
+            );
+
+            if (controlling.Ai != null)
+                controlling.Ai.SetDoNotMakeNewDecisions(true);
+
+            PartyAIClanPartySettings settings =
+                SubModule.PartySettingsManager.Settings(controlling.LeaderHero);
+            settings.OrderQueue.Clear();
+            settings.ClearOrder();
+            settings.SetOrder(OrderType.EscortParty, MobileParty.MainParty);
+        }
+    }
+
+    public static void AttackOrEscortParty(
+        MobileParty party,
+        MobileParty target)
+    {
+        if (!Input.IsKeyDown(SubModule.PartySettingsManager.CommandPartiesKey)
+            || party != MobileParty.MainParty)
+        {
+            return;
+        }
+
+        foreach (MobileParty controlling in ControlAssumption.AssumingDirectControl)
+        {
+            if (controlling?.LeaderHero == null)
+                continue;
+            if (!SubModule.PartySettingsManager.IsHeroManageable(controlling.LeaderHero))
+                continue;
+            if (controlling.MapEvent != null)
+                continue;
+
+            if (controlling.GetPosition2D.Distance(MobileParty.MainParty.GetPosition2D) >
+                MobileParty.MainParty.SeeingRange)
+            {
+                InformationManager.DisplayMessage(
+                    new InformationMessage(
+                        new TextObject("{=PAIc1pTxSOA}{NAME} is out of range to be commanded directly")
+                            .SetTextVariable("NAME", controlling.Name)
+                            .ToString(),
+                        Colors.Magenta
+                    )
+                );
+                continue;
+            }
+
+            if (controlling.Ai != null)
+                controlling.Ai.SetDoNotMakeNewDecisions(true);
+
+            PartyAIClanPartySettings settings =
+                SubModule.PartySettingsManager.Settings(controlling.LeaderHero);
+            settings.OrderQueue.Clear();
+            settings.ClearOrder();
+
+            if (FactionManager.IsAtWarAgainstFaction(target.MapFaction, controlling.MapFaction))
+            {
+                // Attack enemy party
+                SetPartyAiAction.GetActionForEngagingParty(
+                    controlling,
+                    target,
+                    controlling.DesiredAiNavigationType,
+                    false
+                );
+                settings.SetOrder(OrderType.AttackParty, target);
+            }
+            else
+            {
+                // Escort non-hostile party
+                SetPartyAiAction.GetActionForEscortingParty(
+                    controlling,
+                    target,
+                    controlling.DesiredAiNavigationType,
+                    false,
+                    false
+                );
+                settings.SetOrder(OrderType.EscortParty, target);
+            }
+        }
+    }
+
+
+    public static void TargetSettlement(
+        MobileParty party,
+        Settlement settlement)
+    {
+        if (!Input.IsKeyDown(SubModule.PartySettingsManager.CommandPartiesKey) ||
+            party != MobileParty.MainParty)
+        {
+            return;
+        }
+
+        foreach (MobileParty controlling in ControlAssumption.AssumingDirectControl)
+        {
+            if (controlling?.LeaderHero == null)
+                continue;
+            if (!SubModule.PartySettingsManager.IsHeroManageable(controlling.LeaderHero))
+                continue;
+            if (controlling.MapEvent != null)
+                continue;
+
+            if (controlling.GetPosition2D.Distance(MobileParty.MainParty.GetPosition2D) >
+                MobileParty.MainParty.SeeingRange)
+            {
+                InformationManager.DisplayMessage(
+                    new InformationMessage(
+                        new TextObject("{=PAIc1pTxSOA}{NAME} is out of range to be commanded directly")
+                            .SetTextVariable("NAME", controlling.Name)
+                            .ToString(),
+                        Colors.Magenta
+                    )
+                );
+                continue;
+            }
+
+            if (controlling.Ai != null)
+                controlling.Ai.SetDoNotMakeNewDecisions(true);
+
+            PartyAIClanPartySettings settings =
+                SubModule.PartySettingsManager.Settings(controlling.LeaderHero);
+            settings.OrderQueue.Clear();
+            settings.ClearOrder();
+
+            if (FactionManager.IsAtWarAgainstFaction(settlement.MapFaction, controlling.MapFaction))
+            {
+                // Enemy settlement → besiege
+                SetPartyAiAction.GetActionForBesiegingSettlement(
+                    controlling,
+                    settlement,
+                    controlling.DesiredAiNavigationType,
+                    false
+                );
+                settings.SetOrder(OrderType.BesiegeSettlement, settlement);
+            }
+            else
+            {
+                if (settlement.IsUnderSiege)
+                {
+                    // Friendly settlement under siege → defend
+                    SetPartyAiAction.GetActionForDefendingSettlement(
+                        controlling,
+                        settlement,
+                        controlling.DesiredAiNavigationType,
+                        false,
+                        false
+                    );
+                    settings.SetOrder(OrderType.DefendSettlement, settlement);
+                }
+                else
+                {
+                    // Normal case → just visit
+                    SetPartyAiAction.GetActionForVisitingSettlement(
+                        controlling,
+                        settlement,
+                        controlling.DesiredAiNavigationType,
+                        false,
+                        false
+                    );
+
+                    // If your OrderType enum has a VisitSettlement value,
+                    // swap this to that to perfectly match original behavior.
+                    settings.SetOrder(OrderType.DefendSettlement, settlement);
+                }
+            }
+        }
     }
 
     private static InquiryElement ConvertToInquiryElement(MobileParty mobileParty)
