@@ -20,14 +20,12 @@ public class StayInSettlementBehavior : PartyAiBehaviorBase
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
     }
 
-
-    private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
+    public void HandleStayInSettlement(
+        MobileParty party,
+        PartyAIClanPartySettings settings,
+        PAICustomOrder order,
+        PartyThinkParams thinkParams)
     {
-        if (!IsPartyOrderRelevant(party, PAICustomOrder.OrderType.VisitSettlement, out var settings, out var order))
-        {
-            return;
-        }
-
         if (!ShouldContinueExecutingOrder(party, order, out var targetSettlement))
         {
             settings.ClearOrder();
@@ -56,6 +54,16 @@ public class StayInSettlementBehavior : PartyAiBehaviorBase
             false);
 
         AddBehaviorScore(behaviorData, 5f, thinkParams);
+    }
+
+    private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
+    {
+        if (!IsPartyOrderRelevant(party, PAICustomOrder.OrderType.VisitSettlement, out var settings, out var order))
+        {
+            return;
+        }
+
+        HandleStayInSettlement(party, settings, order, thinkParams);
     }
 
     private bool ShouldContinueExecutingOrder(

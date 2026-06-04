@@ -81,7 +81,9 @@ public class SubModule : MBSubModuleBase
         campaignGameStarter.AddBehavior(new AttackPartyBehavior());
         var visitSettlementBehavior = new VisitSettlementBehavior();
         campaignGameStarter.AddBehavior(visitSettlementBehavior);
-        campaignGameStarter.AddBehavior(new StayInSettlementBehavior(visitSettlementBehavior));
+        var stayInSettlementBehavior = new StayInSettlementBehavior(visitSettlementBehavior);
+        campaignGameStarter.AddBehavior(stayInSettlementBehavior);
+        campaignGameStarter.AddBehavior(new DefendSettlementBehavior(stayInSettlementBehavior));
     }
 
     public override void OnGameInitializationFinished(Game game)

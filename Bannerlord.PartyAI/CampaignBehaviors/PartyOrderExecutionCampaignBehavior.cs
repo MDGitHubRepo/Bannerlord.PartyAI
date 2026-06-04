@@ -75,10 +75,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
                     ImplementBesiegeSettlement(settings, party);
                     return;
 
-                case OrderType.DefendSettlement:
-                    ImplementDefendSettlement(settings, party);
-                    return;
-
                 default:
                     ResetPartyAi(party);
                     return;
@@ -119,51 +115,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
                 // Safety fallback if target somehow isn't a settlement
                 settings.ClearOrder();
                 ResetPartyAi(party);
-            }
-        }
-    }
-
-    private void ImplementDefendSettlement(PartyAIClanPartySettings settings, MobileParty party)
-    {
-        var target = settings.Order.Target;
-        Settlement settlement = (Settlement)target;
-
-        if (target.MapFaction != party.MapFaction)
-        {
-            settings.ClearOrder();
-            return;
-        }
-
-        party.Ai.SetDoNotMakeNewDecisions(true);
-
-        // Not in the target settlement yet -> move there
-        if (party.CurrentSettlement != settlement)
-        {
-            if (Navigation.TryGetBestNavigationDataForSettlement(
-                party,
-                settlement,
-                out MobileParty.NavigationType navType,
-                out bool isFromPort,
-                out bool isTargetingPort))
-            {
-                if (settlement.IsUnderSiege)
-                {
-                    SetPartyAiAction.GetActionForDefendingSettlement(
-                        party,
-                        settlement,
-                        navType,
-                        isFromPort,
-                        isTargetingPort);
-                }
-                else
-                {
-                    SetPartyAiAction.GetActionForVisitingSettlement(
-                        party,
-                        settlement,
-                        navType,
-                        isFromPort,
-                        isTargetingPort);
-                }
             }
         }
     }
