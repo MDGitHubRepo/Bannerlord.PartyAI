@@ -58,7 +58,14 @@ public class SubModule : MBSubModuleBase
         }
 
         CampaignGameStarter campaignGameStarter = (CampaignGameStarter)gameStarterObject;
+        RegisterBehaviors(campaignGameStarter);
+        AddGameModels(campaignGameStarter);
 
+        InformationManager = new();
+    }
+
+    private static void RegisterBehaviors(CampaignGameStarter campaignGameStarter)
+    {
         PartySettingsManager = new PartyAIClanPartySettingsManager();
         campaignGameStarter.AddBehavior(PartySettingsManager);
 
@@ -72,11 +79,9 @@ public class SubModule : MBSubModuleBase
         campaignGameStarter.AddBehavior(new RecruitmentBehavior());
         campaignGameStarter.AddBehavior(new EscortBehavior());
         campaignGameStarter.AddBehavior(new AttackPartyBehavior());
-        campaignGameStarter.AddBehavior(new VisitSettlementBehavior());
-
-        AddGameModels(campaignGameStarter);
-
-        InformationManager = new();
+        var visitSettlementBehavior = new VisitSettlementBehavior();
+        campaignGameStarter.AddBehavior(visitSettlementBehavior);
+        campaignGameStarter.AddBehavior(new StayInSettlementBehavior(visitSettlementBehavior));
     }
 
     public override void OnGameInitializationFinished(Game game)

@@ -1,32 +1,25 @@
 ﻿using Helpers;
-using System.Diagnostics.CodeAnalysis;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
-internal class VisitSettlementBehavior : PartyAiBehaviorBase
+public class VisitSettlementBehavior : PartyAiBehaviorBase
 {
     public override void RegisterEvents()
     {
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
     }
 
-    private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
+    public void HandleVisitSettlement(
+        MobileParty party,
+        Settlement targetSettlement,
+        PartyAIClanPartySettings settings,
+        PAICustomOrder order,
+        PartyThinkParams thinkParams)
     {
-        if (!IsPartyOrderRelevant(party, PAICustomOrder.OrderType.VisitSettlement, out var settings, out var order))
-        {
-            return;
-        }
-
-        if (!ShouldContinueExecutingOrder(party, order, out var targetSettlement))
-        {
-            settings.ClearOrder();
-            return;
-        }
-
-        if (party.CurrentSettlement == targetSettlement)
+        if (!ShouldContinueExecutingOrder(party, order))
         {
             settings.ClearOrder();
             return;
@@ -68,10 +61,33 @@ internal class VisitSettlementBehavior : PartyAiBehaviorBase
         AddBehaviorScore(behaviorData, 5f, thinkParams);
     }
 
+    private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
+    {
+        if (!IsPartyOrderRelevant(party, PAICustomOrder.OrderType.VisitSettlement, out var settings, out var order))
+        {
+            return;
+        }
+
+        var targetSettlement = order.Target as Settlement;
+        if (targetSettlement is null)
+        {
+            Message.OrderStoppedTargetInvalid(party, order);
+            settings.ClearOrder();
+            return;
+        }
+
+        if (party.CurrentSettlement == targetSettlement)
+        {
+            settings.ClearOrder();
+            return;
+        }
+
+        HandleVisitSettlement(party, targetSettlement, settings, order, thinkParams);
+    }
+
     private bool ShouldContinueExecutingOrder(
         MobileParty party,
-        PAICustomOrder order,
-        [NotNullWhen(true)] out Settlement? targetSettlement)
+        PAICustomOrder order)
     {
         var target = order.Target as Settlement;
 
@@ -87,7 +103,6 @@ internal class VisitSettlementBehavior : PartyAiBehaviorBase
             canContinue = false;
         }
 
-        targetSettlement = target;
         return canContinue;
     }
 }
