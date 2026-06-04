@@ -74,6 +74,7 @@ public class SubModule : MBSubModuleBase
 
         PartyThinker = new PartyAIThinker();
         campaignGameStarter.AddBehavior(PartyThinker);
+        campaignGameStarter.AddBehavior(new FallbackOrderBehavior());
         campaignGameStarter.AddBehavior(new PartyOrderExecutionCampaignBehavior());
         campaignGameStarter.AddBehavior(new PartyAutoCreationBehavior());
         campaignGameStarter.AddBehavior(new RecruitmentBehavior());

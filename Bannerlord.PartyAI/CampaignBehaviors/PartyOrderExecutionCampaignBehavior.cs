@@ -76,10 +76,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
                     return;
             }
         }
-        else if (settings.FallbackOrder != null && settings.FallbackOrder.Behavior != OrderType.None && party.Army == null)
-        {
-            settings.SetOrder(settings.FallbackOrder.Behavior, settings.FallbackOrder.Target);
-        }
     }
 
     private void ResetPartyAi(MobileParty party)
