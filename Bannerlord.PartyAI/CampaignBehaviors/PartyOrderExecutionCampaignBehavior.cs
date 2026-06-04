@@ -71,10 +71,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
         {
             switch (settings.Order.Behavior)
             {
-                case OrderType.BesiegeSettlement:
-                    ImplementBesiegeSettlement(settings, party);
-                    return;
-
                 default:
                     ResetPartyAi(party);
                     return;
@@ -83,39 +79,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
         else if (settings.FallbackOrder != null && settings.FallbackOrder.Behavior != OrderType.None && party.Army == null)
         {
             settings.SetOrder(settings.FallbackOrder.Behavior, settings.FallbackOrder.Target);
-        }
-    }
-
-    private void ImplementBesiegeSettlement(PartyAIClanPartySettings settings, MobileParty party)
-    {
-        var target = settings.Order.Target;
-
-        if (!FactionManager.IsAtWarAgainstFaction(party.MapFaction, target.MapFaction))
-        {
-            settings.ClearOrder();
-            ResetPartyAi(party);
-            return;
-        }
-
-        if (!party.Ai.DoNotMakeNewDecisions || party.DefaultBehavior == AiBehavior.Hold)
-        {
-            if (target is Settlement targetSettlement)
-            {
-                SetPartyAiAction.GetActionForBesiegingSettlement(
-                    party,
-                    targetSettlement,
-                    party.DesiredAiNavigationType,
-                    false // isFromPort
-                );
-
-                party.Ai.SetDoNotMakeNewDecisions(true);
-            }
-            else
-            {
-                // Safety fallback if target somehow isn't a settlement
-                settings.ClearOrder();
-                ResetPartyAi(party);
-            }
         }
     }
 
