@@ -59,14 +59,6 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
                 settings.SetOrder(OrderType.RecruitFromTemplate);
             }
         }
-        if (settings.DismissUnwantedTroops && party.PartySizeRatio > settings.DismissUnwantedTroopsPercentage)
-        {
-            int max = (int)((party.PartySizeRatio - settings.DismissUnwantedTroopsPercentage) * party.Party.PartySizeLimit);
-            if (max > 0)
-            {
-                SubModule.PartyTroopRecruiter.DismissUnwantedTroops(settings, party, max);
-            }
-        }
         if (settings.HasActiveOrder)
         {
             switch (settings.Order.Behavior)

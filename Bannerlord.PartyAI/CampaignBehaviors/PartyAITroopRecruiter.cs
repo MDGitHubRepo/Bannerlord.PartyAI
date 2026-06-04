@@ -46,10 +46,27 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         ExchangeRoster(winnerParty.MemberRoster, heroSettings, winnerParty.LeaderHero, null);
     }
 
-    internal void DismissUnwantedTroops(PartyAIClanPartySettings settings, MobileParty party, int max)
+    private void DismissUnwantedTroops(PartyAIClanPartySettings settings, MobileParty party)
     {
-        TroopRoster roster = party?.MemberRoster;
-        if (roster == null || party?.Party == null) { return; }
+        if (party is null
+            || !settings.DismissUnwantedTroops
+            || party.PartySizeRatio < settings.DismissUnwantedTroopsPercentage)
+        {
+            return;
+        }
+
+        int max = (int)((party.PartySizeRatio - settings.DismissUnwantedTroopsPercentage) * party.Party.PartySizeLimit);
+        if (max <= 0)
+        {
+            return;
+        }
+
+        TroopRoster roster = party.MemberRoster;
+        if (roster is null || party.Party is null)
+        {
+            return;
+        }
+
         int gotRidOf = 0;
         while (gotRidOf < max)
         {
@@ -150,11 +167,16 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
 
     private void DailyTickParty(MobileParty party)
     {
-        if ((!SubModule.PartySettingsManager.AllowTroopConversion || !SubModule.PartySettingsManager.IsManageable(party?.LeaderHero)) && !SubModule.PartySettingsManager.AllowCaravanConversion(party?.LeaderHero))
+        if ((!SubModule.PartySettingsManager.AllowTroopConversion
+            || !SubModule.PartySettingsManager.IsManageable(party?.LeaderHero))
+            && !SubModule.PartySettingsManager.AllowCaravanConversion(party?.LeaderHero))
         {
             return;
         }
-        if (party.MapEvent != null) { return; }
+
+        if (party.MapEvent != null) {
+            return;
+        }
 
         PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
         if (heroSettings.PartyTemplate == null)
@@ -163,6 +185,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         }
 
         ExchangeRoster(party.MemberRoster, heroSettings, party.LeaderHero, null);
+        DismissUnwantedTroops(heroSettings, party);
     }
 
     private void OnTroopRecruited(Hero recruiter, Settlement settlement, Hero recruitmentSource, CharacterObject troop, int count)
