@@ -38,6 +38,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
 
         var settings = SubModule.PartySettingsManager.Settings(hero);
         DismissUnwantedTroops(settings, party);
+        SetAutoRecruitmentOrder(settings, party);
     }
 
     private void OnLootDistributedToParty(PartyBase winnerParty, PartyBase defeatedParty, ItemRoster lootedItems)
@@ -363,5 +364,26 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         }
 
         return replacement;
+    }
+
+    private void SetAutoRecruitmentOrder(PartyAIClanPartySettings settings, MobileParty party)
+    {
+        if (settings.AutoRecruitment
+            && party.PartySizeRatio < settings.AutoRecruitmentPercentage
+            && !ControlAssumption.IsUnderControlAssumption(party)
+            && party.Army == null)
+        {
+            if (!settings.HasActiveOrder)
+            {
+                settings.SetOrder(PAICustomOrder.OrderType.RecruitFromTemplate);
+                return;
+            }
+
+            if (settings.Order.Behavior != PAICustomOrder.OrderType.RecruitFromTemplate
+                && !settings.OrderQueue.Any(o => o.Behavior == PAICustomOrder.OrderType.RecruitFromTemplate))
+            {
+                settings.SetOrder(PAICustomOrder.OrderType.RecruitFromTemplate);
+            }
+        }
     }
 }

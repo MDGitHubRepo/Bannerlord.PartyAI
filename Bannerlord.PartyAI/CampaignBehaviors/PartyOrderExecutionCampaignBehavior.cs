@@ -41,24 +41,7 @@ internal class PartyOrderExecutionCampaignBehavior : CampaignBehaviorBase
             return;
         }
 
-        if (settings.AutoRecruitment
-            && party.PartySizeRatio < settings.AutoRecruitmentPercentage
-            && !ControlAssumption.IsUnderControlAssumption(party)
-            && party.Army == null)
-        {
-            if (settings.HasActiveOrder)
-            {
-                if (settings.Order.Behavior != OrderType.RecruitFromTemplate
-                    && !settings.OrderQueue.Any(o => o.Behavior == OrderType.RecruitFromTemplate))
-                {
-                    settings.SetOrder(OrderType.RecruitFromTemplate);
-                }
-            }
-            else
-            {
-                settings.SetOrder(OrderType.RecruitFromTemplate);
-            }
-        }
+        
         if (settings.HasActiveOrder)
         {
             switch (settings.Order.Behavior)
