@@ -13,7 +13,14 @@ namespace Bannerlord.PartyAI.CampaignBehaviors;
 
 internal class PartyAITroopRecruiter : CampaignBehaviorBase
 {
+    private readonly ControlAssumptionBehavior _controlAssumptionBehavior;
+
     private bool _firingEvent = false;
+
+    public PartyAITroopRecruiter(ControlAssumptionBehavior controlAssumptionBehavior)
+    {
+        _controlAssumptionBehavior = controlAssumptionBehavior;
+    }
 
     public override void SyncData(IDataStore dataStore)
     {
@@ -370,7 +377,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
     {
         if (settings.AutoRecruitment
             && party.PartySizeRatio < settings.AutoRecruitmentPercentage
-            && !ControlAssumption.IsUnderControlAssumption(party)
+            && !_controlAssumptionBehavior.IsUnderControlAssumption(party)
             && party.Army == null)
         {
             if (!settings.HasActiveOrder)

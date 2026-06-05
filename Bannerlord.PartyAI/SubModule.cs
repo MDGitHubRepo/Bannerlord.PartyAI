@@ -27,6 +27,7 @@ public class SubModule : MBSubModuleBase
     internal static PartyAITroopRecruiter PartyTroopRecruiter;
     internal static PartyAIThinker PartyThinker;
     internal static PAInformationManager InformationManager;
+    internal static ControlAssumptionBehavior ControlAssumptionBehavior;
 
     protected override void OnSubModuleLoad()
     {
@@ -66,16 +67,19 @@ public class SubModule : MBSubModuleBase
 
     private static void RegisterBehaviors(CampaignGameStarter campaignGameStarter)
     {
+        ControlAssumptionBehavior = new ControlAssumptionBehavior();
+        campaignGameStarter.AddBehavior(ControlAssumptionBehavior);
+
         PartySettingsManager = new PartyAIClanPartySettingsManager();
         campaignGameStarter.AddBehavior(PartySettingsManager);
 
-        PartyTroopRecruiter = new PartyAITroopRecruiter();
+        PartyTroopRecruiter = new PartyAITroopRecruiter(ControlAssumptionBehavior);
         campaignGameStarter.AddBehavior(PartyTroopRecruiter);
 
-        PartyThinker = new PartyAIThinker();
+        PartyThinker = new PartyAIThinker(ControlAssumptionBehavior);
         campaignGameStarter.AddBehavior(PartyThinker);
+
         campaignGameStarter.AddBehavior(new FallbackOrderBehavior());
-        campaignGameStarter.AddBehavior(new PartyOrderExecutionCampaignBehavior());
         campaignGameStarter.AddBehavior(new PartyAutoCreationBehavior());
         campaignGameStarter.AddBehavior(new RecruitmentBehavior());
         campaignGameStarter.AddBehavior(new EscortBehavior());
@@ -86,6 +90,7 @@ public class SubModule : MBSubModuleBase
         campaignGameStarter.AddBehavior(stayInSettlementBehavior);
         campaignGameStarter.AddBehavior(new DefendSettlementBehavior(stayInSettlementBehavior));
         campaignGameStarter.AddBehavior(new BesiegeSettlementBehavior());
+        campaignGameStarter.AddBehavior(new ResetPartyAiBehavior());
     }
 
     public override void OnGameInitializationFinished(Game game)
@@ -124,9 +129,9 @@ public class SubModule : MBSubModuleBase
             return;
         }
 
-        if (ControlAssumption.IsKeyCombinationDown())
+        if (ControlAssumptionBehavior.IsKeyCombinationDown())
         {
-            ControlAssumption.OpenPopup();
+            ControlAssumptionBehavior.OpenPopup();
             return;
         }
     }

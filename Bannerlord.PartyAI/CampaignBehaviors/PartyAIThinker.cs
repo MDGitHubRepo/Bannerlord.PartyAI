@@ -17,6 +17,13 @@ namespace Bannerlord.PartyAI.CampaignBehaviors;
 
 internal class PartyAIThinker : CampaignBehaviorBase
 {
+    private readonly ControlAssumptionBehavior _controlAssumptionBehavior;
+
+    public PartyAIThinker(ControlAssumptionBehavior controlAssumptionBehavior)
+    {
+        _controlAssumptionBehavior = controlAssumptionBehavior;
+    }
+
     public override void SyncData(IDataStore dataStore)
     {
     }
@@ -127,7 +134,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
                         continue;
                     }
                     settings.ClearOrder();
-                    if (ControlAssumption.IsUnderControlAssumption(settings.Hero?.PartyBelongedTo))
+                    if (_controlAssumptionBehavior.IsUnderControlAssumption(settings.Hero?.PartyBelongedTo))
                     {
                         settings.SetOrder(OrderType.EscortParty, MobileParty.MainParty);
                         MobileParty escortingParty = settings.Hero?.PartyBelongedTo;

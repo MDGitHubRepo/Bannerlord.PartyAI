@@ -9,23 +9,31 @@ using TaleWorlds.Core.ImageIdentifiers;
 using TaleWorlds.InputSystem;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
-using static Bannerlord.PartyAI.PAICustomOrder;
 
-namespace Bannerlord.PartyAI.Domain;
+namespace Bannerlord.PartyAI.CampaignBehaviors;
 
-public static class ControlAssumption
+internal class ControlAssumptionBehavior : CampaignBehaviorBase
 {
     private static readonly TextObject TitleText = new("{=PAIFHytp3D7}Choose which parties to directly command");
     private static readonly TextObject DescriptionText = new("{=PAIRzSgh49H}Parties must be manageable and in visual range to appear here.");
 
-    public static List<MobileParty> AssumingDirectControl = new();
+    private bool IsPopupOpen = false;
 
-    private static bool IsPopupOpen = false;
+    private List<MobileParty> _assumingDirectControl = new();
 
-    public static bool IsUnderControlAssumption(MobileParty? party)
-        => party is not null && AssumingDirectControl.Contains(party);
+    public override void RegisterEvents()
+    {
+    }
 
-    public static bool IsKeyCombinationDown()
+    public override void SyncData(IDataStore dataStore)
+    {
+        dataStore.SyncData("_assumingDirectControl", ref _assumingDirectControl);
+    }
+
+    public bool IsUnderControlAssumption(MobileParty? party)
+        => party is not null && _assumingDirectControl.Contains(party);
+
+    public bool IsKeyCombinationDown()
     {
         var manager = SubModule.PartySettingsManager;
         var modifierKey = manager.CommandedPartiesModiferKey;
@@ -36,7 +44,7 @@ public static class ControlAssumption
             && Input.IsKeyDown(mainKey);
     }
 
-    public static void OpenPopup()
+    public void OpenPopup()
     {
         if (IsPopupOpen)
         {
@@ -69,12 +77,12 @@ public static class ControlAssumption
             GameTexts.FindText("str_cancel").ToString(),
             affirmativeAction: results =>
             {
-                AssumingDirectControl.Clear();
+                _assumingDirectControl.Clear();
                 foreach (InquiryElement e in results)
                 {
                     if (e.Identifier is MobileParty m)
                     {
-                        AssumingDirectControl.Add(m);
+                        _assumingDirectControl.Add(m);
                     }
                 }
                 IsPopupOpen = false;
@@ -91,7 +99,7 @@ public static class ControlAssumption
         IsPopupOpen = true;
     }
 
-    public static void EscortMainParty(
+    public void EscortMainParty(
         MobileParty party,
         CampaignVec2 point,
         MobileParty.NavigationType navigationType)
@@ -105,7 +113,7 @@ public static class ControlAssumption
             return;
         }
 
-        foreach (MobileParty controlling in ControlAssumption.AssumingDirectControl)
+        foreach (MobileParty controlling in _assumingDirectControl)
         {
             if (controlling?.LeaderHero == null)
                 continue;
@@ -144,11 +152,11 @@ public static class ControlAssumption
                 SubModule.PartySettingsManager.Settings(controlling.LeaderHero);
             settings.OrderQueue.Clear();
             settings.ClearOrder();
-            settings.SetOrder(OrderType.EscortParty, MobileParty.MainParty);
+            settings.SetOrder(PAICustomOrder.OrderType.EscortParty, MobileParty.MainParty);
         }
     }
 
-    public static void AttackOrEscortParty(
+    public void AttackOrEscortParty(
         MobileParty party,
         MobileParty target)
     {
@@ -158,7 +166,7 @@ public static class ControlAssumption
             return;
         }
 
-        foreach (MobileParty controlling in ControlAssumption.AssumingDirectControl)
+        foreach (MobileParty controlling in _assumingDirectControl)
         {
             if (controlling?.LeaderHero == null)
                 continue;
@@ -198,7 +206,7 @@ public static class ControlAssumption
                     controlling.DesiredAiNavigationType,
                     false
                 );
-                settings.SetOrder(OrderType.AttackParty, target);
+                settings.SetOrder(PAICustomOrder.OrderType.AttackParty, target);
             }
             else
             {
@@ -210,13 +218,13 @@ public static class ControlAssumption
                     false,
                     false
                 );
-                settings.SetOrder(OrderType.EscortParty, target);
+                settings.SetOrder(PAICustomOrder.OrderType.EscortParty, target);
             }
         }
     }
 
 
-    public static void TargetSettlement(
+    public void TargetSettlement(
         MobileParty party,
         Settlement settlement)
     {
@@ -226,7 +234,7 @@ public static class ControlAssumption
             return;
         }
 
-        foreach (MobileParty controlling in ControlAssumption.AssumingDirectControl)
+        foreach (MobileParty controlling in _assumingDirectControl)
         {
             if (controlling?.LeaderHero == null)
                 continue;
@@ -266,7 +274,7 @@ public static class ControlAssumption
                     controlling.DesiredAiNavigationType,
                     false
                 );
-                settings.SetOrder(OrderType.BesiegeSettlement, settlement);
+                settings.SetOrder(PAICustomOrder.OrderType.BesiegeSettlement, settlement);
             }
             else
             {
@@ -280,7 +288,7 @@ public static class ControlAssumption
                         false,
                         false
                     );
-                    settings.SetOrder(OrderType.DefendSettlement, settlement);
+                    settings.SetOrder(PAICustomOrder.OrderType.DefendSettlement, settlement);
                 }
                 else
                 {
@@ -295,7 +303,7 @@ public static class ControlAssumption
 
                     // If your OrderType enum has a VisitSettlement value,
                     // swap this to that to perfectly match original behavior.
-                    settings.SetOrder(OrderType.DefendSettlement, settlement);
+                    settings.SetOrder(PAICustomOrder.OrderType.DefendSettlement, settlement);
                 }
             }
         }

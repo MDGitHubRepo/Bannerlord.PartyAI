@@ -29,27 +29,27 @@ internal class MobilePartyPatches
         CampaignVec2 point,
         MobileParty.NavigationType navigationType)
     {
-        ControlAssumption.EscortMainParty(__instance, point, navigationType);
+        SubModule.ControlAssumptionBehavior.EscortMainParty(__instance, point, navigationType);
     }
 
     private static void SetMoveEngagePartyPostfix(
         MobileParty __instance,
         MobileParty party)
     {
-        ControlAssumption.AttackOrEscortParty(__instance, party);
+        SubModule.ControlAssumptionBehavior.AttackOrEscortParty(__instance, party);
     }
 
     private static void SetMoveEscortPartyPostfix(
         MobileParty __instance,
         MobileParty mobileParty)
     {
-        ControlAssumption.AttackOrEscortParty(__instance, mobileParty);
+        SubModule.ControlAssumptionBehavior.AttackOrEscortParty(__instance, mobileParty);
     }
 
     private static void SetMoveGoToSettlementPostfix(
         MobileParty __instance,
         Settlement settlement)
     {
-        ControlAssumption.TargetSettlement(__instance, settlement);
+        SubModule.ControlAssumptionBehavior.TargetSettlement(__instance, settlement);
     }
 }
