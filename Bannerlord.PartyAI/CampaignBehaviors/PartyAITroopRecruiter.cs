@@ -25,6 +25,19 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         CampaignEvents.OnLootDistributedToPartyEvent.AddNonSerializedListener(this, OnLootDistributedToParty);
         CampaignEvents.DailyTickPartyEvent.AddNonSerializedListener(this, DailyTickParty);
         CampaignEvents.DailyTickSettlementEvent.AddNonSerializedListener(this, DailyTickSettlement);
+        CampaignEvents.HourlyTickPartyEvent.AddNonSerializedListener(this, OnHourlyTickParty);
+    }
+
+    private void OnHourlyTickParty(MobileParty party)
+    {
+        var hero = party?.LeaderHero;
+        if (!SubModule.PartySettingsManager.IsHeroManageable(hero))
+        {
+            return;
+        }
+
+        var settings = SubModule.PartySettingsManager.Settings(hero);
+        DismissUnwantedTroops(settings, party);
     }
 
     private void OnLootDistributedToParty(PartyBase winnerParty, PartyBase defeatedParty, ItemRoster lootedItems)
@@ -46,7 +59,69 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         ExchangeRoster(winnerParty.MemberRoster, heroSettings, winnerParty.LeaderHero, null);
     }
 
-    private void DismissUnwantedTroops(PartyAIClanPartySettings settings, MobileParty party)
+    private void DailyTickSettlement(Settlement settlement)
+    {
+        if (settlement?.Town?.GarrisonParty?.MemberRoster == null || settlement?.Owner == null)
+        {
+            return;
+        }
+
+        if (settlement.IsUnderSiege || settlement.InRebelliousState) { return; }
+
+        if (!SubModule.PartySettingsManager.AllowTroopConversionForGarrisons || !SubModule.PartySettingsManager.IsGarrisonManageable(settlement)) { return; }
+
+        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(settlement);
+        if (settings.PartyTemplate == null)
+        {
+            return;
+        }
+
+        ExchangeRoster(settlement.Town.GarrisonParty.MemberRoster, settings, null, settlement);
+    }
+
+    private void DailyTickParty(MobileParty party)
+    {
+        if ((!SubModule.PartySettingsManager.AllowTroopConversion
+            || !SubModule.PartySettingsManager.IsManageable(party?.LeaderHero))
+            && !SubModule.PartySettingsManager.AllowCaravanConversion(party?.LeaderHero))
+        {
+            return;
+        }
+
+        if (party.MapEvent != null) {
+            return;
+        }
+
+        PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
+        if (heroSettings.PartyTemplate == null)
+        {
+            return;
+        }
+
+        ExchangeRoster(party.MemberRoster, heroSettings, party.LeaderHero, null);
+    }
+
+    private void OnTroopRecruited(Hero recruiter, Settlement settlement, Hero recruitmentSource, CharacterObject troop, int count)
+    {
+        if (_firingEvent
+            || (!SubModule.PartySettingsManager.AllowTroopConversion
+            && !SubModule.PartySettingsManager.AllowCaravanConversion(recruiter)))
+        {
+            return;
+        }
+
+        if (SubModule.PartySettingsManager.IsManageable(recruiter))
+        {
+            PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(recruiter);
+            if (heroSettings.PartyTemplate != null && heroSettings.TroopsConvertibleToday > 0)
+            {
+                ExchangeClanTroops(recruiter, recruiter?.PartyBelongedTo?.MemberRoster, troop, count, true);
+                return;
+            }
+        }
+    }
+
+    private void DismissUnwantedTroops(PartyAIClanPartySettings settings, MobileParty? party)
     {
         if (party is null
             || !settings.DismissUnwantedTroops
@@ -141,69 +216,6 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
             {
                 if (settings.TroopsConvertibleToday <= 0) { break; }
                 ExchangeClanTroops(hero, roster, e.Character, e.Number - e.WoundedNumber, false, settlement);
-            }
-        }
-    }
-
-    private void DailyTickSettlement(Settlement settlement)
-    {
-        if (settlement?.Town?.GarrisonParty?.MemberRoster == null || settlement?.Owner == null)
-        {
-            return;
-        }
-
-        if (settlement.IsUnderSiege || settlement.InRebelliousState) { return; }
-
-        if (!SubModule.PartySettingsManager.AllowTroopConversionForGarrisons || !SubModule.PartySettingsManager.IsGarrisonManageable(settlement)) { return; }
-
-        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(settlement);
-        if (settings.PartyTemplate == null)
-        {
-            return;
-        }
-
-        ExchangeRoster(settlement.Town.GarrisonParty.MemberRoster, settings, null, settlement);
-    }
-
-    private void DailyTickParty(MobileParty party)
-    {
-        if ((!SubModule.PartySettingsManager.AllowTroopConversion
-            || !SubModule.PartySettingsManager.IsManageable(party?.LeaderHero))
-            && !SubModule.PartySettingsManager.AllowCaravanConversion(party?.LeaderHero))
-        {
-            return;
-        }
-
-        if (party.MapEvent != null) {
-            return;
-        }
-
-        PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
-        if (heroSettings.PartyTemplate == null)
-        {
-            return;
-        }
-
-        ExchangeRoster(party.MemberRoster, heroSettings, party.LeaderHero, null);
-        DismissUnwantedTroops(heroSettings, party);
-    }
-
-    private void OnTroopRecruited(Hero recruiter, Settlement settlement, Hero recruitmentSource, CharacterObject troop, int count)
-    {
-        if (_firingEvent
-            || (!SubModule.PartySettingsManager.AllowTroopConversion
-            && !SubModule.PartySettingsManager.AllowCaravanConversion(recruiter)))
-        {
-            return;
-        }
-
-        if (SubModule.PartySettingsManager.IsManageable(recruiter))
-        {
-            PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(recruiter);
-            if (heroSettings.PartyTemplate != null && heroSettings.TroopsConvertibleToday > 0)
-            {
-                ExchangeClanTroops(recruiter, recruiter?.PartyBelongedTo?.MemberRoster, troop, count, true);
-                return;
             }
         }
     }
