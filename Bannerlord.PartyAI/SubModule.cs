@@ -24,8 +24,6 @@ public class SubModule : MBSubModuleBase
     private Harmony _harmony = new(Namespace);
 
     internal static PartyAIClanPartySettingsManager PartySettingsManager;
-    internal static PartyAITroopRecruiter PartyTroopRecruiter;
-    internal static PartyAIThinker PartyThinker;
     internal static PAInformationManager InformationManager;
     internal static ControlAssumptionBehavior ControlAssumptionBehavior;
 
@@ -73,11 +71,8 @@ public class SubModule : MBSubModuleBase
         PartySettingsManager = new PartyAIClanPartySettingsManager();
         campaignGameStarter.AddBehavior(PartySettingsManager);
 
-        PartyTroopRecruiter = new PartyAITroopRecruiter(ControlAssumptionBehavior);
-        campaignGameStarter.AddBehavior(PartyTroopRecruiter);
-
-        PartyThinker = new PartyAIThinker(ControlAssumptionBehavior);
-        campaignGameStarter.AddBehavior(PartyThinker);
+        campaignGameStarter.AddBehavior(new PartyAITroopRecruiter(ControlAssumptionBehavior));
+        campaignGameStarter.AddBehavior(new PartyAIThinker(ControlAssumptionBehavior));
 
         campaignGameStarter.AddBehavior(new FallbackOrderBehavior());
         campaignGameStarter.AddBehavior(new PartyAutoCreationBehavior());
