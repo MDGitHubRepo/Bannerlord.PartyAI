@@ -28,8 +28,15 @@ public class AiHourlyTickPatches
                      && t != typeof(CampaignBehaviorBase))
             .ToList();
 
+        var thisAssembly = typeof(AiHourlyTickPatches).Assembly;
+
         foreach (var type in behaviorTypes)
         {
+            if (type.Assembly == thisAssembly)
+            {
+                continue;
+            }
+
             TryPatchType(harmony, type);
         }
     }

@@ -149,9 +149,9 @@ public class SubModule : MBSubModuleBase
         RecruitmentCampaignBehaviorPatches.Apply(harmony);
         TakePrisonerActionPatches.Apply(harmony);
 
-//#if DEBUG
-//        AiHourlyTickPatches.PatchAll(harmony);
-//#endif
+#if DEBUG
+        AiHourlyTickPatches.PatchAll(harmony);
+#endif
     }
 
     private static void AddGameModels(CampaignGameStarter starter)
