@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
@@ -193,6 +194,47 @@ public static class Recruitment
 
         return characterObjectList.Contains(unit);
     }
+
+    public static List<NotableVolunteer> CollectEligibleVolunteers(MobileParty mobileParty, Settlement settlement, PartyAIClanPartySettings settings, PartyCompositionObect partyComposition)
+    {
+        var hero = mobileParty.LeaderHero;
+        var eligibleVolunteers = new List<NotableVolunteer>();
+        foreach (var notable in settlement.Notables)
+        {
+            if (!notable.IsAlive)
+            {
+                continue;
+            }
+
+            var buyer = mobileParty.IsGarrison ? mobileParty.Party.Owner : mobileParty.LeaderHero;
+            int maxIndex = Campaign.Current.Models.VolunteerModel.MaximumIndexHeroCanRecruitFromHero(buyer, hero);
+
+            for (int troopIndex = 0; troopIndex <= maxIndex; troopIndex++)
+            {
+                var troop = notable.VolunteerTypes[troopIndex];
+
+                if (troop is null)
+                {
+                    continue;
+                }
+
+                var recruitmentCost = Campaign.Current.Models.PartyWageModel.GetTroopRecruitmentCost(troop, buyer).RoundedResultNumber;
+                var wage = Campaign.Current.Models.PartyWageModel.GetCharacterWage(troop);
+                var budget = mobileParty.GetAvailableWageBudget();
+                if (mobileParty.PartyTradeGold < recruitmentCost
+                    || budget < wage
+                    || !ShouldRecruit(partyComposition, settings, troop, mobileParty.Party))
+                {
+                    continue;
+                }
+
+                eligibleVolunteers.Add(new(notable, troop, troopIndex));
+            }
+        }
+
+        return eligibleVolunteers;
+    }
+
 
     public static int ComputeRecruitableVolunteersCount(
         MobileParty party,

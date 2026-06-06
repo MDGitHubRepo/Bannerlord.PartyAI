@@ -6,7 +6,6 @@ using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
-using TaleWorlds.Library;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
@@ -31,13 +30,16 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
 
     private void OnTroopRecruited(Hero recruiter, Settlement settlement, Hero source, CharacterObject troop, int amount)
     {
-        if (!IsPartyOrderRelevant(recruiter, RecruitOrderType, out var settings, out _))
+        if (!IsPartyOrderRelevant(recruiter, RecruitOrderType, out var settings, out _)
+            || settlement is null)
         {
             return;
         }
 
-        if (settlement is null
-            || Recruitment.ComputeRecruitableVolunteersCount(recruiter.PartyBelongedTo, settlement, settings) > 0)
+        var party = recruiter.PartyBelongedTo;
+        var partyComposition = Recruitment.GetPartyComposition(party.Party, settings);
+
+        if (Recruitment.CollectEligibleVolunteers(party, settlement, settings, partyComposition).Count > 0)
         {
             return;
         }
@@ -64,13 +66,14 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
             return;
         }
 
-        party.Ai.SetInitiative(0, 1, 24);
+        party.Ai.SetInitiative(0, 1, 6);
 
+        var partyComposition = Recruitment.GetPartyComposition(party.Party, settings);
         var targetSettlement = order.Target as Settlement;
-        if (ShouldPickNewRecruitmentTarget(settings, party, targetSettlement))
+        if (ShouldPickNewRecruitmentTarget(settings, party, targetSettlement, partyComposition))
         {
             var newTarget = Navigation.FindNearestSettlement(
-                s => IsGoodTargetForRecruiting(s, party, settings),
+                s => IsGoodTargetForRecruiting(s, party, settings, partyComposition),
                 party);
 
             settings.Order?.Target = newTarget;
@@ -91,22 +94,26 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
     private bool ShouldPickNewRecruitmentTarget(
         PartyAIClanPartySettings settings,
         MobileParty party,
-        [NotNullWhen(false)] Settlement? currentSettlement)
+        [NotNullWhen(false)] Settlement? currentSettlement,
+        PartyCompositionObect partyComposition)
     {
         if (currentSettlement is null)
         {
             return true;
         }
 
-        return _recentlyRecruitedFromSettlements.Any(l => l.Settlement == currentSettlement && l.Party == party)
-            || Recruitment.ComputeRecruitableVolunteersCount(party, currentSettlement, settings) == 0
-            || !CanVisitSettlement(party, currentSettlement);
+        var settlementRecentlyVisited = _recentlyRecruitedFromSettlements.Any(l => l.Settlement == currentSettlement && l.Party == party);
+        var volunteersAvailable = Recruitment.CollectEligibleVolunteers(party, currentSettlement, settings, partyComposition).Count > 0;
+        var canVisitSettlement = CanVisitSettlement(party, currentSettlement);
+
+        return settlementRecentlyVisited || !volunteersAvailable || !canVisitSettlement;
     }
 
     private bool IsGoodTargetForRecruiting(
         Settlement settlement,
         MobileParty party,
-        PartyAIClanPartySettings settings)
+        PartyAIClanPartySettings settings,
+        PartyCompositionObect partyComposition)
     {
         if (!settlement.IsVillage && !settlement.IsTown)
         {

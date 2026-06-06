@@ -84,40 +84,7 @@ internal class RecruitmentCampaignBehaviorPatches
         }
 
         PartyCompositionObect partyComposition = Recruitment.GetPartyComposition(mobileParty.Party, settings);
-
-        var eligibleVolunteers = new List<NotableVolunteer>();
-        foreach (var notable in settlement.Notables)
-        {
-            if (!notable.IsAlive)
-            {
-                continue;
-            }
-
-            var buyer = mobileParty.IsGarrison ? mobileParty.Party.Owner : mobileParty.LeaderHero;
-            int maxIndex = Campaign.Current.Models.VolunteerModel.MaximumIndexHeroCanRecruitFromHero(buyer, hero);
-
-            for (int troopIndex = 0; troopIndex <= maxIndex; troopIndex++)
-            {
-                var troop = notable.VolunteerTypes[troopIndex];
-
-                if (troop is null)
-                {
-                    continue;
-                }
-
-                var recruitmentCost = Campaign.Current.Models.PartyWageModel.GetTroopRecruitmentCost(troop, buyer).RoundedResultNumber;
-                var wage = Campaign.Current.Models.PartyWageModel.GetCharacterWage(troop);
-                var budget = mobileParty.GetAvailableWageBudget();
-                if (mobileParty.PartyTradeGold < recruitmentCost
-                    || budget < wage
-                    || !Recruitment.ShouldRecruit(partyComposition, settings, troop, mobileParty.Party))
-                {
-                    continue;
-                }
-
-                eligibleVolunteers.Add(new(notable, troop, troopIndex));
-            }
-        }
+        var eligibleVolunteers = Recruitment.CollectEligibleVolunteers(mobileParty, settlement, settings, partyComposition);
 
         var howMany = eligibleVolunteers.Count == 1
             ? 1 // RandomInt(0, 1) seems to be biased towards 0, so let's just force it
@@ -152,5 +119,4 @@ internal class RecruitmentCampaignBehaviorPatches
         return result;
     }
 
-    private record NotableVolunteer(Hero Notable, CharacterObject Troop, int Index);
 }
