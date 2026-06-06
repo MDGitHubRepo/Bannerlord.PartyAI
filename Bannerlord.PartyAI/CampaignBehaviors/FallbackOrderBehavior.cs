@@ -26,7 +26,7 @@ internal class FallbackOrderBehavior : CampaignBehaviorBase
         var fallbackOrder = settings.FallbackOrder;
         if (fallbackOrder is null
             || fallbackOrder.Behavior == PAICustomOrder.OrderType.None
-            || party!.Army is null)
+            || party!.Army is not null)
         {
             return;
         }
