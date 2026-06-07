@@ -23,6 +23,13 @@ internal class FallbackOrderBehavior : CampaignBehaviorBase
         }
 
         var settings = SubModule.PartySettingsManager.Settings(hero);
+        var order = settings.Order;
+
+        if (order is not null && order.Behavior != PAICustomOrder.OrderType.None)
+        {
+            return;
+        }
+
         var fallbackOrder = settings.FallbackOrder;
         if (fallbackOrder is null
             || fallbackOrder.Behavior == PAICustomOrder.OrderType.None
