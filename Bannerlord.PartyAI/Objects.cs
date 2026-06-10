@@ -16,23 +16,23 @@ namespace Bannerlord.PartyAI;
 
 public class PartyAIClanPartySettings
 {
-    [SaveableProperty(1)] public Hero Hero { get; private set; }
+    [SaveableProperty(1)] public Hero? Hero { get; private set; }
     [SaveableProperty(2)] public bool AllowJoinArmies { get; set; } = true;
     [SaveableProperty(3)] public bool AllowDonateTroops { get; set; } = true;
     [SaveableProperty(4)] public bool AllowRaidVillages { get; set; } = true;
-    [SaveableProperty(5)] public PAICustomTemplate PartyTemplate { get; set; }
+    [SaveableProperty(5)] public PAICustomTemplate? PartyTemplate { get; set; }
     [SaveableProperty(6)] public PartyComposition Composition { get; set; }
     [SaveableProperty(7)] public bool AllowLordPrisoners { get; set; } = true;
     [SaveableProperty(8)] public PAICustomOrder? Order { get; private set; }
     [SaveableProperty(9)] public PartyObjective CachedPartyObjective { get; set; }
     [SaveableProperty(10)] public bool AllowSieging { get; set; } = true;
-    [SaveableProperty(11)] public Settlement Settlement { get; private set; }
+    [SaveableProperty(11)] public Settlement? Settlement { get; private set; }
     [SaveableProperty(12)] public bool BuyHorses { get; set; }
     [SaveableProperty(13)] public int BuyHorsesBudget { get; set; } = 500;
     [SaveableProperty(14)] public int BuyHorsesBudgetToday { get; private set; } = 500;
     [SaveableProperty(15)] public int MaxTroopTier { get; set; }
     [SaveableProperty(16)] public int TroopsConvertibleToday { get; private set; } = 5;
-    [SaveableProperty(17)] public PAICustomOrder FallbackOrder { get; private set; }
+    [SaveableProperty(17)] public PAICustomOrder? FallbackOrder { get; private set; }
     [SaveableProperty(18)] public bool AllowRecruitment { get; set; } = true;
     [SaveableProperty(19)] public bool FilterSettlements { get; set; } = false;
     [SaveableProperty(20)] public List<Settlement> FilteredSettlements { get; set; } = new();
@@ -45,32 +45,38 @@ public class PartyAIClanPartySettings
     [SaveableProperty(27)] public float PatrolRadius { get; set; } = 1f;
     [SaveableProperty(28)] public bool RecruitFromEnemySettlements { get; set; } = false;
 
-    public PartyAIClanPartySettings(Hero hero)
+    public PartyAIClanPartySettings()
+    {
+        Composition = new PartyComposition(0.35f, 0.30f, 0.20f, 0.15f);
+    }
+
+    public PartyAIClanPartySettings(Hero hero) : this()
     {
         Hero = hero;
-        PartyTemplate = null;
-        Composition = new PartyComposition(0.35f, 0.30f, 0.20f, 0.15f);
     }
 
-    public PartyAIClanPartySettings(Settlement settlement)
+    public PartyAIClanPartySettings(Settlement settlement) : this()
     {
         Settlement = settlement;
-        PartyTemplate = null;
-        Composition = new PartyComposition(0.35f, 0.30f, 0.20f, 0.15f);
     }
 
-    private PartyAIClanPartySettings(PartyAIClanPartySettings cloneFrom, Hero hero, Settlement settlement)
+    public PartyAIClanPartySettings(
+        PartyAIClanPartySettings cloneFrom,
+        Hero? hero = null,
+        Settlement? settlement = null)
     {
-        if (hero != null)
+        if (hero is not null)
         {
             Hero = hero;
         }
-        else
+
+        if (settlement is not null)
         {
             Settlement = settlement;
         }
+
         PartyTemplate = cloneFrom.PartyTemplate;
-        Composition = cloneFrom.Composition.Clone();
+        Composition = new PartyComposition(cloneFrom.Composition);
         CopyOptionsFrom(cloneFrom);
     }
 
@@ -144,7 +150,7 @@ public class PartyAIClanPartySettings
         AllowRaidVillages = settings.AllowRaidVillages;
         AllowLordPrisoners = settings.AllowLordPrisoners;
         BuyHorses = settings.BuyHorses;
-        Composition = settings.Composition?.Clone();
+        Composition = new PartyComposition(settings.Composition);
         BuyHorsesBudget = settings.BuyHorsesBudget;
         MaxTroopTier = settings.MaxTroopTier;
         AllowRecruitment = settings.AllowRecruitment;
@@ -169,8 +175,6 @@ public class PartyAIClanPartySettings
 
         ResetBudgets();
     }
-
-    internal PartyAIClanPartySettings Clone(Hero hero, Settlement settlement = null) => new(this, hero, settlement);
 
     internal void ResetBudgets()
     {
@@ -229,12 +233,13 @@ public class PartyComposition
         HorseArcher = horseArcher;
     }
 
-    public PartyComposition()
+    public PartyComposition() : this(0, 0, 0, 0)
     {
-        Infantry = 0;
-        Ranged = 0;
-        Cavalry = 0;
-        HorseArcher = 0;
+    }
+
+    public PartyComposition(PartyComposition original)
+        : this(original.Infantry, original.Ranged, original.Cavalry, original.HorseArcher)
+    {
     }
 
     public void Scale(float scalar)
@@ -269,11 +274,6 @@ public class PartyComposition
                 default: break;
             }
         }
-    }
-
-    public PartyComposition Clone()
-    {
-        return new PartyComposition(Infantry, Ranged, Cavalry, HorseArcher);
     }
 }
 

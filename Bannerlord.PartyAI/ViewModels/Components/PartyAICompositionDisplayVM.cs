@@ -19,7 +19,7 @@ public class PartyAICompositionDisplayVM : ViewModel
 
     public PartyAICompositionDisplayVM(PartyComposition composition, int spacing = 0)
     {
-        _composition = composition?.Clone() ?? new PartyComposition(0.25f, 0.25f, 0.25f, 0.25f);
+        _composition = new PartyComposition(composition);
         _composition.Scale(100);
 
         Spacing = spacing;

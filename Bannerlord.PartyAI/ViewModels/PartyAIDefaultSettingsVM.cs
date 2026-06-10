@@ -108,11 +108,11 @@ public class PartyAIDefaultSettingsVM : ViewModel
     {
         TitleText = new TextObject("{=PAIykz3Pc1F}Edit Default Settings").ToString();
 
-        _defaultClanPartySettings = SubModule.PartySettingsManager._defaultClanPartySettings.Clone(null);
-        _defaultClanCaravanSettings = SubModule.PartySettingsManager._defaultClanCaravanSettings.Clone(null);
-        _defaultClanGarrisonSettings = SubModule.PartySettingsManager._defaultClanGarrisonSettings.Clone(null);
-        _defaultKingdomPartySettings = SubModule.PartySettingsManager._defaultKingdomPartySettings.Clone(null);
-        _defaultKingdomGarrisonSettings = SubModule.PartySettingsManager._defaultKingdomGarrisonSettings.Clone(null);
+        _defaultClanPartySettings = new PartyAIClanPartySettings(SubModule.PartySettingsManager._defaultClanPartySettings);
+        _defaultClanCaravanSettings = new PartyAIClanPartySettings(SubModule.PartySettingsManager._defaultClanCaravanSettings);
+        _defaultClanGarrisonSettings = new PartyAIClanPartySettings(SubModule.PartySettingsManager._defaultClanGarrisonSettings);
+        _defaultKingdomPartySettings = new PartyAIClanPartySettings(SubModule.PartySettingsManager._defaultKingdomPartySettings);
+        _defaultKingdomGarrisonSettings = new PartyAIClanPartySettings(SubModule.PartySettingsManager._defaultKingdomGarrisonSettings);
 
         ItemList = new()
   {

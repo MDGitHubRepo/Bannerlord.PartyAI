@@ -123,24 +123,30 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
         return true;
     }
 
-    internal PartyAIClanPartySettings Settings(Settlement settlement)
+    internal PartyAIClanPartySettings Settings(Settlement? settlement)
     {
-        if (settlement == null)
+        if (settlement is null)
         {
-            return new PartyAIClanPartySettings((Settlement)null);
+            return new PartyAIClanPartySettings();
         }
 
         if (!_garrisonSettings.ContainsKey(settlement))
         {
+            PartyAIClanPartySettings settings;
             if (settlement.OwnerClan == Clan.PlayerClan)
             {
-                _garrisonSettings.Add(settlement, _defaultClanGarrisonSettings.Clone(null, settlement));
+                settings = new PartyAIClanPartySettings(_defaultClanGarrisonSettings, settlement: settlement);
             }
             else if (settlement.MapFaction == Hero.MainHero.MapFaction)
             {
-                _garrisonSettings.Add(settlement, _defaultKingdomGarrisonSettings.Clone(null, settlement));
+                settings = new PartyAIClanPartySettings(_defaultKingdomGarrisonSettings, settlement: settlement);
             }
-            else { return new PartyAIClanPartySettings((Settlement)null); }
+            else
+            {
+                settings = new PartyAIClanPartySettings();
+            }
+
+            _garrisonSettings[settlement] = settings;
         }
 
         return _garrisonSettings[settlement];
@@ -148,16 +154,16 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
 
     internal PartyAIClanPartySettings Settings(Hero hero)
     {
-        if (hero == null)
+        if (hero is null)
         {
-            return new PartyAIClanPartySettings((Hero)null);
+            return new PartyAIClanPartySettings();
         }
 
         if (IsLeadingCaravan(hero))
         {
             if (!_caravanSettings.ContainsKey(hero))
             {
-                _caravanSettings.Add(hero, _defaultClanCaravanSettings.Clone(hero));
+                _caravanSettings.Add(hero, new PartyAIClanPartySettings(_defaultClanCaravanSettings, hero: hero));
             }
             return _caravanSettings[hero];
         }
@@ -166,18 +172,16 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
         {
             if (hero.Clan == Clan.PlayerClan)
             {
-                _partySettings.Add(hero, _defaultClanPartySettings.Clone(hero));
+                _partySettings.Add(hero, new PartyAIClanPartySettings(_defaultClanPartySettings, hero: hero));
             }
             else if (IsHeroManageable(hero))
             {
-                _partySettings.Add(hero, _defaultKingdomPartySettings.Clone(hero));
+                _partySettings.Add(hero, new PartyAIClanPartySettings(_defaultKingdomPartySettings, hero: hero));
             }
-            else { return new PartyAIClanPartySettings((Hero)null); }
-        }
-
-        if (_partySettings[hero].OrderQueue == null)
-        {
-            _partySettings[hero].OrderQueue = new();
+            else
+            {
+                return new PartyAIClanPartySettings();
+            }
         }
 
         return _partySettings[hero];

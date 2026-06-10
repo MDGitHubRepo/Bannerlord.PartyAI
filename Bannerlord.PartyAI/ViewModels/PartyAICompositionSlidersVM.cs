@@ -27,7 +27,7 @@ public class PartyAICompositionSlidersVM : ViewModel
         if (settings == null) { return; }
         _settings = settings;
 
-        PartyComposition composition = settings.Composition.Clone();
+        PartyComposition composition = new PartyComposition(settings.Composition);
         composition.Scale(100);
 
         _doNotClamp = true;
@@ -231,7 +231,7 @@ public class PartyAICompositionSlidersVM : ViewModel
 
     public void CancelEditPartyComposition()
     {
-        _onSavePartyComposition.Invoke(_settings.Composition.Clone());
+        _onSavePartyComposition.Invoke(new PartyComposition(_settings.Composition));
     }
 
     private void ClampTo100(FormationClass changedType)
