@@ -82,14 +82,26 @@ internal class CreateOrder
                 ChooseTargetCallback(list);
                 return;
             case OrderType.EscortParty:
-                HashSet<MobileParty> parties = (_hero?.MapFaction?.WarPartyComponents.ConvertAll(p => p?.MobileParty)?.ToHashSet()) ?? new();
+                IEnumerable<MobileParty> parties = _hero?.MapFaction?.WarPartyComponents.Select(p => p?.MobileParty);
                 if (_hero?.Clan?.Kingdom != null)
                 {
-                    parties = parties.Concat(_hero.Clan.Kingdom.WarPartyComponents.ConvertAll(p => p?.MobileParty)).ToHashSet();
+                    parties = parties.Concat(_hero.Clan.Kingdom.WarPartyComponents.Select(p => p?.MobileParty));
                 }
-                parties = parties.Concat(MobileParty.All.Where(m => m?.MapFaction != null && m.GetPosition2D.Distance(MobileParty.MainParty.GetPosition2D) <= MobileParty.MainParty.SeeingRange * 2f && !m.IsGarrison && !m.IsMilitia && !FactionManager.IsAtWarAgainstFaction(m.MapFaction, Hero.MainHero.MapFaction))).ToHashSet();
 
-                foreach (MobileParty mobileParty in parties.OrderByDescending(s => s?.ActualClan?.Equals(_hero?.Clan)).ThenBy(s => s?.Name?.ToString()).ToList())
+                parties = parties
+                    .Concat(MobileParty.All
+                        .Where(m => m?.MapFaction != null
+                            && m.GetPosition2D.Distance(MobileParty.MainParty.GetPosition2D) <= MobileParty.MainParty.SeeingRange * 2f
+                            && !m.IsGarrison
+                            && !m.IsMilitia
+                            && !FactionManager.IsAtWarAgainstFaction(m.MapFaction, Hero.MainHero.MapFaction)));
+
+                var ordered = parties
+                    .DistinctBy(p => p.Id)
+                    .OrderByDescending(s => s?.ActualClan?.Equals(_hero?.Clan))
+                    .ThenBy(s => s?.Name?.ToString())
+                    .ToList();
+                foreach (MobileParty mobileParty in ordered)
                 {
                     if (mobileParty == null) { continue; }
                     PAICustomOrder insert = new(order.Behavior, mobileParty);
