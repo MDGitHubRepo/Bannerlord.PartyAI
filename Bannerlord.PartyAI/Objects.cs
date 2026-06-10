@@ -139,6 +139,7 @@ public class PartyAIClanPartySettings
     {
         AllowJoinArmies = settings.AllowJoinArmies;
         AllowDonateTroops = settings.AllowDonateTroops;
+        AllowTakeTroopsFromSettlement = settings.AllowTakeTroopsFromSettlement;
         AllowSieging = settings.AllowSieging;
         AllowRaidVillages = settings.AllowRaidVillages;
         AllowLordPrisoners = settings.AllowLordPrisoners;
