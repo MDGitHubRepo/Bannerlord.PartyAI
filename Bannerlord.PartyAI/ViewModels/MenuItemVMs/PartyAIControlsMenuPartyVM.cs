@@ -165,7 +165,7 @@ public class PartyAIControlsMenuPartyVM : ViewModel
         SubModule.InformationManager.ShowOrderQueueInquiry(Settings, RefreshValues);
     }
 
-    private void EditPartyCompositionCallback(PartyCompositionObect composition)
+    private void EditPartyCompositionCallback(PartyComposition composition)
     {
         Settings.Composition = composition;
         RefreshValues();

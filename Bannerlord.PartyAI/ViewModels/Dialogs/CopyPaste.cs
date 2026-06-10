@@ -139,9 +139,9 @@ internal static class CopyPaste
 
     internal static void CopySettings(PartyAIClanPartySettings settings, InquiryElement source)
     {
-        if (source.Identifier is PartyCompositionObect)
+        if (source.Identifier is PartyComposition)
         {
-            settings.Composition = ((PartyCompositionObect)source.Identifier).Clone();
+            settings.Composition = ((PartyComposition)source.Identifier).Clone();
         }
 
         if (source.Identifier is PAICustomTemplate)

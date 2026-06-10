@@ -51,7 +51,7 @@ internal class RecruitmentCampaignBehaviorPatches
             return true;
         }
 
-        PartyCompositionObect comp = Recruitment.GetPartyComposition(side1Party.Party, heroSettings);
+        PartyComposition comp = Recruitment.GetPartyComposition(side1Party.Party, heroSettings);
         if (!Recruitment.ShouldRecruit(comp, heroSettings, troop, side1Party.Party))
         {
             return false;
@@ -83,7 +83,7 @@ internal class RecruitmentCampaignBehaviorPatches
             return true;
         }
 
-        PartyCompositionObect partyComposition = Recruitment.GetPartyComposition(mobileParty.Party, settings);
+        PartyComposition partyComposition = Recruitment.GetPartyComposition(mobileParty.Party, settings);
         var eligibleVolunteers = Recruitment.CollectEligibleVolunteers(mobileParty, settlement, settings, partyComposition);
 
         var howMany = eligibleVolunteers.Count == 1

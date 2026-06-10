@@ -37,7 +37,7 @@ internal class PAIPrisonerRecruitmentCalculationModel : PrisonerRecruitmentCalcu
         }
 
         PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
-        PartyCompositionObect comp = Recruitment.GetPartyComposition(party, heroSettings);
+        PartyComposition comp = Recruitment.GetPartyComposition(party, heroSettings);
 
         if (!heroSettings.AllowRecruitment)
         {

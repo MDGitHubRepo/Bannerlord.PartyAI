@@ -21,7 +21,7 @@ public class PartyAIClanPartySettings
     [SaveableProperty(3)] public bool AllowDonateTroops { get; set; } = true;
     [SaveableProperty(4)] public bool AllowRaidVillages { get; set; } = true;
     [SaveableProperty(5)] public PAICustomTemplate PartyTemplate { get; set; }
-    [SaveableProperty(6)] public PartyCompositionObect Composition { get; set; }
+    [SaveableProperty(6)] public PartyComposition Composition { get; set; }
     [SaveableProperty(7)] public bool AllowLordPrisoners { get; set; } = true;
     [SaveableProperty(8)] public PAICustomOrder? Order { get; private set; }
     [SaveableProperty(9)] public PartyObjective CachedPartyObjective { get; set; }
@@ -49,14 +49,14 @@ public class PartyAIClanPartySettings
     {
         Hero = hero;
         PartyTemplate = null;
-        Composition = new PartyCompositionObect(0.35f, 0.30f, 0.20f, 0.15f);
+        Composition = new PartyComposition(0.35f, 0.30f, 0.20f, 0.15f);
     }
 
     public PartyAIClanPartySettings(Settlement settlement)
     {
         Settlement = settlement;
         PartyTemplate = null;
-        Composition = new PartyCompositionObect(0.35f, 0.30f, 0.20f, 0.15f);
+        Composition = new PartyComposition(0.35f, 0.30f, 0.20f, 0.15f);
     }
 
     private PartyAIClanPartySettings(PartyAIClanPartySettings cloneFrom, Hero hero, Settlement settlement)
@@ -214,14 +214,14 @@ public class PartyAIClanPartySettings
     }
 }
 
-public class PartyCompositionObect
+public class PartyComposition
 {
     [SaveableProperty(1)] public float Infantry { get; set; }
     [SaveableProperty(2)] public float Ranged { get; set; }
     [SaveableProperty(3)] public float Cavalry { get; set; }
     [SaveableProperty(4)] public float HorseArcher { get; set; }
 
-    public PartyCompositionObect(float infantry, float ranged, float cavalry, float horseArcher)
+    public PartyComposition(float infantry, float ranged, float cavalry, float horseArcher)
     {
         Infantry = infantry;
         Ranged = ranged;
@@ -229,7 +229,7 @@ public class PartyCompositionObect
         HorseArcher = horseArcher;
     }
 
-    public PartyCompositionObect()
+    public PartyComposition()
     {
         Infantry = 0;
         Ranged = 0;
@@ -271,9 +271,9 @@ public class PartyCompositionObect
         }
     }
 
-    public PartyCompositionObect Clone()
+    public PartyComposition Clone()
     {
-        return new PartyCompositionObect(Infantry, Ranged, Cavalry, HorseArcher);
+        return new PartyComposition(Infantry, Ranged, Cavalry, HorseArcher);
     }
 }
 

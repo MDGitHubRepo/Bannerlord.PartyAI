@@ -51,7 +51,7 @@ public class PartyAIDefaultSettingsVM : ViewModel
 
         public void EditComposition()
         {
-            SubModule.InformationManager.ShowPartyCompositionInquiry(_settings, (PartyCompositionObect composition) =>
+            SubModule.InformationManager.ShowPartyCompositionInquiry(_settings, (PartyComposition composition) =>
             {
                 _settings.Composition = composition;
                 RefreshValues();

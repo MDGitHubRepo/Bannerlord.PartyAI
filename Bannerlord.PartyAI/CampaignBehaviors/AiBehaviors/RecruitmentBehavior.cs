@@ -96,7 +96,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
         PartyAIClanPartySettings settings,
         MobileParty party,
         [NotNullWhen(false)] Settlement? currentSettlement,
-        PartyCompositionObect partyComposition)
+        PartyComposition partyComposition)
     {
         if (currentSettlement is null)
         {
@@ -114,7 +114,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
         Settlement settlement,
         MobileParty party,
         PartyAIClanPartySettings settings,
-        PartyCompositionObect partyComposition)
+        PartyComposition partyComposition)
     {
         if (!settlement.IsVillage && !settlement.IsTown)
         {

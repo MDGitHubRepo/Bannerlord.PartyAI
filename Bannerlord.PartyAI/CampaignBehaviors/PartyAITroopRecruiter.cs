@@ -173,7 +173,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
             if (thisRun == 0) { break; }
         }
 
-        PartyCompositionObect comp = Recruitment.GetPartyComposition(party.Party, settings);
+        PartyComposition comp = Recruitment.GetPartyComposition(party.Party, settings);
         Dictionary<FormationClass, int> overages = new();
         foreach (FormationClass formation in new FormationClass[] { FormationClass.Infantry, FormationClass.Ranged, FormationClass.Cavalry, FormationClass.HorseArcher })
         {
@@ -277,7 +277,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
 
         while (count > 0 && heroSettings.TroopsConvertibleToday > 0)
         {
-            PartyCompositionObect comp = Recruitment.GetPartyComposition(party, heroSettings, troop);
+            PartyComposition comp = Recruitment.GetPartyComposition(party, heroSettings, troop);
             List<CharacterObject> eligible = template.Troops
                 .Where(t => Recruitment.ShouldRecruit(comp, heroSettings, t, party))
                 .ToList();

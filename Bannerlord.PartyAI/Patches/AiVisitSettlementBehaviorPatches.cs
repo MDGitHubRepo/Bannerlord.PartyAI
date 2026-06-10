@@ -40,7 +40,7 @@ internal class AiVisitSettlementBehaviorPatches
             return;
         }
 
-        PartyCompositionObect comp = Recruitment.GetPartyComposition(mobileParty.Party, heroSettings);
+        PartyComposition comp = Recruitment.GetPartyComposition(mobileParty.Party, heroSettings);
 
         int allowedCount = 0;
         int totalWage = 0;

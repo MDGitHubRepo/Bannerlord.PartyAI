@@ -133,10 +133,10 @@ internal class PAInformationManager : GlobalLayer
         _layer3 = new(4499);
     }
 
-    public void ShowPartyCompositionInquiry(PartyAIClanPartySettings settings, Action<PartyCompositionObect> callback)
+    public void ShowPartyCompositionInquiry(PartyAIClanPartySettings settings, Action<PartyComposition> callback)
     {
         if (!CheckContext()) { return; }
-        _layer3.LoadMovie("PartyAICompositionSliders", new PartyAICompositionSlidersVM(settings, (PartyCompositionObect comp) =>
+        _layer3.LoadMovie("PartyAICompositionSliders", new PartyAICompositionSlidersVM(settings, (PartyComposition comp) =>
         {
             _layer3.CloseQuery();
             callback?.Invoke(comp);

@@ -17,7 +17,7 @@ internal class PAISaveableTypeDefiner : SaveableTypeDefiner
     {
         AddClassDefinition(typeof(PartyAIClanPartySettings), 1);
         AddClassDefinition(typeof(PAICustomTemplate), 2);
-        AddClassDefinition(typeof(PartyCompositionObect), 3);
+        AddClassDefinition(typeof(PartyComposition), 3);
         AddClassDefinition(typeof(PAICustomOrder), 4);
         AddClassDefinition(typeof(RecruitmentBehavior.PAISettlementVisitLog), 5);
     }

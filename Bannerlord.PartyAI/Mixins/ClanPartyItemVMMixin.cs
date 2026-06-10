@@ -61,7 +61,7 @@ internal class ClanPartyItemVMMixin : BaseViewModelMixin<ClanPartyItemVM>
         }
     }
 
-    private void EditPartyCompositionCallback(PartyCompositionObect composition)
+    private void EditPartyCompositionCallback(PartyComposition composition)
     {
         _heroSettings.Composition = composition;
         OnRefresh();
@@ -73,7 +73,7 @@ internal class ClanPartyItemVMMixin : BaseViewModelMixin<ClanPartyItemVM>
         SelectTemplate.Select(_heroSettings, OnRefresh);
     }
 
-    internal void HandleSavePartyComposition(PartyCompositionObect composition)
+    internal void HandleSavePartyComposition(PartyComposition composition)
     {
         _heroSettings.Composition = composition;
         PartyComposition = new PartyAICompositionDisplayVM(_heroSettings.Composition, _spacing);

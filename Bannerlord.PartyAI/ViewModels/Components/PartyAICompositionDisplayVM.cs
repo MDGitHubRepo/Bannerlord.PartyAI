@@ -7,7 +7,7 @@ namespace Bannerlord.PartyAI.ViewModels.Components;
 
 public class PartyAICompositionDisplayVM : ViewModel
 {
-    private readonly PartyCompositionObect _composition;
+    private readonly PartyComposition _composition;
 
     private HintViewModel _infantryHint;
 
@@ -17,9 +17,9 @@ public class PartyAICompositionDisplayVM : ViewModel
 
     private HintViewModel _horseArcherHint;
 
-    public PartyAICompositionDisplayVM(PartyCompositionObect composition, int spacing = 0)
+    public PartyAICompositionDisplayVM(PartyComposition composition, int spacing = 0)
     {
-        _composition = composition?.Clone() ?? new PartyCompositionObect(0.25f, 0.25f, 0.25f, 0.25f);
+        _composition = composition?.Clone() ?? new PartyComposition(0.25f, 0.25f, 0.25f, 0.25f);
         _composition.Scale(100);
 
         Spacing = spacing;

@@ -7,7 +7,7 @@ namespace Bannerlord.PartyAI.ViewModels;
 
 public class PartyAICompositionSlidersVM : ViewModel
 {
-    private readonly Action<PartyCompositionObect> _onSavePartyComposition;
+    private readonly Action<PartyComposition> _onSavePartyComposition;
     private readonly PartyAIClanPartySettings _settings;
     private bool _doNotClamp;
     private int _infantry;
@@ -20,14 +20,14 @@ public class PartyAICompositionSlidersVM : ViewModel
     private bool _isHorseArcherLocked;
 
     // keep the constructor safe for settings to be null
-    public PartyAICompositionSlidersVM(PartyAIClanPartySettings settings, Action<PartyCompositionObect> callback)
+    public PartyAICompositionSlidersVM(PartyAIClanPartySettings settings, Action<PartyComposition> callback)
     {
         SlidersTitleText = new TextObject("{=PAgaRahFHeV}Edit Party Composition").ToString();
 
         if (settings == null) { return; }
         _settings = settings;
 
-        PartyCompositionObect composition = settings.Composition.Clone();
+        PartyComposition composition = settings.Composition.Clone();
         composition.Scale(100);
 
         _doNotClamp = true;
@@ -219,7 +219,7 @@ public class PartyAICompositionSlidersVM : ViewModel
 
     public void AcceptEditPartyComposition()
     {
-        PartyCompositionObect composition = new();
+        PartyComposition composition = new();
         composition.Infantry = _infantry;
         composition.Ranged = _ranged;
         composition.Cavalry = _cavalry;

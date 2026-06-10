@@ -73,7 +73,7 @@ internal class PAITroopUpgradeModel : PartyTroopUpgradeModel
             heroSettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
         }
 
-        PartyCompositionObect comp = Recruitment.GetPartyComposition(party, heroSettings, troop);
+        PartyComposition comp = Recruitment.GetPartyComposition(party, heroSettings, troop);
 
         if (heroSettings.MaxTroopTier > 0 && troop.Tier >= heroSettings.MaxTroopTier) { return 0f; }
 
