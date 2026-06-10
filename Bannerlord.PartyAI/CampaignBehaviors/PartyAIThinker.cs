@@ -97,8 +97,10 @@ internal class PartyAIThinker : CampaignBehaviorBase
             return;
         }
 
+        var order = SubModule.PartySettingsManager.Settings(leaderHero).Order;
+
         var partyText = mobileParty.Name;
-        var orderText = SubModule.PartySettingsManager.GetOrderText(leaderHero);
+        var orderText = OrderVerbalizer.GetStatusText(order);
         var armyText = mobileParty.Army?.Name is null
             ? "an army"
             : mobileParty.Army.Name.ToString();

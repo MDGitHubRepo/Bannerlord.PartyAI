@@ -81,7 +81,8 @@ internal class ClanPartyItemVMMixin : BaseViewModelMixin<ClanPartyItemVM>
 
     public override void OnRefresh()
     {
-        ActiveOrderText = _manager.GetOrderText(_hero).ToString();
+        var activeOrder = _manager.Settings(_hero)?.Order;
+        ActiveOrderText = OrderVerbalizer.GetStatusText(activeOrder).ToString();
         PartyComposition = new PartyAICompositionDisplayVM(_heroSettings.Composition, _spacing);
 
         if (_heroSettings.HasActiveOrder)

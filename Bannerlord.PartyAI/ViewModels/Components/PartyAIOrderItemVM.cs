@@ -14,7 +14,7 @@ public class PartyAIOrderItemVM : ViewModel
     public PartyAIOrderItemVM(PAICustomOrder order, PartyAIClanPartySettings settings, Action refreshCallback)
     {
         _order = order;
-        OrderType = order.QueueText.ToString();
+        OrderType = OrderVerbalizer.GetCommandText(order).ToString();
         _settings = settings;
         _refreshCallback = refreshCallback;
     }

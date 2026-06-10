@@ -93,7 +93,7 @@ public class PartyAIPartyOptionsVM : ViewModel
     [DataSourceProperty] public HintViewModel PatrolRadiusHint => new(new TextObject("{=PAIMaf6ECHe}Change radius for patrol orders. You'll just have to play with it and find a value that gives you the results you want. Percentage is a percentage of the default radius."));
     [DataSourceProperty] public string FallbackOrderLabel => new TextObject("{=PAIqGqAFj9G}Fallback Order: ").ToString();
     [DataSourceProperty] public HintViewModel FallbackOrderHint => new(new TextObject("{=PAIDJ1aQnLC}Order to issue when the party is not in an army and has no current order."));
-    [DataSourceProperty] public string FallbackOrder => (_settings?.FallbackOrder?.Text ?? new TextObject("{=PAIZZ1tGdbA}No Active Order")).ToString();
+    [DataSourceProperty] public string FallbackOrder => OrderVerbalizer.GetStatusText(_settings.FallbackOrder).ToString();
 
     private void ChangeFallbackOrder() => CreateOrder.Create(_settings, () => OnPropertyChanged("FallbackOrder"), true);
 

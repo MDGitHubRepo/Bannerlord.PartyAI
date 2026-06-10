@@ -306,48 +306,6 @@ public class PAICustomOrder
         Target = original.Target;
         Behavior = original.Behavior;
     }
-
-    public TextObject Text
-    {
-        get
-        {
-            return Behavior switch
-            {
-                OrderType.None => new TextObject("{=PAIZZ1tGdbA}No Active Order"),
-                OrderType.PatrolAroundPoint => new TextObject("{=yUVv3z5V}Patrolling around {TARGET_SETTLEMENT}").SetTextVariable("TARGET_SETTLEMENT", ((Settlement)Target).Name),
-                OrderType.BesiegeSettlement => new TextObject("{=JTxI3sW2}Besieging {TARGET_SETTLEMENT}").SetTextVariable("TARGET_SETTLEMENT", ((Settlement)Target).Name),
-                OrderType.DefendSettlement => new TextObject("{=rGy8vjOv}Defending {TARGET_SETTLEMENT}").SetTextVariable("TARGET_SETTLEMENT", ((Settlement)Target).Name),
-                OrderType.StayInSettlement => new TextObject("{=PAIdTWGYLu0}Staying in {TARGET_SETTLEMENT}").SetTextVariable("TARGET_SETTLEMENT", ((Settlement)Target).Name),
-                OrderType.EscortParty => new TextObject("{=OpzzCPiP}Following {TARGET_PARTY}").SetTextVariable("TARGET_PARTY", ((MobileParty)Target)?.Name),
-                OrderType.AttackParty => new TextObject("{=exnL6SS7}Attacking {TARGET_SETTLEMENT}").SetTextVariable("TARGET_SETTLEMENT", ((MobileParty)Target)?.Name),
-                OrderType.PatrolClanLands => new TextObject("{=PAI0oBFsSJO}Patrolling Clan Territory"),
-                OrderType.RecruitFromTemplate => new TextObject("{=PAIImuFNGIe}Recruiting Troops"),
-                OrderType.VisitSettlement => new TextObject("{=PAIzp4R8TTM}Visiting {SETTLEMENT}").SetTextVariable("SETTLEMENT", ((Settlement)Target).Name),
-                _ => null,
-            };
-        }
-    }
-
-    public TextObject QueueText
-    {
-        get
-        {
-            return Behavior switch
-            {
-                OrderType.None => new TextObject("{=PAISXYCwfO9}No orders in queue"),
-                OrderType.PatrolAroundPoint => new TextObject("{=PAIpc5Yu18Z}Patrol around {TARGET_SETTLEMENT}").SetTextVariable("TARGET_SETTLEMENT", ((Settlement)Target).Name),
-                OrderType.BesiegeSettlement => new TextObject("{=PAIPMS0nSSq}Besiege {TARGET_SETTLEMENT}").SetTextVariable("TARGET_SETTLEMENT", ((Settlement)Target).Name),
-                OrderType.DefendSettlement => new TextObject("{=PAITOricrPO}Defend {TARGET_SETTLEMENT}").SetTextVariable("TARGET_SETTLEMENT", ((Settlement)Target).Name),
-                OrderType.StayInSettlement => new TextObject("{=PAIj66iTjmT}Stay in {TARGET_SETTLEMENT}").SetTextVariable("TARGET_SETTLEMENT", ((Settlement)Target).Name),
-                OrderType.EscortParty => new TextObject("{=PAINt8jD9tc}Follow {TARGET_PARTY}").SetTextVariable("TARGET_PARTY", ((MobileParty)Target)?.Name),
-                OrderType.AttackParty => new TextObject("{=PAIDycETWvm}Attack {TARGET_SETTLEMENT}").SetTextVariable("TARGET_SETTLEMENT", ((MobileParty)Target)?.Name),
-                OrderType.PatrolClanLands => new TextObject("{=PAIgvZTEG1V}Patrol Clan Territory"),
-                OrderType.RecruitFromTemplate => new TextObject("{=PAIhBXucHBM}Recruit Troops"),
-                OrderType.VisitSettlement => new TextObject("{=PAIRyxa5pnP}Visit {SETTLEMENT}").SetTextVariable("SETTLEMENT", ((Settlement)Target).Name),
-                _ => null,
-            };
-        }
-    }
 }
 
 public class PAIHeroInventoryListener : InventoryListener

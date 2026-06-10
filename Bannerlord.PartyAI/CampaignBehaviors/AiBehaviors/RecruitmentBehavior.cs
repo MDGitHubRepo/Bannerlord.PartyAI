@@ -143,7 +143,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
             return false;
         }
 
-        var eligibleVolunteers = Recruitment.CollectEligibleVolunteers(party, settlement, settings);
+        var eligibleVolunteers = Recruitment.CollectEligibleVolunteers(party, settlement, settings, partyComposition);
         if (eligibleVolunteers.Count == 0)
         {
             return false;

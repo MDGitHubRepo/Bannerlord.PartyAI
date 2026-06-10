@@ -267,8 +267,6 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
         return hero?.PartyBelongedTo != null && hero.IsPartyLeader && hero.PartyBelongedTo.IsCaravan;
     }
 
-    internal TextObject GetOrderText(Hero hero) => Settings(hero).Order?.Text ?? new TextObject("{=PAIZZ1tGdbA}No Active Order");
-
     public override void SyncData(IDataStore dataStore)
     {
         dataStore.SyncData("_partySettings", ref _partySettings);

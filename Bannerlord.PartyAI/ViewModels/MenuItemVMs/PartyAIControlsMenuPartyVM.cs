@@ -71,7 +71,16 @@ public class PartyAIControlsMenuPartyVM : ViewModel
     [DataSourceProperty] public bool AllowEditComposition { get; set; }
     [DataSourceProperty] public bool AllowEditTemplate { get; set; }
     [DataSourceProperty] public HintViewModel ShowOnMapHint => new(new TextObject("{=aGJYQOef}Show hero's location on map."));
-    [DataSourceProperty] public virtual string ActiveOrder => SubModule.PartySettingsManager.GetOrderText(Leader)?.ToString();
+    [DataSourceProperty]
+    public virtual string ActiveOrder
+    {
+        get
+        {
+            var order = SubModule.PartySettingsManager.Settings(Leader)?.Order;
+            return OrderVerbalizer.GetStatusText(order).ToString();
+        }
+    }
+
     [DataSourceProperty] public PartyAIOptionToggleVM CopyPasteToggle { get; set; }
 
     [DataSourceProperty]
