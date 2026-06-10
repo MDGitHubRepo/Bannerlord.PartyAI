@@ -132,7 +132,7 @@ public class PartyAIPartyOptionsVM : ViewModel
     public void EditPatrolRadius()
     {
         string titleText = new TextObject("{=PAIGHyxwrgx}Patrol Radius").ToString();
-        SubModule.InformationManager.ShowNumberPickerInquiry((int)(_patrolRadius * 100f), 10, 200, titleText, string.Empty, (int result) =>
+        SubModule.InformationManager.ShowNumberPickerInquiry((int)(_patrolRadius * 100f), 10, 999, titleText, string.Empty, (int result) =>
         {
             _patrolRadius = result / 100f;
             UpdatePatrolRadiusText();
