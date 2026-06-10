@@ -142,8 +142,8 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
             return false;
         }
 
-        int count = Recruitment.ComputeRecruitableVolunteersCount(party, settlement, settings);
-        if (count == 0)
+        var eligibleVolunteers = Recruitment.CollectEligibleVolunteers(party, settlement, settings);
+        if (eligibleVolunteers.Count == 0)
         {
             return false;
         }
