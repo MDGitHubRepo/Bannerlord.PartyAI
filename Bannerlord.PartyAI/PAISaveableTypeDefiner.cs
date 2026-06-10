@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.CampaignBehaviors;
+using Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -18,7 +19,7 @@ internal class PAISaveableTypeDefiner : SaveableTypeDefiner
         AddClassDefinition(typeof(PAICustomTemplate), 2);
         AddClassDefinition(typeof(PartyCompositionObect), 3);
         AddClassDefinition(typeof(PAICustomOrder), 4);
-        AddClassDefinition(typeof(PAISettlementVisitLog), 5);
+        AddClassDefinition(typeof(RecruitmentBehavior.PAISettlementVisitLog), 5);
     }
 
     protected override void DefineEnumTypes()
@@ -35,7 +36,7 @@ internal class PAISaveableTypeDefiner : SaveableTypeDefiner
         ConstructContainerDefinition(typeof(List<CharacterObject>));
         ConstructContainerDefinition(typeof(List<Hero>));
         ConstructContainerDefinition(typeof(Dictionary<Settlement, CampaignTime>));
-        ConstructContainerDefinition(typeof(List<PAISettlementVisitLog>));
+        ConstructContainerDefinition(typeof(List<RecruitmentBehavior.PAISettlementVisitLog>));
         ConstructContainerDefinition(typeof(List<PAICustomOrder>));
     }
 }

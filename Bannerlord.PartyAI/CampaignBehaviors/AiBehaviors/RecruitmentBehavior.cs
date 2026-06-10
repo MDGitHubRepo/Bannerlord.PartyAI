@@ -6,6 +6,7 @@ using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
+using TaleWorlds.SaveSystem;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
@@ -196,6 +197,19 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
         else
         {
             return settlement.SiegeEvent == null || !settlement.SiegeEvent.IsBlockadeActive;
+        }
+    }
+
+    public class PAISettlementVisitLog
+    {
+        [SaveableProperty(1)] public Settlement Settlement { get; private set; }
+        [SaveableProperty(2)] public CampaignTime Visited { get; private set; }
+        [SaveableProperty(3)] public MobileParty Party { get; private set; }
+        public PAISettlementVisitLog(Settlement settlement, CampaignTime visited, MobileParty party)
+        {
+            Settlement = settlement;
+            Visited = visited;
+            Party = party;
         }
     }
 }

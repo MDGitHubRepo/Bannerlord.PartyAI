@@ -350,19 +350,6 @@ public class PAICustomOrder
     }
 }
 
-public class PAISettlementVisitLog
-{
-    [SaveableProperty(1)] public Settlement Settlement { get; private set; }
-    [SaveableProperty(2)] public CampaignTime Visited { get; private set; }
-    [SaveableProperty(3)] public MobileParty Party { get; private set; }
-    public PAISettlementVisitLog(Settlement settlement, CampaignTime visited, MobileParty party)
-    {
-        Settlement = settlement;
-        Visited = visited;
-        Party = party;
-    }
-}
-
 public class PAIHeroInventoryListener : InventoryListener
 {
     private readonly MobileParty _mobileParty;
