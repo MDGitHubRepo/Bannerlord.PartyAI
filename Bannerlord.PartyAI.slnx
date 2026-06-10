@@ -3,10 +3,6 @@
     <File Path=".github/workflows/build.yml" />
     <File Path=".github/workflows/publish.yml" />
   </Folder>
-  <Folder Name="/build/">
-    <File Path="build/common.props" />
-    <File Path="build/common.targets" />
-  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="supported-game-versions.txt" />
   </Folder>

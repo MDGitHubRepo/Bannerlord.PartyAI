@@ -1,0 +1,8 @@
+<Project>
+    
+  <PropertyGroup>
+    <ModuleId>Bannerlord.PartyAI</ModuleId>
+    <ModuleName>Party AI Controls Reforged</ModuleName>
+  </PropertyGroup>
+
+</Project>
