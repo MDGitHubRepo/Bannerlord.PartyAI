@@ -125,7 +125,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
 
         foreach (PartyAIClanPartySettings settings in SubModule.PartySettingsManager.HeroesWithOrders)
         {
-            PAICustomOrder order = settings.Order;
+            PartyAiOrder order = settings.Order;
             switch (order.Behavior)
             {
                 case PartyAiOrderType.AttackParty:

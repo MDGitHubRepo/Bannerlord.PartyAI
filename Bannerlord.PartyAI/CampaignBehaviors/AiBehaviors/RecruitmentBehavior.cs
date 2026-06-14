@@ -156,7 +156,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
     private bool CalculateVisitSettlementScore(
         MobileParty mobileParty,
         Settlement target,
-        PAICustomOrder order,
+        PartyAiOrder order,
         PartyThinkParams partyThinkParams)
     {
         var isTargetingPort = target.HasPort && mobileParty.IsCurrentlyAtSea;

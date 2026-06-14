@@ -17,7 +17,7 @@ public class VisitSettlementBehavior : PartyAiBehaviorBase
         MobileParty party,
         Settlement targetSettlement,
         PartyAIClanPartySettings settings,
-        PAICustomOrder order,
+        PartyAiOrder order,
         PartyThinkParams thinkParams)
     {
         if (!ShouldContinueExecutingOrder(party, order))
@@ -88,7 +88,7 @@ public class VisitSettlementBehavior : PartyAiBehaviorBase
 
     private bool ShouldContinueExecutingOrder(
         MobileParty party,
-        PAICustomOrder order)
+        PartyAiOrder order)
     {
         var target = order.Target as Settlement;
 

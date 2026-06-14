@@ -1,8 +1,8 @@
-﻿using Bannerlord.PartyAI.ViewModels.Components;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.ViewModels.Components;
 using Bannerlord.PartyAI.ViewModels.Dialogs;
 using Bannerlord.PartyAI.ViewModels.Dropdowns;
 using System;
-using System.Runtime;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
@@ -15,7 +15,7 @@ public class PartyAIPartyOptionsVM : ViewModel
     private readonly Action _onClosePartyOptions;
     private readonly PartyAIClanPartySettings _settings;
     private int _buyHorsesBudget;
-    private readonly PAICustomOrder _currentFallbackOrder;
+    private readonly PartyAiOrder _currentFallbackOrder;
     private float _autoRecruitmentPercentage;
     private float _dismissUnwantedTroopsPercentage;
     private float _patrolRadius;

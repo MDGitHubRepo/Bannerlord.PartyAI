@@ -21,7 +21,7 @@ public class PartyAIClanPartySettings
     [SaveableProperty(5)] public PAICustomTemplate? PartyTemplate { get; set; }
     [SaveableProperty(6)] public PartyComposition Composition { get; set; }
     [SaveableProperty(7)] public bool AllowLordPrisoners { get; set; } = true;
-    [SaveableProperty(8)] public PAICustomOrder? Order { get; private set; }
+    [SaveableProperty(8)] public PartyAiOrder? Order { get; private set; }
     [SaveableProperty(9)] public PartyObjective CachedPartyObjective { get; set; }
     [SaveableProperty(10)] public bool AllowSieging { get; set; } = true;
     [SaveableProperty(11)] public Settlement? Settlement { get; private set; }
@@ -30,11 +30,11 @@ public class PartyAIClanPartySettings
     [SaveableProperty(14)] public int BuyHorsesBudgetToday { get; private set; } = 500;
     [SaveableProperty(15)] public int MaxTroopTier { get; set; }
     [SaveableProperty(16)] public int TroopsConvertibleToday { get; private set; } = 5;
-    [SaveableProperty(17)] public PAICustomOrder? FallbackOrder { get; private set; }
+    [SaveableProperty(17)] public PartyAiOrder? FallbackOrder { get; private set; }
     [SaveableProperty(18)] public bool AllowRecruitment { get; set; } = true;
     [SaveableProperty(19)] public bool FilterSettlements { get; set; } = false;
     [SaveableProperty(20)] public List<Settlement> FilteredSettlements { get; set; } = new();
-    [SaveableProperty(21)] public List<PAICustomOrder> OrderQueue { get; set; } = new();
+    [SaveableProperty(21)] public List<PartyAiOrder> OrderQueue { get; set; } = new();
     [SaveableProperty(22)] public bool AutoRecruitment { get; set; } = true;
     [SaveableProperty(23)] public float AutoRecruitmentPercentage { get; set; } = 0.5f;
     [SaveableProperty(24)] public bool DismissUnwantedTroops { get; set; } = false;
@@ -80,7 +80,7 @@ public class PartyAIClanPartySettings
 
     internal void SetOrder(PartyAiOrderType behavior, IMapPoint? target = null)
     {
-        var order = new PAICustomOrder(behavior, target);
+        var order = new PartyAiOrder(behavior, target);
 
         if (Settlement != null)
         {
@@ -102,7 +102,7 @@ public class PartyAIClanPartySettings
 
     internal void SetFallbackOrder(PartyAiOrderType behavior, IMapPoint? target = null)
     {
-        var order = new PAICustomOrder(behavior, target);
+        var order = new PartyAiOrder(behavior, target);
 
         if (Settlement != null)
         {
@@ -155,7 +155,7 @@ public class PartyAIClanPartySettings
         FilterSettlements = settings.FilterSettlements;
         FilteredSettlements = settings.FilteredSettlements?.ToList() ?? new();
         OrderQueue = settings.OrderQueue?
-            .Select(order => new PAICustomOrder(order))
+            .Select(order => new PartyAiOrder(order))
             .ToList() ?? [];
         AutoRecruitment = settings.AutoRecruitment;
         AutoRecruitmentPercentage = settings.AutoRecruitmentPercentage;
@@ -272,23 +272,5 @@ public class PartyComposition
                 default: break;
             }
         }
-    }
-}
-
-public class PAICustomOrder
-{
-    [SaveableProperty(1)] public IMapPoint? Target { get; set; }
-    [SaveableProperty(2)] public PartyAiOrderType Behavior { get; set; }
-
-    public PAICustomOrder(PartyAiOrderType behavior, IMapPoint? target = null)
-    {
-        Target = target;
-        Behavior = behavior;
-    }
-
-    public PAICustomOrder(PAICustomOrder original)
-    {
-        Target = original.Target;
-        Behavior = original.Behavior;
     }
 }

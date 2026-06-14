@@ -1,0 +1,22 @@
+﻿using TaleWorlds.CampaignSystem.Map;
+using TaleWorlds.SaveSystem;
+
+namespace Bannerlord.PartyAI.Domain.Models;
+
+public class PartyAiOrder
+{
+    [SaveableProperty(1)] public IMapPoint? Target { get; set; }
+    [SaveableProperty(2)] public PartyAiOrderType Behavior { get; set; }
+
+    public PartyAiOrder(PartyAiOrderType behavior, IMapPoint? target = null)
+    {
+        Target = target;
+        Behavior = behavior;
+    }
+
+    public PartyAiOrder(PartyAiOrder original)
+    {
+        Target = original.Target;
+        Behavior = original.Behavior;
+    }
+}

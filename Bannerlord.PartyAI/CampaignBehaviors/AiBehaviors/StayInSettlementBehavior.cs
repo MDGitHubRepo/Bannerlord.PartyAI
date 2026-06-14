@@ -24,7 +24,7 @@ public class StayInSettlementBehavior : PartyAiBehaviorBase
     public void HandleStayInSettlement(
         MobileParty party,
         PartyAIClanPartySettings settings,
-        PAICustomOrder order,
+        PartyAiOrder order,
         PartyThinkParams thinkParams)
     {
         if (!ShouldContinueExecutingOrder(party, order, out var targetSettlement))
@@ -69,7 +69,7 @@ public class StayInSettlementBehavior : PartyAiBehaviorBase
 
     private bool ShouldContinueExecutingOrder(
         MobileParty party,
-        PAICustomOrder order,
+        PartyAiOrder order,
         [NotNullWhen(true)] out Settlement? targetSettlement)
     {
         var target = order.Target as Settlement;

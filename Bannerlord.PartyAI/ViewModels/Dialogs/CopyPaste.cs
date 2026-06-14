@@ -62,7 +62,7 @@ internal static class CopyPaste
         {
             if (!SubModule.PartySettingsManager.IsCaravanManageable(_source.Hero))
             {
-                newList.Add(new InquiryElement(source.Order ?? new PAICustomOrder(PartyAiOrderType.None), OrderText, null, true, hint.SetTextVariable("OPTION", OrderText).ToString()));
+                newList.Add(new InquiryElement(source.Order ?? new PartyAiOrder(PartyAiOrderType.None), OrderText, null, true, hint.SetTextVariable("OPTION", OrderText).ToString()));
             }
             newList.Add(new InquiryElement(source, OptionsText, null, true, hint.SetTextVariable("OPTION", OptionsText).ToString()));
         }
@@ -150,9 +150,9 @@ internal static class CopyPaste
             settings.SetPartyTemplate(template);
         }
 
-        if (source.Identifier is PAICustomOrder)
+        if (source.Identifier is PartyAiOrder)
         {
-            PAICustomOrder order = (PAICustomOrder)source.Identifier;
+            PartyAiOrder order = (PartyAiOrder)source.Identifier;
 
             // Explicitly wipe the target's existing order state
             settings.ClearAllOrders();
@@ -165,7 +165,7 @@ internal static class CopyPaste
                     settings.SetOrder(_source.Order.Behavior, _source.Order.Target);
                 }
 
-                foreach (PAICustomOrder queuedOrder in _source.OrderQueue)
+                foreach (PartyAiOrder queuedOrder in _source.OrderQueue)
                 {
                     settings.OrderQueue.Add(new(queuedOrder));
                 }

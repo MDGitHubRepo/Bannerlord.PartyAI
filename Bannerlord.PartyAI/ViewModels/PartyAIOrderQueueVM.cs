@@ -55,7 +55,7 @@ public class PartyAIOrderQueueVM : ViewModel
         if (_settings.HasActiveOrder)
         {
             OrderList.Add(new(_settings.Order, _settings, RefreshOrderQueue));
-            foreach (PAICustomOrder order in _settings.OrderQueue)
+            foreach (PartyAiOrder order in _settings.OrderQueue)
             {
                 OrderList.Add(new(order, _settings, RefreshOrderQueue));
             }

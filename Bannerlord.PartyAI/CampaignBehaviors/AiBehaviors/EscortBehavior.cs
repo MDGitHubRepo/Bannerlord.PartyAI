@@ -43,7 +43,7 @@ public class EscortBehavior : PartyAiBehaviorBase
     private bool CalculateEscortPartyScore(
         MobileParty mobileParty,
         MobileParty targetParty,
-        PAICustomOrder order,
+        PartyAiOrder order,
         PartyThinkParams partyThinkParams)
     {
         float navDistance = 0f;
@@ -93,7 +93,7 @@ public class EscortBehavior : PartyAiBehaviorBase
 
     private bool ShouldContinueExecutingOrder(
         MobileParty party,
-        PAICustomOrder order,
+        PartyAiOrder order,
         [NotNullWhen(true)] out MobileParty? targetParty)
     {
         var target = order.Target as MobileParty;

@@ -8,11 +8,11 @@ namespace Bannerlord.PartyAI.ViewModels.Components;
 
 public class PartyAIOrderItemVM : ViewModel
 {
-    private readonly PAICustomOrder _order;
+    private readonly PartyAiOrder _order;
     private readonly PartyAIClanPartySettings _settings;
     private readonly Action _refreshCallback;
 
-    public PartyAIOrderItemVM(PAICustomOrder order, PartyAIClanPartySettings settings, Action refreshCallback)
+    public PartyAIOrderItemVM(PartyAiOrder order, PartyAIClanPartySettings settings, Action refreshCallback)
     {
         _order = order;
         OrderType = OrderVerbalizer.GetCommandText(order).ToString();

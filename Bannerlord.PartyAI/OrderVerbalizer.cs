@@ -8,7 +8,7 @@ public static class OrderVerbalizer
     private const string NoActiveOrder = "{=PAIZZ1tGdbA}No active order";
     private const string NoOrdersInQueue = "{=PAISXYCwfO9}No orders in queue";
 
-    public static TextObject GetStatusText(PAICustomOrder? order)
+    public static TextObject GetStatusText(PartyAiOrder? order)
     {
         return order?.Behavior switch
         {
@@ -33,7 +33,7 @@ public static class OrderVerbalizer
         };
     }
 
-    public static TextObject GetCommandText(PAICustomOrder? order)
+    public static TextObject GetCommandText(PartyAiOrder? order)
     {
         return order?.Behavior switch
         {

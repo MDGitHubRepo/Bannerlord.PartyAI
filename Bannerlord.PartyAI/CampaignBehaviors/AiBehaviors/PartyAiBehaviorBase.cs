@@ -23,7 +23,7 @@ public abstract class PartyAiBehaviorBase : CampaignBehaviorBase
         Hero? hero,
         PartyAiOrderType orderType,
         [NotNullWhen(true)]out PartyAIClanPartySettings? settings,
-        [NotNullWhen(true)]out PAICustomOrder? order)
+        [NotNullWhen(true)]out PartyAiOrder? order)
     {
         order = null;
         settings = null;
@@ -52,7 +52,7 @@ public abstract class PartyAiBehaviorBase : CampaignBehaviorBase
         MobileParty party,
         PartyAiOrderType orderType,
         [NotNullWhen(true)] out PartyAIClanPartySettings? settings,
-        [NotNullWhen(true)] out PAICustomOrder? order)
+        [NotNullWhen(true)] out PartyAiOrder? order)
     {
         return IsPartyOrderRelevant(party?.LeaderHero, orderType, out settings, out order);
     }

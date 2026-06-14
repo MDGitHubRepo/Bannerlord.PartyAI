@@ -17,7 +17,7 @@ internal class PAISaveableTypeDefiner : SaveableTypeDefiner
         AddClassDefinition(typeof(PartyAIClanPartySettings), 1);
         AddClassDefinition(typeof(PAICustomTemplate), 2);
         AddClassDefinition(typeof(PartyComposition), 3);
-        AddClassDefinition(typeof(PAICustomOrder), 4);
+        AddClassDefinition(typeof(PartyAiOrder), 4);
         AddClassDefinition(typeof(RecruitmentBehavior.PAISettlementVisitLog), 5);
     }
 
@@ -36,6 +36,6 @@ internal class PAISaveableTypeDefiner : SaveableTypeDefiner
         ConstructContainerDefinition(typeof(List<Hero>));
         ConstructContainerDefinition(typeof(Dictionary<Settlement, CampaignTime>));
         ConstructContainerDefinition(typeof(List<RecruitmentBehavior.PAISettlementVisitLog>));
-        ConstructContainerDefinition(typeof(List<PAICustomOrder>));
+        ConstructContainerDefinition(typeof(List<PartyAiOrder>));
     }
 }
