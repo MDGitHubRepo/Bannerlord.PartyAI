@@ -57,24 +57,25 @@ public class PartyAIClanPartySettings
         Settlement = settlement;
     }
 
-    public PartyAIClanPartySettings(
-        PartyAIClanPartySettings cloneFrom,
-        Hero? hero = null,
-        Settlement? settlement = null)
+    public PartyAIClanPartySettings(PartyAIClanPartySettings cloneFrom)
     {
-        if (hero is not null)
-        {
-            Hero = hero;
-        }
-
-        if (settlement is not null)
-        {
-            Settlement = settlement;
-        }
-
         PartyTemplate = cloneFrom.PartyTemplate;
         Composition = new PartyComposition(cloneFrom.Composition);
         CopyOptionsFrom(cloneFrom);
+    }
+
+    public PartyAIClanPartySettings(
+        PartyAIClanPartySettings cloneFrom,
+        Hero hero) : this(cloneFrom)
+    {
+        Hero = hero;
+    }
+
+    public PartyAIClanPartySettings(
+        PartyAIClanPartySettings cloneFrom,
+        Settlement settlement) : this(cloneFrom)
+    {
+        Settlement = settlement;
     }
 
     internal void SetOrder(PartyAiOrderType behavior, IMapPoint? target = null)
