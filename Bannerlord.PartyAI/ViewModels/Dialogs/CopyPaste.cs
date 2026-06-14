@@ -1,4 +1,5 @@
-﻿using Bannerlord.PartyAI.Mixins;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Mixins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,6 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ImageIdentifiers;
 using TaleWorlds.Localization;
-using static Bannerlord.PartyAI.PAICustomOrder;
 
 namespace Bannerlord.PartyAI.ViewModels.Dialogs;
 
@@ -62,7 +62,7 @@ internal static class CopyPaste
         {
             if (!SubModule.PartySettingsManager.IsCaravanManageable(_source.Hero))
             {
-                newList.Add(new InquiryElement(source.Order ?? new PAICustomOrder(OrderType.None), OrderText, null, true, hint.SetTextVariable("OPTION", OrderText).ToString()));
+                newList.Add(new InquiryElement(source.Order ?? new PAICustomOrder(PartyAiOrderType.None), OrderText, null, true, hint.SetTextVariable("OPTION", OrderText).ToString()));
             }
             newList.Add(new InquiryElement(source, OptionsText, null, true, hint.SetTextVariable("OPTION", OptionsText).ToString()));
         }
@@ -157,7 +157,7 @@ internal static class CopyPaste
             // Explicitly wipe the target's existing order state
             settings.ClearAllOrders();
 
-            if (order.Behavior != OrderType.None)
+            if (order.Behavior != PartyAiOrderType.None)
             {
                 // Reconstruct the order state using Clones to avoid reference sharing
                 if (_source.Order != null)

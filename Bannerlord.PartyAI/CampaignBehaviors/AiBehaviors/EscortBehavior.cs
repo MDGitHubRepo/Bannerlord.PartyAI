@@ -1,4 +1,5 @@
-﻿using Helpers;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using Helpers;
 using System.Diagnostics.CodeAnalysis;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -20,7 +21,7 @@ public class EscortBehavior : PartyAiBehaviorBase
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
     {
-        if (!IsPartyOrderRelevant(party, PAICustomOrder.OrderType.EscortParty, out var settings, out var order))
+        if (!IsPartyOrderRelevant(party, PartyAiOrderType.EscortParty, out var settings, out var order))
         {
             return;
         }

@@ -1,4 +1,5 @@
-﻿using Bannerlord.PartyAI.ViewModels.Components;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.ViewModels.Components;
 using Bannerlord.PartyAI.ViewModels.Dialogs;
 using System;
 using TaleWorlds.Core;
@@ -61,7 +62,7 @@ public class PartyAIOrderQueueVM : ViewModel
         }
         else
         {
-            OrderList.Add(new(new(PAICustomOrder.OrderType.None), _settings, RefreshOrderQueue));
+            OrderList.Add(new(new(PartyAiOrderType.None), _settings, RefreshOrderQueue));
         }
         OnPropertyChanged("OrderList");
     }

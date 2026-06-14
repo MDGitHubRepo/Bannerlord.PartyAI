@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain;
+using Bannerlord.PartyAI.Domain.Models;
 using HarmonyLib;
 using HarmonyLib.BUTR.Extensions;
 using HarmonyLib.PatchBuilder;
@@ -73,7 +74,7 @@ internal class RecruitmentCampaignBehaviorPatches
         }
 
         var settings = SubModule.PartySettingsManager.Settings(hero);
-        if (settings.Order?.Behavior != PAICustomOrder.OrderType.RecruitFromTemplate)
+        if (settings.Order?.Behavior != PartyAiOrderType.RecruitFromTemplate)
         {
             return true;
         }

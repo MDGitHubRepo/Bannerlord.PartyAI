@@ -1,4 +1,5 @@
-﻿using Helpers;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using Helpers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -14,7 +15,7 @@ internal class BesiegeSettlementBehavior : PartyAiBehaviorBase
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
     {
-        if (!IsPartyOrderRelevant(party, PAICustomOrder.OrderType.BesiegeSettlement, out var settings, out var order))
+        if (!IsPartyOrderRelevant(party, PartyAiOrderType.BesiegeSettlement, out var settings, out var order))
         {
             return;
         }

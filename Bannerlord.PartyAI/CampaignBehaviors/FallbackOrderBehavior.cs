@@ -1,4 +1,5 @@
-﻿using TaleWorlds.CampaignSystem;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors;
@@ -25,14 +26,14 @@ internal class FallbackOrderBehavior : CampaignBehaviorBase
         var settings = SubModule.PartySettingsManager.Settings(hero);
         var order = settings.Order;
 
-        if (order is not null && order.Behavior != PAICustomOrder.OrderType.None)
+        if (order is not null && order.Behavior != PartyAiOrderType.None)
         {
             return;
         }
 
         var fallbackOrder = settings.FallbackOrder;
         if (fallbackOrder is null
-            || fallbackOrder.Behavior == PAICustomOrder.OrderType.None
+            || fallbackOrder.Behavior == PartyAiOrderType.None
             || party!.Army is not null)
         {
             return;

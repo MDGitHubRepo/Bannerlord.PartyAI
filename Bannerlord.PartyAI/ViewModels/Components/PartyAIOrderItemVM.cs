@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using System;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
@@ -20,7 +21,7 @@ public class PartyAIOrderItemVM : ViewModel
     }
 
     [DataSourceProperty] public string OrderType { get; set; }
-    [DataSourceProperty] public bool IsEnabled => _order != null && _order.Behavior != PAICustomOrder.OrderType.None;
+    [DataSourceProperty] public bool IsEnabled => _order != null && _order.Behavior != PartyAiOrderType.None;
     [DataSourceProperty] public bool CanMoveUp => IsEnabled && _settings.Order != _order;
     [DataSourceProperty] public bool CanMoveDown => IsEnabled && (_settings.OrderQueue.Count - 1 > _settings.OrderQueue.IndexOf(_order) || (_settings.Order == _order && _settings.OrderQueue.Count > 0));
 

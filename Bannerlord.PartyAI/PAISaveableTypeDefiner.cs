@@ -1,11 +1,10 @@
-﻿using Bannerlord.PartyAI.CampaignBehaviors;
-using Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
+﻿using Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
+using Bannerlord.PartyAI.Domain.Models;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.InputSystem;
 using TaleWorlds.SaveSystem;
-using static Bannerlord.PartyAI.PAICustomOrder;
 
 namespace Bannerlord.PartyAI;
 
@@ -24,7 +23,7 @@ internal class PAISaveableTypeDefiner : SaveableTypeDefiner
 
     protected override void DefineEnumTypes()
     {
-        AddEnumDefinition(typeof(OrderType), 1001);
+        AddEnumDefinition(typeof(PartyAiOrderType), 1001);
         AddEnumDefinition(typeof(InputKey), 1002);
     }
 

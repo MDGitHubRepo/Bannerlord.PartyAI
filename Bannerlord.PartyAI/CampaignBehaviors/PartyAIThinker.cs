@@ -1,6 +1,6 @@
 ﻿using Bannerlord.PartyAI.Domain;
+using Bannerlord.PartyAI.Domain.Models;
 using Helpers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
@@ -11,7 +11,6 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
-using static Bannerlord.PartyAI.PAICustomOrder;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors;
 
@@ -51,7 +50,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
 
         PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
-        if (settings.Order?.Behavior == OrderType.VisitSettlement
+        if (settings.Order?.Behavior == PartyAiOrderType.VisitSettlement
             && settings.Order.Target == settlement)
         {
             settings.ClearOrder();
@@ -62,7 +61,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
     {
         foreach (PartyAIClanPartySettings settings in SubModule.PartySettingsManager.HeroesWithOrders)
         {
-            if (settings.Order.Behavior == OrderType.BesiegeSettlement && settings.Order.Target == settlement)
+            if (settings.Order.Behavior == PartyAiOrderType.BesiegeSettlement && settings.Order.Target == settlement)
             {
                 if (!FactionManager.IsAtWarAgainstFaction(settings.Hero.MapFaction, settlement.MapFaction))
                 {
@@ -129,8 +128,8 @@ internal class PartyAIThinker : CampaignBehaviorBase
             PAICustomOrder order = settings.Order;
             switch (order.Behavior)
             {
-                case OrderType.AttackParty:
-                case OrderType.EscortParty:
+                case PartyAiOrderType.AttackParty:
+                case PartyAiOrderType.EscortParty:
                     if (order.Target is not MobileParty m || m != mobileParty)
                     {
                         continue;
@@ -138,7 +137,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
                     settings.ClearOrder();
                     if (_controlAssumptionBehavior.IsUnderControlAssumption(settings.Hero?.PartyBelongedTo))
                     {
-                        settings.SetOrder(OrderType.EscortParty, MobileParty.MainParty);
+                        settings.SetOrder(PartyAiOrderType.EscortParty, MobileParty.MainParty);
                         MobileParty escortingParty = settings.Hero?.PartyBelongedTo;
                         if (escortingParty != null)
                         {
@@ -172,7 +171,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
             settings.ClearAllOrders();
             settings.ResetBudgets();
 
-            if (settings.FallbackOrder != null && settings.FallbackOrder.Behavior != OrderType.None)
+            if (settings.FallbackOrder != null && settings.FallbackOrder.Behavior != PartyAiOrderType.None)
             {
                 settings.SetOrder(settings.FallbackOrder.Behavior, settings.FallbackOrder.Target);
             }
@@ -208,10 +207,10 @@ internal class PartyAIThinker : CampaignBehaviorBase
         List<(AIBehaviorData, float)> newParams;
         switch (settings.Order.Behavior)
         {
-            case OrderType.PatrolAroundPoint:
+            case PartyAiOrderType.PatrolAroundPoint:
                 ImplementPatrolAroundSettlement(settings, party, target, thinkParams, out newParams, distanceFactor: settings.PatrolRadius);
                 break;
-            case OrderType.PatrolClanLands:
+            case PartyAiOrderType.PatrolClanLands:
                 ImplementPatrolClanLands(settings.Hero, party, target, thinkParams, out newParams);
                 break;
             default:

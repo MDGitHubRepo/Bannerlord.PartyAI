@@ -1,6 +1,6 @@
-﻿using TaleWorlds.CampaignSystem.Party;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Library;
-using static Bannerlord.PartyAI.PAICustomOrder;
 
 namespace Bannerlord.PartyAI.Domain;
 
@@ -33,7 +33,7 @@ public static class CallingToArmy
                 continue;
             }
 
-            if (settings.HasActiveOrder && settings.Order.Behavior == OrderType.RecruitFromTemplate)
+            if (settings.HasActiveOrder && settings.Order.Behavior == PartyAiOrderType.RecruitFromTemplate)
             {
                 partiesToCallToArmy.RemoveAt(index);
                 continue;

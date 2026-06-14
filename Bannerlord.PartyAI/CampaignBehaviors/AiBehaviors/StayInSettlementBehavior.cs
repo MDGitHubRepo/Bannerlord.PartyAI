@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using System.Diagnostics.CodeAnalysis;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -58,7 +59,7 @@ public class StayInSettlementBehavior : PartyAiBehaviorBase
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
     {
-        if (!IsPartyOrderRelevant(party, PAICustomOrder.OrderType.VisitSettlement, out var settings, out var order))
+        if (!IsPartyOrderRelevant(party, PartyAiOrderType.VisitSettlement, out var settings, out var order))
         {
             return;
         }

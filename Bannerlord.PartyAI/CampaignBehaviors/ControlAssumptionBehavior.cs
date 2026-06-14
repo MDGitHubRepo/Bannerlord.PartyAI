@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
@@ -152,7 +153,7 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
                 SubModule.PartySettingsManager.Settings(controlling.LeaderHero);
             settings.OrderQueue.Clear();
             settings.ClearOrder();
-            settings.SetOrder(PAICustomOrder.OrderType.EscortParty, MobileParty.MainParty);
+            settings.SetOrder(PartyAiOrderType.EscortParty, MobileParty.MainParty);
         }
     }
 
@@ -206,7 +207,7 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
                     controlling.DesiredAiNavigationType,
                     false
                 );
-                settings.SetOrder(PAICustomOrder.OrderType.AttackParty, target);
+                settings.SetOrder(PartyAiOrderType.AttackParty, target);
             }
             else
             {
@@ -218,7 +219,7 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
                     false,
                     false
                 );
-                settings.SetOrder(PAICustomOrder.OrderType.EscortParty, target);
+                settings.SetOrder(PartyAiOrderType.EscortParty, target);
             }
         }
     }
@@ -274,7 +275,7 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
                     controlling.DesiredAiNavigationType,
                     false
                 );
-                settings.SetOrder(PAICustomOrder.OrderType.BesiegeSettlement, settlement);
+                settings.SetOrder(PartyAiOrderType.BesiegeSettlement, settlement);
             }
             else
             {
@@ -288,7 +289,7 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
                         false,
                         false
                     );
-                    settings.SetOrder(PAICustomOrder.OrderType.DefendSettlement, settlement);
+                    settings.SetOrder(PartyAiOrderType.DefendSettlement, settlement);
                 }
                 else
                 {
@@ -303,7 +304,7 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
 
                     // If your OrderType enum has a VisitSettlement value,
                     // swap this to that to perfectly match original behavior.
-                    settings.SetOrder(PAICustomOrder.OrderType.DefendSettlement, settlement);
+                    settings.SetOrder(PartyAiOrderType.DefendSettlement, settlement);
                 }
             }
         }

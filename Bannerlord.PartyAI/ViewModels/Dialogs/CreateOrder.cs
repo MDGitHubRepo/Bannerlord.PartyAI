@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
@@ -8,7 +9,6 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ImageIdentifiers;
 using TaleWorlds.Localization;
-using static Bannerlord.PartyAI.PAICustomOrder;
 
 namespace Bannerlord.PartyAI.ViewModels.Dialogs;
 
@@ -44,19 +44,19 @@ internal class CreateOrder
 
         List<InquiryElement> list = new();
 
-        list.Add(new InquiryElement(new PAICustomOrder(OrderType.PatrolAroundPoint), _landpatrolText, null, true, _landpatrolHintText));
-        list.Add(new InquiryElement(new PAICustomOrder(OrderType.EscortParty), _escortText, null, true, _escortHintText));
-        list.Add(new InquiryElement(new PAICustomOrder(OrderType.StayInSettlement), _stayInSettlementText, null, true, _stayInSettlementHintText));
-        list.Add(new InquiryElement(new PAICustomOrder(OrderType.VisitSettlement), _visitText, null, true, _visitHintText));
+        list.Add(new InquiryElement(new PAICustomOrder(PartyAiOrderType.PatrolAroundPoint), _landpatrolText, null, true, _landpatrolHintText));
+        list.Add(new InquiryElement(new PAICustomOrder(PartyAiOrderType.EscortParty), _escortText, null, true, _escortHintText));
+        list.Add(new InquiryElement(new PAICustomOrder(PartyAiOrderType.StayInSettlement), _stayInSettlementText, null, true, _stayInSettlementHintText));
+        list.Add(new InquiryElement(new PAICustomOrder(PartyAiOrderType.VisitSettlement), _visitText, null, true, _visitHintText));
         if (!_fallback)
         {
-            list.Add(new InquiryElement(new PAICustomOrder(OrderType.BesiegeSettlement), _besiegeText, null, true, _besiegeHintText));
+            list.Add(new InquiryElement(new PAICustomOrder(PartyAiOrderType.BesiegeSettlement), _besiegeText, null, true, _besiegeHintText));
         }
-        list.Add(new InquiryElement(new PAICustomOrder(OrderType.DefendSettlement), _defendText, null, true, _defendHintText));
-        list.Add(new InquiryElement(new PAICustomOrder(OrderType.RecruitFromTemplate), _recruitText, null, true, _recruitHint));
+        list.Add(new InquiryElement(new PAICustomOrder(PartyAiOrderType.DefendSettlement), _defendText, null, true, _defendHintText));
+        list.Add(new InquiryElement(new PAICustomOrder(PartyAiOrderType.RecruitFromTemplate), _recruitText, null, true, _recruitHint));
         if (_fallback)
         {
-            list.Add(new InquiryElement(new PAICustomOrder(OrderType.None), new TextObject("{=koX9okuG}None").ToString(), null, true, string.Empty));
+            list.Add(new InquiryElement(new PAICustomOrder(PartyAiOrderType.None), new TextObject("{=koX9okuG}None").ToString(), null, true, string.Empty));
         }
 
         MBInformationManager.ShowMultiSelectionInquiry(new MultiSelectionInquiryData(_titleText, string.Empty, list, isExitShown: true, 1, 1, GameTexts.FindText("str_next").ToString(), GameTexts.FindText("str_cancel").ToString(), CreateCallback, null, "", true));
@@ -77,11 +77,11 @@ internal class CreateOrder
 
         switch (order.Behavior)
         {
-            case OrderType.None:
-            case OrderType.RecruitFromTemplate:
+            case PartyAiOrderType.None:
+            case PartyAiOrderType.RecruitFromTemplate:
                 ChooseTargetCallback(list);
                 return;
-            case OrderType.EscortParty:
+            case PartyAiOrderType.EscortParty:
                 IEnumerable<MobileParty> parties = _hero?.MapFaction?.WarPartyComponents.Select(p => p?.MobileParty);
                 if (_hero?.Clan?.Kingdom != null)
                 {
@@ -116,9 +116,9 @@ internal class CreateOrder
                     }
                 }
                 break;
-            case OrderType.VisitSettlement:
-            case OrderType.StayInSettlement:
-            case OrderType.DefendSettlement:
+            case PartyAiOrderType.VisitSettlement:
+            case PartyAiOrderType.StayInSettlement:
+            case PartyAiOrderType.DefendSettlement:
                 List<Settlement> settlements = Settlement.All.Where(s => s.IsFortification || s.IsVillage).Where(s => !FactionManager.IsAtWarAgainstFaction(Hero.MainHero.MapFaction, s.MapFaction)).ToList();
 
                 foreach (Settlement settlement in settlements.OrderByDescending(s => s.OwnerClan.Equals(_hero?.Clan)).ThenByDescending(s => s.IsTown).ThenByDescending(s => s.IsCastle).ThenBy(s => s.Name.ToString()).ToList())
@@ -128,9 +128,9 @@ internal class CreateOrder
                     newList.Add(new InquiryElement(insert, settlement.Name.ToString(), new BannerImageIdentifier(settlement.OwnerClan?.Banner, false)));
                 }
                 break;
-            case OrderType.PatrolAroundPoint:
+            case PartyAiOrderType.PatrolAroundPoint:
                 settlements = Settlement.All.Where(s => s.IsFortification || s.IsVillage).ToList();
-                newList.Add(new(new PAICustomOrder(OrderType.PatrolClanLands), new TextObject("{=PAIb2F6Hyfs}Patrol Clan Territory").ToString(), new BannerImageIdentifier(_hero?.ClanBanner, false)));
+                newList.Add(new(new PAICustomOrder(PartyAiOrderType.PatrolClanLands), new TextObject("{=PAIb2F6Hyfs}Patrol Clan Territory").ToString(), new BannerImageIdentifier(_hero?.ClanBanner, false)));
                 foreach (Settlement settlement in settlements.OrderByDescending(s => s.OwnerClan.Equals(_hero?.Clan)).ThenByDescending(s => s.IsTown).ThenByDescending(s => s.IsCastle).ThenBy(s => s.Name.ToString()).ToList())
                 {
                     PAICustomOrder insert = new(order.Behavior, settlement);
@@ -138,7 +138,7 @@ internal class CreateOrder
                     newList.Add(new InquiryElement(insert, settlement.Name.ToString(), new BannerImageIdentifier(settlement.MapFaction?.Banner, false)));
                 }
                 break;
-            case OrderType.BesiegeSettlement:
+            case PartyAiOrderType.BesiegeSettlement:
                 foreach (Settlement settlement in Settlement.All.Where(s => FactionManager.IsAtWarAgainstFaction(s.MapFaction, Hero.MainHero.MapFaction) && s.IsFortification).OrderByDescending(s => s.IsTown).ThenBy(s => s.Name.ToString()).ToList())
                 {
                     PAICustomOrder insert = new(order.Behavior, settlement);

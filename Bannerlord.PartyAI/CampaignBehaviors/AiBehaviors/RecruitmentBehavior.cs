@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain;
+using Bannerlord.PartyAI.Domain.Models;
 using Helpers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -12,7 +13,7 @@ namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
 internal class RecruitmentBehavior : PartyAiBehaviorBase
 {
-    private const PAICustomOrder.OrderType RecruitOrderType = PAICustomOrder.OrderType.RecruitFromTemplate;
+    private const PartyAiOrderType RecruitOrderType = PartyAiOrderType.RecruitFromTemplate;
     private const int RecruitmentSettlementCooldownDays = 10;
 
     private List<PAISettlementVisitLog> _recentlyRecruitedFromSettlements = new();

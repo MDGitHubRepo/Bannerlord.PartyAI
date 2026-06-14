@@ -1,15 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
-using TaleWorlds.CampaignSystem.Inventory;
 using TaleWorlds.CampaignSystem.Map;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using TaleWorlds.Localization;
 using TaleWorlds.SaveSystem;
-using static Bannerlord.PartyAI.PAICustomOrder;
 using static TaleWorlds.CampaignSystem.Party.MobileParty;
 
 namespace Bannerlord.PartyAI;
@@ -80,7 +78,7 @@ public class PartyAIClanPartySettings
         CopyOptionsFrom(cloneFrom);
     }
 
-    internal void SetOrder(OrderType behavior, IMapPoint? target = null)
+    internal void SetOrder(PartyAiOrderType behavior, IMapPoint? target = null)
     {
         var order = new PAICustomOrder(behavior, target);
 
@@ -102,7 +100,7 @@ public class PartyAIClanPartySettings
         Order = order;
     }
 
-    internal void SetFallbackOrder(OrderType behavior, IMapPoint? target = null)
+    internal void SetFallbackOrder(PartyAiOrderType behavior, IMapPoint? target = null)
     {
         var order = new PAICustomOrder(behavior, target);
 
@@ -115,7 +113,7 @@ public class PartyAIClanPartySettings
     }
 
     [MemberNotNullWhen(true, nameof(Order))]
-    internal bool HasActiveOrder => Order != null && Order.Behavior != OrderType.None;
+    internal bool HasActiveOrder => Order != null && Order.Behavior != PartyAiOrderType.None;
 
     internal void ClearOrder()
     {
@@ -190,7 +188,7 @@ public class PartyAIClanPartySettings
         PartyTemplate = template;
 
         // Only affect recruiting targets
-        if (HasActiveOrder && Order?.Behavior == PAICustomOrder.OrderType.RecruitFromTemplate && template != null)
+        if (HasActiveOrder && Order?.Behavior == PartyAiOrderType.RecruitFromTemplate && template != null)
         {
             if (Order.Target is Settlement settlement)
             {
@@ -279,23 +277,10 @@ public class PartyComposition
 
 public class PAICustomOrder
 {
-    public enum OrderType
-    {
-        None,
-        PatrolAroundPoint,
-        BesiegeSettlement,
-        DefendSettlement,
-        PatrolClanLands,
-        EscortParty,
-        StayInSettlement,
-        AttackParty,
-        RecruitFromTemplate,
-        VisitSettlement
-    }
     [SaveableProperty(1)] public IMapPoint? Target { get; set; }
-    [SaveableProperty(2)] public OrderType Behavior { get; set; }
+    [SaveableProperty(2)] public PartyAiOrderType Behavior { get; set; }
 
-    public PAICustomOrder(OrderType behavior, IMapPoint? target = null)
+    public PAICustomOrder(PartyAiOrderType behavior, IMapPoint? target = null)
     {
         Target = target;
         Behavior = behavior;

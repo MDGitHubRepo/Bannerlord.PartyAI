@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain;
+using Bannerlord.PartyAI.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -382,14 +383,14 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         {
             if (!settings.HasActiveOrder)
             {
-                settings.SetOrder(PAICustomOrder.OrderType.RecruitFromTemplate);
+                settings.SetOrder(PartyAiOrderType.RecruitFromTemplate);
                 return;
             }
 
-            if (settings.Order.Behavior != PAICustomOrder.OrderType.RecruitFromTemplate
-                && !settings.OrderQueue.Any(o => o.Behavior == PAICustomOrder.OrderType.RecruitFromTemplate))
+            if (settings.Order.Behavior != PartyAiOrderType.RecruitFromTemplate
+                && !settings.OrderQueue.Any(o => o.Behavior == PartyAiOrderType.RecruitFromTemplate))
             {
-                settings.SetOrder(PAICustomOrder.OrderType.RecruitFromTemplate);
+                settings.SetOrder(PartyAiOrderType.RecruitFromTemplate);
             }
         }
     }
