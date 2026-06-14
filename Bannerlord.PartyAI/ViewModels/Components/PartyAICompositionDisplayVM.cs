@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using System;
 using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;

@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain;
+using Bannerlord.PartyAI.Domain.Models;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.ComponentInterfaces;
 using TaleWorlds.CampaignSystem.Party;

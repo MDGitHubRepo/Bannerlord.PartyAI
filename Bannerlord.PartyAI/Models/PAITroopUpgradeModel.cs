@@ -1,5 +1,5 @@
-﻿using Bannerlord.PartyAI.CampaignBehaviors;
-using Bannerlord.PartyAI.Domain;
+﻿using Bannerlord.PartyAI.Domain;
+using Bannerlord.PartyAI.Domain.Models;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;

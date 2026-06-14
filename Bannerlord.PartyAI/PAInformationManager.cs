@@ -1,4 +1,5 @@
-﻿using Bannerlord.PartyAI.ViewModels;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.ViewModels;
 using Bannerlord.PartyAI.ViewModels.MenuOptionVMs;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,5 @@
-﻿using Bannerlord.PartyAI.ViewModels.Components;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.ViewModels.Components;
 using Bannerlord.PartyAI.ViewModels.Dialogs;
 using System;
 using TaleWorlds.Core;
