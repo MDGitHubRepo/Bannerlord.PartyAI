@@ -208,6 +208,7 @@ public static class Recruitment
 
             var buyer = mobileParty.IsGarrison ? mobileParty.Party.Owner : mobileParty.LeaderHero;
             int maxIndex = Campaign.Current.Models.VolunteerModel.MaximumIndexHeroCanRecruitFromHero(buyer, hero);
+            maxIndex = Math.Min(maxIndex, notable.VolunteerTypes.Length - 1);
 
             for (int troopIndex = 0; troopIndex <= maxIndex; troopIndex++)
             {
