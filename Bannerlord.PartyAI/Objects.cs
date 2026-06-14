@@ -307,36 +307,3 @@ public class PAICustomOrder
         Behavior = original.Behavior;
     }
 }
-
-public class PAIHeroInventoryListener : InventoryListener
-{
-    private readonly MobileParty _mobileParty;
-
-    public PAIHeroInventoryListener(MobileParty mobileParty)
-    {
-        _mobileParty = mobileParty;
-    }
-
-    public override int GetGold()
-    {
-        return _mobileParty.PartyTradeGold;
-    }
-
-    public override TextObject GetTraderName()
-    {
-        return _mobileParty.Name;
-    }
-
-    public override void SetGold(int gold)
-    {
-    }
-
-    public override void OnTransaction()
-    {
-    }
-
-    public override PartyBase GetOppositeParty()
-    {
-        return null;
-    }
-}
