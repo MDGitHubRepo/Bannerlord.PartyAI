@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using HarmonyLib.PatchBuilder;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors.AiBehaviors;

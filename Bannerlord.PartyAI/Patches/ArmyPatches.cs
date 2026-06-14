@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using HarmonyLib.PatchBuilder;
 using System.Reflection;
 using TaleWorlds.CampaignSystem;
 

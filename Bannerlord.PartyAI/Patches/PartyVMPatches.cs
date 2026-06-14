@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using HarmonyLib.PatchBuilder;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Party;
 using TaleWorlds.Localization;
 

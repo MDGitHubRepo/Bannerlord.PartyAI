@@ -1,6 +1,7 @@
 ﻿using Bannerlord.PartyAI.Domain;
 using HarmonyLib;
 using HarmonyLib.BUTR.Extensions;
+using HarmonyLib.PatchBuilder;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
