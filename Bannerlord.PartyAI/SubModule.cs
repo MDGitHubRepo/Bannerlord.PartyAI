@@ -40,6 +40,8 @@ public class SubModule : MBSubModuleBase
 
     protected override void OnBeforeInitialModuleScreenSetAsRoot()
     {
+        ModVersionCheck.DisplayStartupMessagesIfNeeded();
+
         if (!Applied) // TODO: Figure out a better way
         {
             TryApplyBannerKingsConflictPatches(_harmony);
