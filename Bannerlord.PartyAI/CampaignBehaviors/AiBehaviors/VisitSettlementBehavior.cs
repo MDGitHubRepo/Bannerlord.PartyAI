@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using Helpers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -16,7 +17,7 @@ public class VisitSettlementBehavior : PartyAiBehaviorBase
     public void HandleVisitSettlement(
         MobileParty party,
         Settlement targetSettlement,
-        PartyAIClanPartySettings settings,
+        PartyAiEntitySettings settings,
         PartyAiOrder order,
         PartyThinkParams thinkParams)
     {

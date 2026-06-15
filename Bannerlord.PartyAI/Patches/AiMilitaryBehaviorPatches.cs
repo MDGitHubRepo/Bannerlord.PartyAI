@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.PartyAI.Models;
+using HarmonyLib;
 using HarmonyLib.PatchBuilder;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
@@ -28,7 +29,7 @@ internal class AiMilitaryBehaviorPatches
             return;
         }
 
-        PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
+        PartyAiEntitySettings heroSettings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
 
         if (heroSettings.AllowRaidVillages && heroSettings.AllowSieging)
         {

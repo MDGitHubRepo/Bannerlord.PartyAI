@@ -1,4 +1,5 @@
-﻿using Bannerlord.PartyAI.ViewModels.Components;
+﻿using Bannerlord.PartyAI.Models;
+using Bannerlord.PartyAI.ViewModels.Components;
 using Bannerlord.PartyAI.ViewModels.Dropdowns;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,11 @@ public class PartyAICaravanOptionsVM : ViewModel
     private PartyAIOptionToggleVM _filterSettlementsToggle;
     private string _filteredSettlementsCount;
     private HintViewModel _filteredSettlementsCountHint;
-    private readonly PartyAIClanPartySettings _settings;
+    private readonly PartyAiEntitySettings _settings;
     internal static List<Settlement> FilteredSettlements = new();
     internal static bool IsSelectFilteredSettlements = false;
 
-    public PartyAICaravanOptionsVM(PartyAIClanPartySettings settings, Action callback)
+    public PartyAICaravanOptionsVM(PartyAiEntitySettings settings, Action callback)
     {
         if (settings == null) { return; }
         _settings = settings;

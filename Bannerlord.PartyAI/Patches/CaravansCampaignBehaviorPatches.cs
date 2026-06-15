@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using Bannerlord.PartyAI.Models;
+using HarmonyLib;
 using HarmonyLib.PatchBuilder;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.CampaignBehaviors;
@@ -20,7 +21,7 @@ internal class CaravansCampaignBehaviorPatches
     {
         if (!SubModule.PartySettingsManager.IsCaravanManageable(caravanParty.LeaderHero)) { return; }
 
-        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(caravanParty.LeaderHero);
+        PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(caravanParty.LeaderHero);
         if (!settings.FilterSettlements || settings.FilteredSettlements?.Count < 2)
         {
             return;

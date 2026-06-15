@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Library;
 
@@ -25,7 +26,7 @@ public static class CallingToArmy
                 continue;
             }
 
-            PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(candidateHero);
+            PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(candidateHero);
 
             if (!settings.AllowJoinArmies)
             {

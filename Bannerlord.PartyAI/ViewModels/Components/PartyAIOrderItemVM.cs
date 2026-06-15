@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using System;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
@@ -9,10 +10,10 @@ namespace Bannerlord.PartyAI.ViewModels.Components;
 public class PartyAIOrderItemVM : ViewModel
 {
     private readonly PartyAiOrder _order;
-    private readonly PartyAIClanPartySettings _settings;
+    private readonly PartyAiEntitySettings _settings;
     private readonly Action _refreshCallback;
 
-    public PartyAIOrderItemVM(PartyAiOrder order, PartyAIClanPartySettings settings, Action refreshCallback)
+    public PartyAIOrderItemVM(PartyAiOrder order, PartyAiEntitySettings settings, Action refreshCallback)
     {
         _order = order;
         OrderType = OrderVerbalizer.GetCommandText(order).ToString();

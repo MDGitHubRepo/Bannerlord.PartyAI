@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bannerlord.PartyAI.Models;
+using System;
 using System.Linq;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
@@ -19,7 +20,7 @@ public static class PartyHorseTrading
             return false;
         }
 
-        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
+        PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
         if (!CanTradeHorses(mobileParty, settlement, settings))
         {
             return false;
@@ -58,7 +59,7 @@ public static class PartyHorseTrading
         }
     }
 
-    private static void BuyHorses(MobileParty mobileParty, Settlement settlement, PartyAIClanPartySettings settings)
+    private static void BuyHorses(MobileParty mobileParty, Settlement settlement, PartyAiEntitySettings settings)
     {
         var horses = settlement.Party.ItemRoster
             .Where(IsHorseToBuy)
@@ -104,7 +105,7 @@ public static class PartyHorseTrading
     private static bool CanTradeHorses(
         MobileParty mobileParty,
         Settlement settlement,
-        PartyAIClanPartySettings settings)
+        PartyAiEntitySettings settings)
     {
         return mobileParty != MobileParty.MainParty
             && !mobileParty.IsDisbanding

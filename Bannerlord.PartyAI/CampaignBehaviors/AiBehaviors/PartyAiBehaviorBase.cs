@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using System.Diagnostics.CodeAnalysis;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -22,7 +23,7 @@ public abstract class PartyAiBehaviorBase : CampaignBehaviorBase
     protected bool IsPartyOrderRelevant(
         Hero? hero,
         PartyAiOrderType orderType,
-        [NotNullWhen(true)]out PartyAIClanPartySettings? settings,
+        [NotNullWhen(true)]out PartyAiEntitySettings? settings,
         [NotNullWhen(true)]out PartyAiOrder? order)
     {
         order = null;
@@ -51,7 +52,7 @@ public abstract class PartyAiBehaviorBase : CampaignBehaviorBase
     protected bool IsPartyOrderRelevant(
         MobileParty party,
         PartyAiOrderType orderType,
-        [NotNullWhen(true)] out PartyAIClanPartySettings? settings,
+        [NotNullWhen(true)] out PartyAiEntitySettings? settings,
         [NotNullWhen(true)] out PartyAiOrder? order)
     {
         return IsPartyOrderRelevant(party?.LeaderHero, orderType, out settings, out order);

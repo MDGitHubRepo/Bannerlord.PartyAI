@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using Bannerlord.PartyAI.ViewModels.Components;
 using Bannerlord.PartyAI.ViewModels.Dialogs;
 using Bannerlord.PartyAI.ViewModels.Dropdowns;
@@ -13,14 +14,14 @@ namespace Bannerlord.PartyAI.ViewModels.MenuOptionVMs;
 public class PartyAIPartyOptionsVM : ViewModel
 {
     private readonly Action _onClosePartyOptions;
-    private readonly PartyAIClanPartySettings _settings;
+    private readonly PartyAiEntitySettings _settings;
     private int _buyHorsesBudget;
     private readonly PartyAiOrder _currentFallbackOrder;
     private float _autoRecruitmentPercentage;
     private float _dismissUnwantedTroopsPercentage;
     private float _patrolRadius;
 
-    public PartyAIPartyOptionsVM(PartyAIClanPartySettings settings, Action callback)
+    public PartyAIPartyOptionsVM(PartyAiEntitySettings settings, Action callback)
     {
         if (settings == null) { return; }
         _settings = settings;

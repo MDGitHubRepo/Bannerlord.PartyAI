@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using System.Diagnostics.CodeAnalysis;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -23,7 +24,7 @@ public class StayInSettlementBehavior : PartyAiBehaviorBase
 
     public void HandleStayInSettlement(
         MobileParty party,
-        PartyAIClanPartySettings settings,
+        PartyAiEntitySettings settings,
         PartyAiOrder order,
         PartyThinkParams thinkParams)
     {

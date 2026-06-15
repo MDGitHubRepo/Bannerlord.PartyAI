@@ -1,5 +1,6 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
 using Bannerlord.PartyAI.Mixins;
+using Bannerlord.PartyAI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Bannerlord.PartyAI.ViewModels.Dialogs;
 
 internal static class CopyPaste
 {
-    private static PartyAIClanPartySettings _source;
+    private static PartyAiEntitySettings _source;
     private static List<InquiryElement> _copySources;
     private static Action _callback;
     private static bool _showAll;
@@ -39,7 +40,7 @@ internal static class CopyPaste
         CopyCallback(SubModule.PartySettingsManager.Settings(settlement));
     }
 
-    internal static void CopyCallback(PartyAIClanPartySettings source, Action<List<InquiryElement>> callback = null)
+    internal static void CopyCallback(PartyAiEntitySettings source, Action<List<InquiryElement>> callback = null)
     {
         if (source == null) { return; }
         callback ??= ChooseCopyTypeCallback;
@@ -127,7 +128,7 @@ internal static class CopyPaste
     {
         foreach (InquiryElement p in list)
         {
-            PartyAIClanPartySettings settings = p.Identifier is Settlement ? SubModule.PartySettingsManager.Settings((Settlement)p.Identifier) : SubModule.PartySettingsManager.Settings((Hero)p.Identifier);
+            PartyAiEntitySettings settings = p.Identifier is Settlement ? SubModule.PartySettingsManager.Settings((Settlement)p.Identifier) : SubModule.PartySettingsManager.Settings((Hero)p.Identifier);
             foreach (InquiryElement source in _copySources)
             {
                 CopySettings(settings, source);
@@ -137,7 +138,7 @@ internal static class CopyPaste
         _callback?.Invoke();
     }
 
-    internal static void CopySettings(PartyAIClanPartySettings settings, InquiryElement source)
+    internal static void CopySettings(PartyAiEntitySettings settings, InquiryElement source)
     {
         if (source.Identifier is PartyComposition composition)
         {
@@ -172,9 +173,9 @@ internal static class CopyPaste
             }
         }
 
-        if (source.Identifier is PartyAIClanPartySettings)
+        if (source.Identifier is PartyAiEntitySettings)
         {
-            settings.CopyOptionsFrom((PartyAIClanPartySettings)source.Identifier);
+            settings.CopyOptionsFrom((PartyAiEntitySettings)source.Identifier);
         }
 
         if (source.Identifier == null)

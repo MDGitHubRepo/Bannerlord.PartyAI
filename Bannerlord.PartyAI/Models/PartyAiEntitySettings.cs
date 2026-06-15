@@ -9,9 +9,9 @@ using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.SaveSystem;
 using static TaleWorlds.CampaignSystem.Party.MobileParty;
 
-namespace Bannerlord.PartyAI;
+namespace Bannerlord.PartyAI.Models;
 
-public class PartyAIClanPartySettings
+public class PartyAiEntitySettings
 {
     [SaveableProperty(1)] public Hero? Hero { get; private set; }
     [SaveableProperty(2)] public bool AllowJoinArmies { get; set; } = true;
@@ -42,37 +42,37 @@ public class PartyAIClanPartySettings
     [SaveableProperty(27)] public float PatrolRadius { get; set; } = 1f;
     [SaveableProperty(28)] public bool RecruitFromEnemySettlements { get; set; } = false;
 
-    public PartyAIClanPartySettings()
+    public PartyAiEntitySettings()
     {
         Composition = new PartyComposition(0.35f, 0.30f, 0.20f, 0.15f);
     }
 
-    public PartyAIClanPartySettings(Hero hero) : this()
+    public PartyAiEntitySettings(Hero hero) : this()
     {
         Hero = hero;
     }
 
-    public PartyAIClanPartySettings(Settlement settlement) : this()
+    public PartyAiEntitySettings(Settlement settlement) : this()
     {
         Settlement = settlement;
     }
 
-    public PartyAIClanPartySettings(PartyAIClanPartySettings cloneFrom)
+    public PartyAiEntitySettings(PartyAiEntitySettings cloneFrom)
     {
         PartyTemplate = cloneFrom.PartyTemplate;
         Composition = new PartyComposition(cloneFrom.Composition);
         CopyOptionsFrom(cloneFrom);
     }
 
-    public PartyAIClanPartySettings(
-        PartyAIClanPartySettings cloneFrom,
+    public PartyAiEntitySettings(
+        PartyAiEntitySettings cloneFrom,
         Hero hero) : this(cloneFrom)
     {
         Hero = hero;
     }
 
-    public PartyAIClanPartySettings(
-        PartyAIClanPartySettings cloneFrom,
+    public PartyAiEntitySettings(
+        PartyAiEntitySettings cloneFrom,
         Settlement settlement) : this(cloneFrom)
     {
         Settlement = settlement;
@@ -139,7 +139,7 @@ public class PartyAIClanPartySettings
         ClearOrder();
     }
 
-    internal void CopyOptionsFrom(PartyAIClanPartySettings settings)
+    internal void CopyOptionsFrom(PartyAiEntitySettings settings)
     {
         AllowJoinArmies = settings.AllowJoinArmies;
         AllowDonateTroops = settings.AllowDonateTroops;

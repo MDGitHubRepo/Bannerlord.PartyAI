@@ -1,5 +1,6 @@
 ﻿using Bannerlord.PartyAI.Domain;
 using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using HarmonyLib;
 using HarmonyLib.BUTR.Extensions;
 using HarmonyLib.PatchBuilder;
@@ -40,7 +41,7 @@ internal class RecruitmentCampaignBehaviorPatches
             return true;
         }
 
-        PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(side1Party.LeaderHero);
+        PartyAiEntitySettings heroSettings = SubModule.PartySettingsManager.Settings(side1Party.LeaderHero);
 
         if (!heroSettings.AllowRecruitment)
         {

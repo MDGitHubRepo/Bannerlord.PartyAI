@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ public static class Recruitment
     private static readonly Dictionary<CharacterObject, List<CharacterObject>> UpgradeTargetCache = new();
     private static readonly Dictionary<CultureObject, List<CharacterObject>> TroopTreeCache = new();
 
-    public static bool ShouldRecruit(PartyComposition comp, PartyAIClanPartySettings heroSettings, CharacterObject troop, PartyBase party, bool mustBeOnePlus = true)
+    public static bool ShouldRecruit(PartyComposition comp, PartyAiEntitySettings heroSettings, CharacterObject troop, PartyBase party, bool mustBeOnePlus = true)
     {
         var upgradeTargets = UpgradeTargets(troop, true, heroSettings.PartyTemplate);
         var formationClasses = upgradeTargets
@@ -47,7 +48,7 @@ public static class Recruitment
         return false;
     }
 
-    public static PartyComposition GetPartyComposition(PartyBase party, PartyAIClanPartySettings heroSettings, CharacterObject ignore = null)
+    public static PartyComposition GetPartyComposition(PartyBase party, PartyAiEntitySettings heroSettings, CharacterObject ignore = null)
     {
         PAICustomTemplate template = heroSettings.PartyTemplate;
         PartyComposition resultComposition = new();
@@ -195,7 +196,7 @@ public static class Recruitment
         return characterObjectList.Contains(unit);
     }
 
-    public static List<NotableVolunteer> CollectEligibleVolunteers(MobileParty mobileParty, Settlement settlement, PartyAIClanPartySettings settings, PartyComposition partyComposition)
+    public static List<NotableVolunteer> CollectEligibleVolunteers(MobileParty mobileParty, Settlement settlement, PartyAiEntitySettings settings, PartyComposition partyComposition)
     {
         var hero = mobileParty.LeaderHero;
         var eligibleVolunteers = new List<NotableVolunteer>();

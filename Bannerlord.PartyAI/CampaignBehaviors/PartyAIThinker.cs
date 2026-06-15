@@ -1,5 +1,6 @@
 ﻿using Bannerlord.PartyAI.Domain;
 using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using Helpers;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,7 +50,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
             return;
         }
 
-        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
+        PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
         if (settings.Order?.Behavior == PartyAiOrderType.VisitSettlement
             && settings.Order.Target == settlement)
         {
@@ -59,7 +60,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
 
     private void OnSettlementOwnerChanged(Settlement settlement, bool openToClaim, Hero newOwner, Hero oldOwner, Hero capturerHero, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail detail)
     {
-        foreach (PartyAIClanPartySettings settings in SubModule.PartySettingsManager.HeroesWithOrders)
+        foreach (PartyAiEntitySettings settings in SubModule.PartySettingsManager.HeroesWithOrders)
         {
             if (settings.Order.Behavior == PartyAiOrderType.BesiegeSettlement && settings.Order.Target == settlement)
             {
@@ -75,7 +76,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
     {
         if (SubModule.PartySettingsManager.IsHeroManageable(prisoner))
         {
-            PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(prisoner);
+            PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(prisoner);
             settings.ClearAllOrders();
         }
     }
@@ -111,7 +112,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         
         InformationManager.DisplayMessage(new InformationMessage(text.ToString(), Colors.Magenta));
 
-        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(leaderHero);
+        PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(leaderHero);
         settings.ClearAllOrders();
     }
 
@@ -119,11 +120,11 @@ internal class PartyAIThinker : CampaignBehaviorBase
     {
         if (mobileParty?.LeaderHero != null && SubModule.PartySettingsManager.IsHeroManageable(mobileParty.LeaderHero))
         {
-            PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
+            PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
             settings.ClearAllOrders();
         }
 
-        foreach (PartyAIClanPartySettings settings in SubModule.PartySettingsManager.HeroesWithOrders)
+        foreach (PartyAiEntitySettings settings in SubModule.PartySettingsManager.HeroesWithOrders)
         {
             PartyAiOrder order = settings.Order;
             switch (order.Behavior)
@@ -166,7 +167,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         if (mobileParty?.LeaderHero == null) return;
         if (SubModule.PartySettingsManager.IsHeroManageable(mobileParty.LeaderHero))
         {
-            PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
+            PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
 
             settings.ClearAllOrders();
             settings.ResetBudgets();
@@ -186,7 +187,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
             return;
         }
 
-        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
+        PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
         if (settings is null)
         {
             return;
@@ -358,7 +359,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
     }
 
-    private void ImplementPatrolAroundSettlement(PartyAIClanPartySettings settings, MobileParty party, IMapPoint target, in PartyThinkParams thinkParams, out List<(AIBehaviorData, float)> newParams, float distanceFactor = 1.0f)
+    private void ImplementPatrolAroundSettlement(PartyAiEntitySettings settings, MobileParty party, IMapPoint target, in PartyThinkParams thinkParams, out List<(AIBehaviorData, float)> newParams, float distanceFactor = 1.0f)
     {
         newParams = new List<(AIBehaviorData, float)>();
 
@@ -464,7 +465,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
     }
 
-    private void ImplementAllowRaidingVillages(MobileParty party, PartyThinkParams thinkParams, PartyAIClanPartySettings settings)
+    private void ImplementAllowRaidingVillages(MobileParty party, PartyThinkParams thinkParams, PartyAiEntitySettings settings)
     {
         if (settings.AllowRaidVillages)
         {
@@ -486,7 +487,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
     }
 
-    private void ImplementAllowJoiningArmies(MobileParty party, PartyThinkParams thinkParams, PartyAIClanPartySettings settings)
+    private void ImplementAllowJoiningArmies(MobileParty party, PartyThinkParams thinkParams, PartyAiEntitySettings settings)
     {
         var army = party.Army;
         if (army is null)
@@ -503,7 +504,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
     }
 
-    private void ImplementAllowBesieging(MobileParty party, PartyThinkParams thinkParams, PartyAIClanPartySettings settings)
+    private void ImplementAllowBesieging(MobileParty party, PartyThinkParams thinkParams, PartyAiEntitySettings settings)
     {
         if (settings.AllowSieging)
         {

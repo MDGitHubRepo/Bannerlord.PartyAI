@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using Bannerlord.PartyAI.ViewModels.Components;
 using Bannerlord.PartyAI.ViewModels.Dialogs;
 using SandBox.View.Map;
@@ -54,7 +55,7 @@ public class PartyAIControlsMenuPartyVM : ViewModel
         RefreshValues();
     }
 
-    internal virtual PartyAIClanPartySettings Settings => SubModule.PartySettingsManager.Settings(Leader);
+    internal virtual PartyAiEntitySettings Settings => SubModule.PartySettingsManager.Settings(Leader);
 
     [DataSourceProperty] public virtual string LeaderName => Leader.Name.ToString();
     [DataSourceProperty] public virtual bool ShowPortrait => true;

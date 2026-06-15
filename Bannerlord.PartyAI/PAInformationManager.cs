@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using Bannerlord.PartyAI.ViewModels;
 using Bannerlord.PartyAI.ViewModels.MenuOptionVMs;
 using System;
@@ -134,7 +135,7 @@ internal class PAInformationManager : GlobalLayer
         _layer3 = new(4499);
     }
 
-    public void ShowPartyCompositionInquiry(PartyAIClanPartySettings settings, Action<PartyComposition> callback)
+    public void ShowPartyCompositionInquiry(PartyAiEntitySettings settings, Action<PartyComposition> callback)
     {
         if (!CheckContext()) { return; }
         _layer3.LoadMovie("PartyAICompositionSliders", new PartyAICompositionSlidersVM(settings, (PartyComposition comp) =>
@@ -167,7 +168,7 @@ internal class PAInformationManager : GlobalLayer
         _layer1.RegisterState();
     }
 
-    public void ShowPartyOptionsInquiry(PartyAIClanPartySettings settings, Action callback)
+    public void ShowPartyOptionsInquiry(PartyAiEntitySettings settings, Action callback)
     {
         if (!CheckContext()) { return; }
         _layer2.LoadMovie("PartyAIPartyOptions", new PartyAIPartyOptionsVM(settings, () =>
@@ -178,7 +179,7 @@ internal class PAInformationManager : GlobalLayer
         _layer2.RegisterState();
     }
 
-    public void ShowCaravanOptionsInquiry(PartyAIClanPartySettings settings, Action callback)
+    public void ShowCaravanOptionsInquiry(PartyAiEntitySettings settings, Action callback)
     {
         if (!CheckContext()) { return; }
         _layer2.LoadMovie("PartyAICaravanOptions", new PartyAICaravanOptionsVM(settings, () =>
@@ -189,7 +190,7 @@ internal class PAInformationManager : GlobalLayer
         _layer2.RegisterState();
     }
 
-    public void ShowGarrisonOptionsInquiry(PartyAIClanPartySettings settings, Action callback)
+    public void ShowGarrisonOptionsInquiry(PartyAiEntitySettings settings, Action callback)
     {
         if (!CheckContext()) { return; }
         _layer2.LoadMovie("PartyAIGarrisonOptions", new PartyAIGarrisonOptionsVM(settings, () =>
@@ -200,7 +201,7 @@ internal class PAInformationManager : GlobalLayer
         _layer2.RegisterState();
     }
 
-    public void ShowOrderQueueInquiry(PartyAIClanPartySettings settings, Action callback)
+    public void ShowOrderQueueInquiry(PartyAiEntitySettings settings, Action callback)
     {
         if (!CheckContext()) { return; }
         _layer1.LoadSpriteCategories(new[] { "ui_partyscreen" });

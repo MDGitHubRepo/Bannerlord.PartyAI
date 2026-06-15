@@ -1,5 +1,6 @@
 ﻿using Bannerlord.PartyAI.CampaignBehaviors;
 using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using Bannerlord.PartyAI.ViewModels.Components;
 using Bannerlord.PartyAI.ViewModels.Dialogs;
 using Bannerlord.UIExtenderEx.Attributes;
@@ -99,7 +100,7 @@ internal class ClanPartyItemVMMixin : BaseViewModelMixin<ClanPartyItemVM>
     }
 
     private Hero _hero => _vm.Party?.LeaderHero;
-    private PartyAIClanPartySettings _heroSettings => IsGarrison ? _manager.Settings(GarrisonSettlement) : _manager.Settings(_hero);
+    private PartyAiEntitySettings _heroSettings => IsGarrison ? _manager.Settings(GarrisonSettlement) : _manager.Settings(_hero);
 
     private bool IsGarrison => _vm.Party?.MobileParty?.PartyComponent is GarrisonPartyComponent;
     private Settlement GarrisonSettlement => ((GarrisonPartyComponent)_vm.Party?.MobileParty?.PartyComponent)?.Settlement;

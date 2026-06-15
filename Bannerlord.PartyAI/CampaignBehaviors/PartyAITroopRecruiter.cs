@@ -1,5 +1,6 @@
 ﻿using Bannerlord.PartyAI.Domain;
 using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -79,7 +80,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
 
         if (!SubModule.PartySettingsManager.AllowTroopConversionForGarrisons || !SubModule.PartySettingsManager.IsGarrisonManageable(settlement)) { return; }
 
-        PartyAIClanPartySettings settings = SubModule.PartySettingsManager.Settings(settlement);
+        PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(settlement);
         if (settings.PartyTemplate == null)
         {
             return;
@@ -101,7 +102,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
             return;
         }
 
-        PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
+        PartyAiEntitySettings heroSettings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
         if (heroSettings.PartyTemplate == null)
         {
             return;
@@ -121,7 +122,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
 
         if (SubModule.PartySettingsManager.IsManageable(recruiter))
         {
-            PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(recruiter);
+            PartyAiEntitySettings heroSettings = SubModule.PartySettingsManager.Settings(recruiter);
             if (heroSettings.PartyTemplate != null && heroSettings.TroopsConvertibleToday > 0)
             {
                 ExchangeClanTroops(recruiter, recruiter?.PartyBelongedTo?.MemberRoster, troop, count, true);
@@ -130,7 +131,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         }
     }
 
-    private void DismissUnwantedTroops(PartyAIClanPartySettings settings, MobileParty? party)
+    private void DismissUnwantedTroops(PartyAiEntitySettings settings, MobileParty? party)
     {
         if (party is null
             || !settings.DismissUnwantedTroops
@@ -214,7 +215,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         }
     }
 
-    private void ExchangeRoster(TroopRoster roster, PartyAIClanPartySettings settings, Hero hero, Settlement settlement)
+    private void ExchangeRoster(TroopRoster roster, PartyAiEntitySettings settings, Hero hero, Settlement settlement)
     {
         List<TroopRosterElement> troops = roster.GetTroopRoster().ToList();
         troops.Shuffle();
@@ -251,7 +252,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         }
 
         PartyBase party;
-        PartyAIClanPartySettings heroSettings;
+        PartyAiEntitySettings heroSettings;
         PAICustomTemplate template;
         if (settlement != null)
         {
@@ -374,7 +375,7 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         return replacement;
     }
 
-    private void SetAutoRecruitmentOrder(PartyAIClanPartySettings settings, MobileParty party)
+    private void SetAutoRecruitmentOrder(PartyAiEntitySettings settings, MobileParty party)
     {
         if (settings.AutoRecruitment
             && party.PartySizeRatio < settings.AutoRecruitmentPercentage

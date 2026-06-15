@@ -63,7 +63,7 @@ internal class PAITroopUpgradeModel : PartyTroopUpgradeModel
             return 0.00001f;
         }
 
-        PartyAIClanPartySettings heroSettings;
+        PartyAiEntitySettings heroSettings;
         if (party.MobileParty.IsGarrison)
         {
             heroSettings = SubModule.PartySettingsManager.Settings(party.MobileParty.CurrentSettlement);

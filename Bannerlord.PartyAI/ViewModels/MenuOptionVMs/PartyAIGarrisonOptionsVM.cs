@@ -1,4 +1,5 @@
-﻿using Bannerlord.PartyAI.ViewModels.Dropdowns;
+﻿using Bannerlord.PartyAI.Models;
+using Bannerlord.PartyAI.ViewModels.Dropdowns;
 using System;
 using TaleWorlds.Core;
 using TaleWorlds.Core.ViewModelCollection.Information;
@@ -10,9 +11,9 @@ namespace Bannerlord.PartyAI.ViewModels.MenuOptionVMs;
 public class PartyAIGarrisonOptionsVM : ViewModel
 {
     private readonly Action _onClosePartyOptions;
-    private readonly PartyAIClanPartySettings _settings;
+    private readonly PartyAiEntitySettings _settings;
 
-    public PartyAIGarrisonOptionsVM(PartyAIClanPartySettings settings, Action callback)
+    public PartyAIGarrisonOptionsVM(PartyAiEntitySettings settings, Action callback)
     {
         if (settings == null) { return; }
         _settings = settings;

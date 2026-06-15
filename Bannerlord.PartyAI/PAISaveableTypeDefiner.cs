@@ -1,5 +1,6 @@
 ﻿using Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using System.Collections.Generic;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -14,7 +15,7 @@ internal class PAISaveableTypeDefiner : SaveableTypeDefiner
 
     protected override void DefineClassTypes()
     {
-        AddClassDefinition(typeof(PartyAIClanPartySettings), 1);
+        AddClassDefinition(typeof(PartyAiEntitySettings), 1);
         AddClassDefinition(typeof(PAICustomTemplate), 2);
         AddClassDefinition(typeof(PartyComposition), 3);
         AddClassDefinition(typeof(PartyAiOrder), 4);
@@ -29,8 +30,8 @@ internal class PAISaveableTypeDefiner : SaveableTypeDefiner
 
     protected override void DefineContainerDefinitions()
     {
-        ConstructContainerDefinition(typeof(Dictionary<Hero, PartyAIClanPartySettings>));
-        ConstructContainerDefinition(typeof(Dictionary<Settlement, PartyAIClanPartySettings>));
+        ConstructContainerDefinition(typeof(Dictionary<Hero, PartyAiEntitySettings>));
+        ConstructContainerDefinition(typeof(Dictionary<Settlement, PartyAiEntitySettings>));
         ConstructContainerDefinition(typeof(List<PAICustomTemplate>));
         ConstructContainerDefinition(typeof(List<CharacterObject>));
         ConstructContainerDefinition(typeof(List<Hero>));

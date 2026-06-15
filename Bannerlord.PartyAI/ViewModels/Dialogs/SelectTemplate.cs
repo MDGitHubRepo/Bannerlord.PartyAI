@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bannerlord.PartyAI.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
@@ -11,7 +12,7 @@ namespace Bannerlord.PartyAI.ViewModels.Dialogs;
 internal class SelectTemplate
 {
     private static Action _onSelectCallback;
-    internal static void Select(PartyAIClanPartySettings settings, Action callback = null)
+    internal static void Select(PartyAiEntitySettings settings, Action callback = null)
     {
         _onSelectCallback = callback;
 

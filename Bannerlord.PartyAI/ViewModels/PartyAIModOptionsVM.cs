@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.CampaignBehaviors;
+using Bannerlord.PartyAI.Models;
 using Bannerlord.PartyAI.ViewModels.Components;
 using Bannerlord.PartyAI.ViewModels.Dropdowns;
 using HarmonyLib;
@@ -396,7 +397,7 @@ public class PartyAIModOptionsVM : ViewModel
         // disable dismissing troops for all parties
         if (AllowTroopConversionToggle.IsSelected)
         {
-            foreach (PartyAIClanPartySettings settings in SubModule.PartySettingsManager.AllPartySettings)
+            foreach (PartyAiEntitySettings settings in SubModule.PartySettingsManager.AllPartySettings)
             {
                 settings.DismissUnwantedTroops = false;
             }

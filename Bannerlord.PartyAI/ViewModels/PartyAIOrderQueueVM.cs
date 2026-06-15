@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using Bannerlord.PartyAI.ViewModels.Components;
 using Bannerlord.PartyAI.ViewModels.Dialogs;
 using System;
@@ -10,11 +11,11 @@ namespace Bannerlord.PartyAI.ViewModels;
 
 public class PartyAIOrderQueueVM : ViewModel
 {
-    private readonly PartyAIClanPartySettings _settings;
+    private readonly PartyAiEntitySettings _settings;
     private MBBindingList<PartyAIOrderItemVM> _orderList;
     private readonly Action _callback;
 
-    public PartyAIOrderQueueVM(PartyAIClanPartySettings settings, Action callback)
+    public PartyAIOrderQueueVM(PartyAiEntitySettings settings, Action callback)
     {
         if (settings == null) { return; }
         _settings = settings;

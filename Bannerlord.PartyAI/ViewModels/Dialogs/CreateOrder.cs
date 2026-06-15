@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ internal class CreateOrder
 {
     private static Action _onCreateOrder;
     private static Hero _hero;
-    private static PartyAIClanPartySettings _settings;
+    private static PartyAiEntitySettings _settings;
     private static bool _fallback;
 
     private static readonly string _titleText = new TextObject("{=PAIUq8Q1n8k}Choose which type of order to add").ToString();
@@ -35,7 +36,7 @@ internal class CreateOrder
     private static readonly string _defendText = new TextObject("{=PAIgNGL6W5j}Defend A Settlement").ToString();
     private static readonly string _defendHintText = new TextObject("{=PAITZmUFJSB}Stay in the garrison of the settlement. The party may make occassional visits to other settlements for food if there is not enough food in the settlement to buy.").ToString();
 
-    public static void Create(PartyAIClanPartySettings settings, Action callback, bool fallback = false)
+    public static void Create(PartyAiEntitySettings settings, Action callback, bool fallback = false)
     {
         _hero = settings.Hero;
         _settings = settings;

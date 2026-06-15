@@ -1,4 +1,5 @@
-﻿using Bannerlord.UIExtenderEx.Attributes;
+﻿using Bannerlord.PartyAI.Models;
+using Bannerlord.UIExtenderEx.Attributes;
 using Bannerlord.UIExtenderEx.ViewModels;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core.ViewModelCollection.ImageIdentifiers;
@@ -21,7 +22,7 @@ internal class InquiryElementVMMixin : BaseViewModelMixin<InquiryElementVM>
             return;
 
         // Identifier is your PartyAI settings object
-        if (_vm.InquiryElement?.Identifier is PartyAIClanPartySettings settings &&
+        if (_vm.InquiryElement?.Identifier is PartyAiEntitySettings settings &&
             settings.Hero?.ClanBanner != null)
         {
             Banner_9 = new BannerImageIdentifierVM(settings.Hero.ClanBanner, true);

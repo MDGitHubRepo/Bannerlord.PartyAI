@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using System.Collections.Generic;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
@@ -149,7 +150,7 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
             if (controlling.Ai != null)
                 controlling.Ai.SetDoNotMakeNewDecisions(true);
 
-            PartyAIClanPartySettings settings =
+            PartyAiEntitySettings settings =
                 SubModule.PartySettingsManager.Settings(controlling.LeaderHero);
             settings.OrderQueue.Clear();
             settings.ClearOrder();
@@ -193,7 +194,7 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
             if (controlling.Ai != null)
                 controlling.Ai.SetDoNotMakeNewDecisions(true);
 
-            PartyAIClanPartySettings settings =
+            PartyAiEntitySettings settings =
                 SubModule.PartySettingsManager.Settings(controlling.LeaderHero);
             settings.OrderQueue.Clear();
             settings.ClearOrder();
@@ -261,7 +262,7 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
             if (controlling.Ai != null)
                 controlling.Ai.SetDoNotMakeNewDecisions(true);
 
-            PartyAIClanPartySettings settings =
+            PartyAiEntitySettings settings =
                 SubModule.PartySettingsManager.Settings(controlling.LeaderHero);
             settings.OrderQueue.Clear();
             settings.ClearOrder();

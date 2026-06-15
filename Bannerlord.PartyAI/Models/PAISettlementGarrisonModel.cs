@@ -32,7 +32,7 @@ internal class PAISettlementGarrisonModel : SettlementGarrisonModel
             return result;
         }
 
-        PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
+        PartyAiEntitySettings heroSettings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
 
         if (!heroSettings.AllowDonateTroops)
         {
@@ -51,7 +51,7 @@ internal class PAISettlementGarrisonModel : SettlementGarrisonModel
             return result;
         }
 
-        PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
+        PartyAiEntitySettings heroSettings = SubModule.PartySettingsManager.Settings(mobileParty.LeaderHero);
 
         if (!heroSettings.AllowTakeTroopsFromSettlement)
         {

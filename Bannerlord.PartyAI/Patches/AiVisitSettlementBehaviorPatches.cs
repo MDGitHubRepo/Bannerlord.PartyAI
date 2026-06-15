@@ -1,5 +1,6 @@
 ﻿using Bannerlord.PartyAI.Domain;
 using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using HarmonyLib;
 using HarmonyLib.PatchBuilder;
 using TaleWorlds.CampaignSystem;
@@ -28,7 +29,7 @@ internal class AiVisitSettlementBehaviorPatches
         }
 
         MobileParty mobileParty = hero.PartyBelongedTo;
-        PartyAIClanPartySettings heroSettings = SubModule.PartySettingsManager.Settings(hero);
+        PartyAiEntitySettings heroSettings = SubModule.PartySettingsManager.Settings(hero);
 
         if (!heroSettings.AllowRecruitment)
         {

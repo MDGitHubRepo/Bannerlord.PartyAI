@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using System;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
@@ -9,7 +10,7 @@ namespace Bannerlord.PartyAI.ViewModels;
 public class PartyAICompositionSlidersVM : ViewModel
 {
     private readonly Action<PartyComposition> _onSavePartyComposition;
-    private readonly PartyAIClanPartySettings _settings;
+    private readonly PartyAiEntitySettings _settings;
     private bool _doNotClamp;
     private int _infantry;
     private int _ranged;
@@ -21,7 +22,7 @@ public class PartyAICompositionSlidersVM : ViewModel
     private bool _isHorseArcherLocked;
 
     // keep the constructor safe for settings to be null
-    public PartyAICompositionSlidersVM(PartyAIClanPartySettings settings, Action<PartyComposition> callback)
+    public PartyAICompositionSlidersVM(PartyAiEntitySettings settings, Action<PartyComposition> callback)
     {
         SlidersTitleText = new TextObject("{=PAgaRahFHeV}Edit Party Composition").ToString();
 

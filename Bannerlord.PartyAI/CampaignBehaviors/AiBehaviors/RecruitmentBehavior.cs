@@ -1,5 +1,6 @@
 ﻿using Bannerlord.PartyAI.Domain;
 using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using Helpers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -94,7 +95,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
     }
 
     private bool ShouldPickNewRecruitmentTarget(
-        PartyAIClanPartySettings settings,
+        PartyAiEntitySettings settings,
         MobileParty party,
         [NotNullWhen(false)] Settlement? currentSettlement,
         PartyComposition partyComposition)
@@ -114,7 +115,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
     private bool IsGoodTargetForRecruiting(
         Settlement settlement,
         MobileParty party,
-        PartyAIClanPartySettings settings,
+        PartyAiEntitySettings settings,
         PartyComposition partyComposition)
     {
         if (!settlement.IsVillage && !settlement.IsTown)

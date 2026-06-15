@@ -1,4 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using Bannerlord.PartyAI.ViewModels.Components;
 using Bannerlord.PartyAI.ViewModels.Dialogs;
 using System;
@@ -19,12 +20,12 @@ public class PartyAIDefaultSettingsVM : ViewModel
     }
     public class DefaultSettingsItemVM : ViewModel
     {
-        private readonly PartyAIClanPartySettings _settings;
+        private readonly PartyAiEntitySettings _settings;
         private readonly TextObject _groupNametext;
         private PartyAICompositionDisplayVM _composition;
         private readonly OptionsType _optionsType;
 
-        public DefaultSettingsItemVM(PartyAIClanPartySettings settings, TextObject name, OptionsType optionsType)
+        public DefaultSettingsItemVM(PartyAiEntitySettings settings, TextObject name, OptionsType optionsType)
         {
             _settings = settings;
             _groupNametext = name;
@@ -98,22 +99,22 @@ public class PartyAIDefaultSettingsVM : ViewModel
     }
 
     private MBBindingList<DefaultSettingsItemVM> _itemList;
-    private readonly PartyAIClanPartySettings _defaultClanPartySettings;
-    private readonly PartyAIClanPartySettings _defaultClanCaravanSettings;
-    private readonly PartyAIClanPartySettings _defaultClanGarrisonSettings;
-    private readonly PartyAIClanPartySettings _defaultKingdomPartySettings;
-    private readonly PartyAIClanPartySettings _defaultKingdomGarrisonSettings;
+    private readonly PartyAiEntitySettings _defaultClanPartySettings;
+    private readonly PartyAiEntitySettings _defaultClanCaravanSettings;
+    private readonly PartyAiEntitySettings _defaultClanGarrisonSettings;
+    private readonly PartyAiEntitySettings _defaultKingdomPartySettings;
+    private readonly PartyAiEntitySettings _defaultKingdomGarrisonSettings;
     private readonly Action _onCloseDefaultSettings;
 
     public PartyAIDefaultSettingsVM(Action callback)
     {
         TitleText = new TextObject("{=PAIykz3Pc1F}Edit Default Settings").ToString();
 
-        _defaultClanPartySettings = new PartyAIClanPartySettings(SubModule.PartySettingsManager._defaultClanPartySettings);
-        _defaultClanCaravanSettings = new PartyAIClanPartySettings(SubModule.PartySettingsManager._defaultClanCaravanSettings);
-        _defaultClanGarrisonSettings = new PartyAIClanPartySettings(SubModule.PartySettingsManager._defaultClanGarrisonSettings);
-        _defaultKingdomPartySettings = new PartyAIClanPartySettings(SubModule.PartySettingsManager._defaultKingdomPartySettings);
-        _defaultKingdomGarrisonSettings = new PartyAIClanPartySettings(SubModule.PartySettingsManager._defaultKingdomGarrisonSettings);
+        _defaultClanPartySettings = new PartyAiEntitySettings(SubModule.PartySettingsManager._defaultClanPartySettings);
+        _defaultClanCaravanSettings = new PartyAiEntitySettings(SubModule.PartySettingsManager._defaultClanCaravanSettings);
+        _defaultClanGarrisonSettings = new PartyAiEntitySettings(SubModule.PartySettingsManager._defaultClanGarrisonSettings);
+        _defaultKingdomPartySettings = new PartyAiEntitySettings(SubModule.PartySettingsManager._defaultKingdomPartySettings);
+        _defaultKingdomGarrisonSettings = new PartyAiEntitySettings(SubModule.PartySettingsManager._defaultKingdomGarrisonSettings);
 
         ItemList = new()
   {

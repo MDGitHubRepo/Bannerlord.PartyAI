@@ -1,4 +1,5 @@
-﻿using SandBox.View.Map;
+﻿using Bannerlord.PartyAI.Models;
+using SandBox.View.Map;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.CampaignSystem.ViewModelCollection;
@@ -21,7 +22,7 @@ public class PartyAIControlsMenuSettlementVM : PartyAIControlsMenuPartyVM
         Party = settlement.Town?.GarrisonParty?.Party;
     }
 
-    internal override PartyAIClanPartySettings Settings => SubModule.PartySettingsManager.Settings(Settlement);
+    internal override PartyAiEntitySettings Settings => SubModule.PartySettingsManager.Settings(Settlement);
 
     [DataSourceProperty] public override string LeaderName => Party.Name.ToString();
     [DataSourceProperty] public override bool CanShowLocationOfHero => true;
