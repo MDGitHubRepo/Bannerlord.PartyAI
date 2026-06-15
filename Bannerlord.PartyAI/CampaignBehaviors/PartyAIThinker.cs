@@ -36,26 +36,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         CampaignEvents.OnPartyJoinedArmyEvent.AddNonSerializedListener(this, OnPartyJoinedArmy);
         CampaignEvents.OnSettlementOwnerChangedEvent.AddNonSerializedListener(this, OnSettlementOwnerChanged);
         CampaignEvents.MobilePartyCreated.AddNonSerializedListener(this, OnMobilePartyCreated);
-        CampaignEvents.SettlementEntered.AddNonSerializedListener(this, OnSettlementEntered);
-    }
-
-    private void OnSettlementEntered(MobileParty party, Settlement settlement, Hero hero)
-    {
-        if (party?.LeaderHero == null || settlement == null)
-        {
-            return;
-        }
-        if (!SubModule.PartySettingsManager.IsHeroManageable(party.LeaderHero))
-        {
-            return;
-        }
-
-        PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(party.LeaderHero);
-        if (settings.Order?.Behavior == PartyAiOrderType.VisitSettlement
-            && settings.Order.Target == settlement)
-        {
-            settings.ClearOrder();
-        }
     }
 
     private void OnSettlementOwnerChanged(Settlement settlement, bool openToClaim, Hero newOwner, Hero oldOwner, Hero capturerHero, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail detail)

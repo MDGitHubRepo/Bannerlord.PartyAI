@@ -12,6 +12,7 @@ public class VisitSettlementBehavior : PartyAiBehaviorBase
     public override void RegisterEvents()
     {
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
+        CampaignEvents.SettlementEntered.AddNonSerializedListener(this, OnSettlementEntered);
     }
 
     public void HandleVisitSettlement(
@@ -85,6 +86,19 @@ public class VisitSettlementBehavior : PartyAiBehaviorBase
         }
 
         HandleVisitSettlement(party, targetSettlement, settings, order, thinkParams);
+    }
+
+    private void OnSettlementEntered(MobileParty party, Settlement settlement, Hero hero)
+    {
+        if (!IsPartyOrderRelevant(party, PartyAiOrderType.VisitSettlement, out var settings, out var order))
+        {
+            return;
+        }
+
+        if (order.Target == settlement)
+        {
+            settings.ClearOrder();
+        }
     }
 
     private bool ShouldContinueExecutingOrder(
