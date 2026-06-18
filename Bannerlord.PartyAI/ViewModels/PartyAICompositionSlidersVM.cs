@@ -251,7 +251,7 @@ public class PartyAICompositionSlidersVM : ViewModel
         _doNotClamp = true;
 
         bool mayChangeMain = false;
-        while (Total != 100)
+        while (Total > 100)
         {
             bool actionTaken = false;
             foreach (FormationClass type in new FormationClass[] { FormationClass.Infantry, FormationClass.Ranged, FormationClass.Cavalry, FormationClass.HorseArcher })
@@ -274,7 +274,7 @@ public class PartyAICompositionSlidersVM : ViewModel
                     actionTaken = true;
                 }
 
-                if (Total == 100)
+                if (Total <= 100)
                 {
                     break;
                 }
