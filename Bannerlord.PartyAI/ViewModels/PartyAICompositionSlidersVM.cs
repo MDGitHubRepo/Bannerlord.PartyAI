@@ -9,25 +9,30 @@ namespace Bannerlord.PartyAI.ViewModels;
 
 public class PartyAICompositionSlidersVM : ViewModel
 {
+    private static readonly FormationClass[] FormationClasses =
+    [
+        FormationClass.Infantry,
+        FormationClass.Ranged,
+        FormationClass.Cavalry,
+        FormationClass.HorseArcher
+    ];
+
     private readonly Action<PartyComposition> _onSavePartyComposition;
     private readonly PartyAiEntitySettings _settings;
-    private bool _doNotClamp;
-    private int _infantry;
-    private int _ranged;
-    private int _cavalry;
-    private int _horseArcher;
-    private bool _isInfantryLocked;
-    private bool _isRangedLocked;
-    private bool _isCavalryLocked;
-    private bool _isHorseArcherLocked;
 
-    // keep the constructor safe for settings to be null
+    private bool _doNotClamp;
+
     public PartyAICompositionSlidersVM(PartyAiEntitySettings settings, Action<PartyComposition> callback)
     {
         SlidersTitleText = new TextObject("{=PAgaRahFHeV}Edit Party Composition").ToString();
 
-        if (settings == null) { return; }
         _settings = settings;
+        _onSavePartyComposition = callback;
+
+        IsInfantryLocked = false; // to clear locks
+        IsRangedLocked = false; // to clear locks
+        IsCavalryLocked = false; // to clear locks
+        IsHorseArcherLocked = false; // to clear locks
 
         PartyComposition composition = new PartyComposition(settings.Composition);
         composition.Scale(100);
@@ -38,12 +43,6 @@ public class PartyAICompositionSlidersVM : ViewModel
         CavalryInt = (int)Math.Round(composition.Cavalry);
         HorseArcherInt = (int)Math.Round(composition.HorseArcher);
         _doNotClamp = false;
-
-        IsInfantryLocked = false; // to clear locks
-        IsRangedLocked = false; // to clear locks
-        IsCavalryLocked = false; // to clear locks
-        IsHorseArcherLocked = false; // to clear locks
-        _onSavePartyComposition = callback;
 
         RefreshValues();
     }
@@ -72,15 +71,12 @@ public class PartyAICompositionSlidersVM : ViewModel
     [DataSourceProperty]
     public bool IsInfantryLocked
     {
-        get
-        {
-            return _isInfantryLocked;
-        }
+        get;
         set
         {
-            if (value != _isInfantryLocked)
+            if (value != field)
             {
-                _isInfantryLocked = value;
+                field = value;
                 OnPropertyChangedWithValue(value, "IsInfantryLocked");
             }
         }
@@ -89,15 +85,12 @@ public class PartyAICompositionSlidersVM : ViewModel
     [DataSourceProperty]
     public bool IsRangedLocked
     {
-        get
-        {
-            return _isRangedLocked;
-        }
+        get;
         set
         {
-            if (value != _isRangedLocked)
+            if (value != field)
             {
-                _isRangedLocked = value;
+                field = value;
                 OnPropertyChangedWithValue(value, "IsRangedLocked");
             }
         }
@@ -106,15 +99,12 @@ public class PartyAICompositionSlidersVM : ViewModel
     [DataSourceProperty]
     public bool IsCavalryLocked
     {
-        get
-        {
-            return _isCavalryLocked;
-        }
+        get;
         set
         {
-            if (value != _isCavalryLocked)
+            if (value != field)
             {
-                _isCavalryLocked = value;
+                field = value;
                 OnPropertyChangedWithValue(value, "IsCavalryLocked");
             }
         }
@@ -123,15 +113,12 @@ public class PartyAICompositionSlidersVM : ViewModel
     [DataSourceProperty]
     public bool IsHorseArcherLocked
     {
-        get
-        {
-            return _isHorseArcherLocked;
-        }
+        get;
         set
         {
-            if (value != _isHorseArcherLocked)
+            if (value != field)
             {
-                _isHorseArcherLocked = value;
+                field = value;
                 OnPropertyChangedWithValue(value, "IsHorseArcherLocked");
             }
         }
@@ -140,80 +127,68 @@ public class PartyAICompositionSlidersVM : ViewModel
     [DataSourceProperty]
     public int InfantryInt
     {
-        get
-        {
-            return _infantry;
-        }
+        get;
         set
         {
-            if (value != _infantry)
+            if (value != field)
             {
-                _infantry = value;
+                field = value;
                 ClampTo100(FormationClass.Infantry);
             }
 
-            OnPropertyChanged("InfantryInt");
-            OnPropertyChanged("InfantryPercentage");
+            OnPropertyChanged(nameof(InfantryInt));
+            OnPropertyChanged(nameof(InfantryPercentage));
         }
     }
 
     [DataSourceProperty]
     public int RangedInt
     {
-        get
-        {
-            return _ranged;
-        }
+        get;
         set
         {
-            if (value != _ranged)
+            if (value != field)
             {
-                _ranged = value;
+                field = value;
                 ClampTo100(FormationClass.Ranged);
             }
 
-            OnPropertyChanged("RangedInt");
-            OnPropertyChanged("RangedPercentage");
+            OnPropertyChanged(nameof(RangedInt));
+            OnPropertyChanged(nameof(RangedPercentage));
         }
     }
 
     [DataSourceProperty]
     public int CavalryInt
     {
-        get
-        {
-            return _cavalry;
-        }
+        get;
         set
         {
-            if (value != _cavalry)
+            if (value != field)
             {
-                _cavalry = value;
+                field = value;
                 ClampTo100(FormationClass.Cavalry);
             }
 
-            OnPropertyChanged("CavalryInt");
-            OnPropertyChanged("CavalryPercentage");
+            OnPropertyChanged(nameof(CavalryInt));
+            OnPropertyChanged(nameof(CavalryPercentage));
         }
     }
 
     [DataSourceProperty]
     public int HorseArcherInt
     {
-        get
-        {
-            return _horseArcher;
-        }
+        get;
         set
         {
-            if (value != _horseArcher)
+            if (value != field)
             {
-                _horseArcher = value;
+                field = value;
                 ClampTo100(FormationClass.HorseArcher);
             }
 
-            OnPropertyChanged("HorseArcherInt");
-            OnPropertyChanged("HorseArcherPercentage");
+            OnPropertyChanged(nameof(HorseArcherInt));
+            OnPropertyChanged(nameof(HorseArcherPercentage));
         }
     }
 
@@ -221,11 +196,13 @@ public class PartyAICompositionSlidersVM : ViewModel
 
     public void AcceptEditPartyComposition()
     {
-        PartyComposition composition = new();
-        composition.Infantry = _infantry;
-        composition.Ranged = _ranged;
-        composition.Cavalry = _cavalry;
-        composition.HorseArcher = _horseArcher;
+        PartyComposition composition = new()
+        {
+            Infantry = InfantryInt,
+            Ranged = RangedInt,
+            Cavalry = CavalryInt,
+            HorseArcher = HorseArcherInt
+        };
         composition.Scale(0.01f);
 
         _onSavePartyComposition.Invoke(composition);
@@ -254,7 +231,7 @@ public class PartyAICompositionSlidersVM : ViewModel
         while (Total > 100)
         {
             bool actionTaken = false;
-            foreach (FormationClass type in new FormationClass[] { FormationClass.Infantry, FormationClass.Ranged, FormationClass.Cavalry, FormationClass.HorseArcher })
+            foreach (FormationClass type in FormationClasses)
             {
                 int sign = Total > 100 ? -1 : 1;
 
@@ -290,22 +267,22 @@ public class PartyAICompositionSlidersVM : ViewModel
         return;
     }
 
-    public int this[FormationClass i]
+    public int this[FormationClass formationClass]
     {
         get
         {
-            switch (i)
+            return formationClass switch
             {
-                case FormationClass.Infantry: return InfantryInt;
-                case FormationClass.Ranged: return RangedInt;
-                case FormationClass.Cavalry: return CavalryInt;
-                case FormationClass.HorseArcher: return HorseArcherInt;
-                default: return 0;
-            }
+                FormationClass.Infantry => InfantryInt,
+                FormationClass.Ranged => RangedInt,
+                FormationClass.Cavalry => CavalryInt,
+                FormationClass.HorseArcher => HorseArcherInt,
+                _ => 0,
+            };
         }
         set
         {
-            switch (i)
+            switch (formationClass)
             {
                 case FormationClass.Infantry: InfantryInt = value; break;
                 case FormationClass.Ranged: RangedInt = value; break;
@@ -318,18 +295,13 @@ public class PartyAICompositionSlidersVM : ViewModel
 
     private bool GetLocked(FormationClass type)
     {
-        switch (type)
+        return type switch
         {
-            case FormationClass.Infantry:
-                return IsInfantryLocked;
-            case FormationClass.Ranged:
-                return IsRangedLocked;
-            case FormationClass.Cavalry:
-                return IsCavalryLocked;
-            case FormationClass.HorseArcher:
-                return IsHorseArcherLocked;
-            default:
-                return false;
-        }
+            FormationClass.Infantry => IsInfantryLocked,
+            FormationClass.Ranged => IsRangedLocked,
+            FormationClass.Cavalry => IsCavalryLocked,
+            FormationClass.HorseArcher => IsHorseArcherLocked,
+            _ => false,
+        };
     }
 }
