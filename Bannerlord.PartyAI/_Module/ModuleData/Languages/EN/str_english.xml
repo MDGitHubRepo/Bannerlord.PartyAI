@@ -210,5 +210,7 @@
 	<string id="PAI9084MrFx" text="Percentage must be less than 99"/>
 	<string id="PAI5AWANWod" text="You must enter a number"/>
 	<string id="PAIxE5LIta2" text="Fine Tune Template"/>
+	<string id="PAIVersionLoaded" text="Loaded Party AI Controls Reforged."/>
+	<string id="PAIVersionMismatch" text="The game version you are running is {GAME_VERSION}. The Party AI Controls version you are using is made for {MOD_VERSION}. There might be compatibility issues! Make sure to update to the latest mod version."/>
 </strings>
 </base>
