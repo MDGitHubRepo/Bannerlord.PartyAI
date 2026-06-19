@@ -1,6 +1,8 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
 using Bannerlord.PartyAI.Models;
+using Bannerlord.PartyAI.ViewModels.Components;
 using System;
+using System.Linq;
 using TaleWorlds.Core;
 using TaleWorlds.Library;
 using TaleWorlds.Localization;
@@ -20,8 +22,6 @@ public class PartyAICompositionSlidersVM : ViewModel
     private readonly Action<PartyComposition> _onSavePartyComposition;
     private readonly PartyAiEntitySettings _settings;
 
-    private bool _doNotClamp;
-
     public PartyAICompositionSlidersVM(PartyAiEntitySettings settings, Action<PartyComposition> callback)
     {
         SlidersTitleText = new TextObject("{=PAgaRahFHeV}Edit Party Composition").ToString();
@@ -29,20 +29,26 @@ public class PartyAICompositionSlidersVM : ViewModel
         _settings = settings;
         _onSavePartyComposition = callback;
 
-        IsInfantryLocked = false; // to clear locks
-        IsRangedLocked = false; // to clear locks
-        IsCavalryLocked = false; // to clear locks
-        IsHorseArcherLocked = false; // to clear locks
-
         PartyComposition composition = new PartyComposition(settings.Composition);
         composition.Scale(100);
 
-        _doNotClamp = true;
-        InfantryInt = (int)Math.Round(composition.Infantry);
-        RangedInt = (int)Math.Round(composition.Ranged);
-        CavalryInt = (int)Math.Round(composition.Cavalry);
-        HorseArcherInt = (int)Math.Round(composition.HorseArcher);
-        _doNotClamp = false;
+        InfantrySliderVm = new CompositionSliderRowVM(
+            (int)Math.Round(composition.Infantry),
+            @"General\TroopTypeIcons\icon_troop_type_infantry");
+        RangedSliderVm = new CompositionSliderRowVM(
+            (int)Math.Round(composition.Ranged),
+            @"General\TroopTypeIcons\icon_troop_type_bow");
+        CavalrySliderVm = new CompositionSliderRowVM(
+            (int)Math.Round(composition.Cavalry),
+            @"General\TroopTypeIcons\icon_troop_type_cavalry");
+        HorseArcherSliderVm = new CompositionSliderRowVM(
+            (int)Math.Round(composition.HorseArcher),
+            @"General\TroopTypeIcons\icon_troop_type_horse_archer");
+
+        InfantrySliderVm.UserChangedValue += HandleUserChangedValue;
+        RangedSliderVm.UserChangedValue += HandleUserChangedValue;
+        CavalrySliderVm.UserChangedValue += HandleUserChangedValue;
+        HorseArcherSliderVm.UserChangedValue += HandleUserChangedValue;
 
         RefreshValues();
     }
@@ -57,19 +63,7 @@ public class PartyAICompositionSlidersVM : ViewModel
     public string SlidersTitleText { get; set; }
 
     [DataSourceProperty]
-    public string InfantryPercentage => InfantryInt.ToString() + "%";
-
-    [DataSourceProperty]
-    public string RangedPercentage => RangedInt.ToString() + "%";
-
-    [DataSourceProperty]
-    public string CavalryPercentage => CavalryInt.ToString() + "%";
-
-    [DataSourceProperty]
-    public string HorseArcherPercentage => HorseArcherInt.ToString() + "%";
-
-    [DataSourceProperty]
-    public bool IsInfantryLocked
+    public CompositionSliderRowVM InfantrySliderVm
     {
         get;
         set
@@ -77,13 +71,13 @@ public class PartyAICompositionSlidersVM : ViewModel
             if (value != field)
             {
                 field = value;
-                OnPropertyChangedWithValue(value, "IsInfantryLocked");
+                OnPropertyChangedWithValue(value, nameof(InfantrySliderVm));
             }
         }
     }
 
     [DataSourceProperty]
-    public bool IsRangedLocked
+    public CompositionSliderRowVM RangedSliderVm
     {
         get;
         set
@@ -91,13 +85,13 @@ public class PartyAICompositionSlidersVM : ViewModel
             if (value != field)
             {
                 field = value;
-                OnPropertyChangedWithValue(value, "IsRangedLocked");
+                OnPropertyChangedWithValue(value, nameof(RangedSliderVm));
             }
         }
     }
 
     [DataSourceProperty]
-    public bool IsCavalryLocked
+    public CompositionSliderRowVM CavalrySliderVm
     {
         get;
         set
@@ -105,13 +99,13 @@ public class PartyAICompositionSlidersVM : ViewModel
             if (value != field)
             {
                 field = value;
-                OnPropertyChangedWithValue(value, "IsCavalryLocked");
+                OnPropertyChangedWithValue(value, nameof(RangedSliderVm));
             }
         }
     }
 
     [DataSourceProperty]
-    public bool IsHorseArcherLocked
+    public CompositionSliderRowVM HorseArcherSliderVm
     {
         get;
         set
@@ -119,89 +113,19 @@ public class PartyAICompositionSlidersVM : ViewModel
             if (value != field)
             {
                 field = value;
-                OnPropertyChangedWithValue(value, "IsHorseArcherLocked");
+                OnPropertyChangedWithValue(value, nameof(HorseArcherSliderVm));
             }
         }
     }
-
-    [DataSourceProperty]
-    public int InfantryInt
-    {
-        get;
-        set
-        {
-            if (value != field)
-            {
-                field = value;
-                ClampTo100(FormationClass.Infantry);
-            }
-
-            OnPropertyChanged(nameof(InfantryInt));
-            OnPropertyChanged(nameof(InfantryPercentage));
-        }
-    }
-
-    [DataSourceProperty]
-    public int RangedInt
-    {
-        get;
-        set
-        {
-            if (value != field)
-            {
-                field = value;
-                ClampTo100(FormationClass.Ranged);
-            }
-
-            OnPropertyChanged(nameof(RangedInt));
-            OnPropertyChanged(nameof(RangedPercentage));
-        }
-    }
-
-    [DataSourceProperty]
-    public int CavalryInt
-    {
-        get;
-        set
-        {
-            if (value != field)
-            {
-                field = value;
-                ClampTo100(FormationClass.Cavalry);
-            }
-
-            OnPropertyChanged(nameof(CavalryInt));
-            OnPropertyChanged(nameof(CavalryPercentage));
-        }
-    }
-
-    [DataSourceProperty]
-    public int HorseArcherInt
-    {
-        get;
-        set
-        {
-            if (value != field)
-            {
-                field = value;
-                ClampTo100(FormationClass.HorseArcher);
-            }
-
-            OnPropertyChanged(nameof(HorseArcherInt));
-            OnPropertyChanged(nameof(HorseArcherPercentage));
-        }
-    }
-
-    private int Total => InfantryInt + RangedInt + CavalryInt + HorseArcherInt;
 
     public void AcceptEditPartyComposition()
     {
         PartyComposition composition = new()
         {
-            Infantry = InfantryInt,
-            Ranged = RangedInt,
-            Cavalry = CavalryInt,
-            HorseArcher = HorseArcherInt
+            Infantry = InfantrySliderVm.Value,
+            Ranged = RangedSliderVm.Value,
+            Cavalry = CavalrySliderVm.Value,
+            HorseArcher = HorseArcherSliderVm.Value
         };
         composition.Scale(0.01f);
 
@@ -213,83 +137,103 @@ public class PartyAICompositionSlidersVM : ViewModel
         _onSavePartyComposition.Invoke(new PartyComposition(_settings.Composition));
     }
 
+    private void HandleUserChangedValue(CompositionSliderRowVM sender)
+    {
+        var formationClass = sender switch
+        {
+            var s when ReferenceEquals(s, InfantrySliderVm) => FormationClass.Infantry,
+            var s when ReferenceEquals(s, RangedSliderVm) => FormationClass.Ranged,
+            var s when ReferenceEquals(s, CavalrySliderVm) => FormationClass.Cavalry,
+            var s when ReferenceEquals(s, HorseArcherSliderVm) => FormationClass.HorseArcher,
+            _ => FormationClass.Infantry
+        };
+
+        ClampTo100(formationClass);
+    }
+
     private void ClampTo100(FormationClass changedType)
     {
-        if (_doNotClamp)
+        int total = FormationClasses.Sum(GetValue);
+        if (total <= 100)
         {
             return;
         }
 
-        if (Total == 100)
-        {
-            return;
-        }
+        int[] values = FormationClasses.Select(GetValue).ToArray();
+        bool[] locked = FormationClasses.Select(GetLocked).ToArray();
 
-        _doNotClamp = true;
+        int excess = total - 100;
 
-        bool mayChangeMain = false;
-        while (Total > 100)
+        foreach (bool allowMain in new[] { false, true })
         {
-            bool actionTaken = false;
-            foreach (FormationClass type in FormationClasses)
+            while (excess > 0)
             {
-                int sign = Total > 100 ? -1 : 1;
-
-                if (type == changedType && !mayChangeMain)
+                bool actionTaken = false;
+                foreach (FormationClass type in FormationClasses)
                 {
-                    continue;
-                }
+                    if (!allowMain && type == changedType)
+                    {
+                        continue;
+                    }
 
-                if ((sign > 0 && this[type] >= 100) || (sign < 0 && this[type] <= 0))
-                {
-                    continue;
-                }
+                    if (locked[(int)type])
+                    {
+                        continue;
+                    }
 
-                if (!GetLocked(type))
-                {
-                    this[type] += sign;
+                    if (values[(int)type] <= 0)
+                    {
+                        continue;
+                    }
+
+                    values[(int)type]--;
+                    excess--;
                     actionTaken = true;
+
+                    if (excess == 0)
+                    {
+                        break;
+                    }
                 }
 
-                if (Total <= 100)
+                if (!actionTaken)
                 {
                     break;
                 }
             }
 
-            if (!actionTaken)
+            if (excess == 0)
             {
-                mayChangeMain = true;
+                break;
             }
         }
 
-        _doNotClamp = false;
-        return;
+        foreach (FormationClass type in FormationClasses)
+        {
+            SetValueSilently(type, values[(int)type]);
+        }
     }
 
-    public int this[FormationClass formationClass]
+    private int GetValue(FormationClass type)
     {
-        get
+        return type switch
         {
-            return formationClass switch
-            {
-                FormationClass.Infantry => InfantryInt,
-                FormationClass.Ranged => RangedInt,
-                FormationClass.Cavalry => CavalryInt,
-                FormationClass.HorseArcher => HorseArcherInt,
-                _ => 0,
-            };
-        }
-        set
+            FormationClass.Infantry => InfantrySliderVm.Value,
+            FormationClass.Ranged => RangedSliderVm.Value,
+            FormationClass.Cavalry => CavalrySliderVm.Value,
+            FormationClass.HorseArcher => HorseArcherSliderVm.Value,
+            _ => 0,
+        };
+    }
+
+    private void SetValueSilently(FormationClass type, int value)
+    {
+        switch (type)
         {
-            switch (formationClass)
-            {
-                case FormationClass.Infantry: InfantryInt = value; break;
-                case FormationClass.Ranged: RangedInt = value; break;
-                case FormationClass.Cavalry: CavalryInt = value; break;
-                case FormationClass.HorseArcher: HorseArcherInt = value; break;
-                default: break;
-            }
+            case FormationClass.Infantry: InfantrySliderVm.SetValueSilently(value); break;
+            case FormationClass.Ranged: RangedSliderVm.SetValueSilently(value); break;
+            case FormationClass.Cavalry: CavalrySliderVm.SetValueSilently(value); break;
+            case FormationClass.HorseArcher: HorseArcherSliderVm.SetValueSilently(value); break;
         }
     }
 
@@ -297,10 +241,10 @@ public class PartyAICompositionSlidersVM : ViewModel
     {
         return type switch
         {
-            FormationClass.Infantry => IsInfantryLocked,
-            FormationClass.Ranged => IsRangedLocked,
-            FormationClass.Cavalry => IsCavalryLocked,
-            FormationClass.HorseArcher => IsHorseArcherLocked,
+            FormationClass.Infantry => InfantrySliderVm.IsLocked,
+            FormationClass.Ranged => RangedSliderVm.IsLocked,
+            FormationClass.Cavalry => CavalrySliderVm.IsLocked,
+            FormationClass.HorseArcher => HorseArcherSliderVm.IsLocked,
             _ => false,
         };
     }
