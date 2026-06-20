@@ -47,10 +47,10 @@
               VerticalAlignment="Bottom"
               Filler="Filler"
               Handle="SliderHandle"
-              Locked="@IsLocked"
               MaxValueInt="100"
               MinValueInt="0"
-              ValueInt="@Value">
+              ValueInt="@Value"
+              Locked="@IsLocked">
 
               <Children>
                 <Widget
@@ -127,6 +127,7 @@
               MarginRight="25"
               ButtonType="Toggle"
               IsSelected="@IsLocked"
+              IsEnabled="@IsLockToggleable"
               GamepadNavigationIndex="1">
 
               <Children>

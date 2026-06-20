@@ -14,6 +14,7 @@ public class CompositionSliderRowVM : ViewModel
         Value = initialValue;
         IsLocked = false;
         Icon = icon;
+        IsLockToggleable = true;
     }
 
     [DataSourceProperty]
@@ -46,6 +47,25 @@ public class CompositionSliderRowVM : ViewModel
             {
                 field = value;
                 OnPropertyChangedWithValue(value, nameof(IsLocked));
+            }
+        }
+    }
+
+    [DataSourceProperty]
+    public bool IsLockToggleable
+    {
+        get;
+        set
+        {
+            if (!value)
+            {
+                IsLocked = true;
+            }
+
+            if (value != field)
+            {
+                field = value;
+                OnPropertyChangedWithValue(value, nameof(IsLockToggleable));
             }
         }
     }
