@@ -1,5 +1,7 @@
 ﻿using System;
+using TaleWorlds.Core.ViewModelCollection.Information;
 using TaleWorlds.Library;
+using TaleWorlds.Localization;
 
 namespace Bannerlord.PartyAI.ViewModels.Components;
 
@@ -15,6 +17,11 @@ public class CompositionSliderRowVM : ViewModel
         IsLocked = false;
         Icon = icon;
         IsLockToggleable = true;
+
+        LockHint = IsLockToggleable
+            ? new HintViewModel()
+            : new HintViewModel(
+                new TextObject("{=PAI_locked_formation}This formation class is not used by this party's template."));
     }
 
     [DataSourceProperty]
@@ -32,7 +39,9 @@ public class CompositionSliderRowVM : ViewModel
                 OnPropertyChangedWithValue(value, nameof(Value));
                 OnPropertyChanged(nameof(Percentage));
                 if (!_isProgrammatic)
+                {
                     UserChangedValue?.Invoke(this);
+                }
             }
         }
     }
@@ -43,10 +52,26 @@ public class CompositionSliderRowVM : ViewModel
         get;
         set
         {
+            IsSliderEnabled = !value;
+
             if (value != field)
             {
                 field = value;
                 OnPropertyChangedWithValue(value, nameof(IsLocked));
+            }
+        }
+    }
+
+    [DataSourceProperty]
+    public bool IsSliderEnabled
+    {
+        get;
+        set
+        {
+            if (value != field)
+            {
+                field = value;
+                OnPropertyChangedWithValue(value, nameof(IsSliderEnabled));
             }
         }
     }
@@ -72,6 +97,20 @@ public class CompositionSliderRowVM : ViewModel
 
     [DataSourceProperty]
     public string Percentage => $"{Value}%";
+
+    [DataSourceProperty]
+    public HintViewModel LockHint
+    {
+        get;
+        set
+        {
+            if (value != field)
+            {
+                field = value;
+                OnPropertyChangedWithValue(value, nameof(LockHint));
+            }
+        }
+    }
 
     public void SetValueSilently(int value)
     {

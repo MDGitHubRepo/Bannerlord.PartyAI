@@ -50,7 +50,8 @@
               MaxValueInt="100"
               MinValueInt="0"
               ValueInt="@Value"
-              Locked="@IsLocked">
+              Locked="@IsLocked"
+              IsEnabled="@IsSliderEnabled">
 
               <Children>
                 <Widget
@@ -139,16 +140,20 @@
                   UnlockedBrush="OrderOfBattle.Formation.Class.Unlocked"
                   IsLocked="@IsLocked" />
 
-                <HintWidget
-                  DataSource="{LockWeightHint}"
-                  DoNotAcceptEvents="true"
-                  WidthSizePolicy="StretchToParent"
-                  HeightSizePolicy="StretchToParent"
-                  Command.HoverBegin="ExecuteBeginHint"
-                  Command.HoverEnd="ExecuteEndHint" />
-
               </Children>
             </ButtonWidget>
+
+            <HintWidget
+              DataSource="{LockHint}"
+              DoNotAcceptEvents="true"
+              WidthSizePolicy="Fixed"
+              HeightSizePolicy="Fixed"
+              SuggestedWidth="40"
+              SuggestedHeight="40"
+              VerticalAlignment="Center"
+              MarginRight="25"
+              Command.HoverBegin="ExecuteBeginHint"
+              Command.HoverEnd="ExecuteEndHint" />
 
           </Children>
         </ListPanel>
