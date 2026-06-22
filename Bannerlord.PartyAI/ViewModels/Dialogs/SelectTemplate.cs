@@ -39,7 +39,7 @@ internal class SelectTemplate
         {
             if (list.Count == 0) { return; }
 
-            settings.SetPartyTemplate((PAICustomTemplate)list.FirstOrDefault()?.Identifier);
+            settings.SetPartyTemplate((PAICustomTemplate?)list.FirstOrDefault()?.Identifier);
 
             _onSelectCallback?.Invoke();
         }, null, "", true));

@@ -30,19 +30,24 @@ public class PartyAICompositionSlidersVM : ViewModel
         _onSavePartyComposition = callback;
 
         PartyComposition composition = new PartyComposition(settings.Composition);
+        composition.ApplyTemplate(settings.PartyTemplate, out var formationTypes);
         composition.Scale(100);
 
         InfantrySliderVm = new CompositionSliderRowVM(
             (int)Math.Round(composition.Infantry),
+            formationTypes.Contains(FormationClass.Infantry),
             @"General\TroopTypeIcons\icon_troop_type_infantry");
         RangedSliderVm = new CompositionSliderRowVM(
             (int)Math.Round(composition.Ranged),
+            formationTypes.Contains(FormationClass.Ranged),
             @"General\TroopTypeIcons\icon_troop_type_bow");
         CavalrySliderVm = new CompositionSliderRowVM(
             (int)Math.Round(composition.Cavalry),
+            formationTypes.Contains(FormationClass.Cavalry),
             @"General\TroopTypeIcons\icon_troop_type_cavalry");
         HorseArcherSliderVm = new CompositionSliderRowVM(
             (int)Math.Round(composition.HorseArcher),
+            formationTypes.Contains(FormationClass.HorseArcher),
             @"General\TroopTypeIcons\icon_troop_type_horse_archer");
 
         InfantrySliderVm.UserChangedValue += HandleUserChangedValue;

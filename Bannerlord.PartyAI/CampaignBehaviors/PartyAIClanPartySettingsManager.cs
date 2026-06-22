@@ -1,4 +1,5 @@
-﻿using Bannerlord.PartyAI.Models;
+﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -6,7 +7,6 @@ using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.InputSystem;
-using TaleWorlds.Localization;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors;
 
@@ -282,6 +282,13 @@ public class PartyAIClanPartySettingsManager : CampaignBehaviorBase
         _garrisonSettings ??= new Dictionary<Settlement, PartyAiEntitySettings>();
         _caravanSettings ??= new Dictionary<Hero, PartyAiEntitySettings>();
         _partyTemplates ??= new List<PAICustomTemplate>();
+
+        // convert compositions when template is active
+        foreach (var settings in _partySettings.Values)
+        {
+            PartyComposition composition = settings.Composition;
+            composition.ApplyTemplate(settings.PartyTemplate, out _);
+        }
 
         // set default fallback values here
         if (!dataStore.SyncData("AllowTroopConversion", ref AllowTroopConversion) && dataStore.IsLoading)

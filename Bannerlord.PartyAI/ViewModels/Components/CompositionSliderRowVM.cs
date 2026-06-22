@@ -11,12 +11,13 @@ public class CompositionSliderRowVM : ViewModel
 
     private bool _isProgrammatic;
 
-    public CompositionSliderRowVM(int initialValue, string icon)
+    public CompositionSliderRowVM(int initialValue, bool enabled, string icon)
     {
         Value = initialValue;
-        IsLocked = false;
         Icon = icon;
-        IsLockToggleable = true;
+        IsLockToggleable = enabled;
+        IsLocked = !IsLockToggleable;
+        IsSliderEnabled = !IsLocked;
 
         LockHint = IsLockToggleable
             ? new HintViewModel()

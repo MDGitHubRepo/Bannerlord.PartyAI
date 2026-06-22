@@ -183,9 +183,10 @@ public class PartyAiEntitySettings
     internal void DeductHorseBudget(int amount) => BuyHorsesBudgetToday -= amount;
     internal void DeductTroopsConvertibleToday(int amount) => TroopsConvertibleToday -= amount;
 
-    internal void SetPartyTemplate(PAICustomTemplate template)
+    internal void SetPartyTemplate(PAICustomTemplate? template)
     {
         PartyTemplate = template;
+        Composition.ApplyTemplate(template, out _);
 
         // Only affect recruiting targets
         if (HasActiveOrder && Order?.Behavior == PartyAiOrderType.RecruitFromTemplate && template != null)
@@ -207,7 +208,7 @@ public class PartyAiEntitySettings
         }
 
         // Unlock party AI so it will re-evaluate on next hourly tick
-        MobileParty ownedParty = Hero?.PartyBelongedTo;
+        MobileParty? ownedParty = Hero?.PartyBelongedTo;
         if (ownedParty?.Ai != null)
         {
             ownedParty.Ai.SetDoNotMakeNewDecisions(false);

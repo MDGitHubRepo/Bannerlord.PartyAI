@@ -63,7 +63,8 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
         }
 
         int freeSlots = party.Party.PartySizeLimit - party.Party.NumberOfAllMembers;
-        if (freeSlots < 1)
+        float partyRatio = party.PartySizeRatio;
+        if (freeSlots <= 0 || partyRatio > settings.Composition.GetTotal())
         {
             settings.ClearOrder();
             return;
