@@ -135,13 +135,19 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
             return false;
         }
 
-        var template = settings.PartyTemplate;
-        if (template is not null && !template.TroopCultures.Contains(settlement.Culture))
+        if (_recentlyRecruitedFromSettlements.Any(l => l.Settlement == settlement && l.Party == party))
         {
             return false;
         }
 
-        if (_recentlyRecruitedFromSettlements.Any(l => l.Settlement == settlement && l.Party == party))
+        // if we're going to convert the troop anyway, it doesn't matter
+        if (SubModule.PartySettingsManager.AllowTroopConversion && settings.PartyTemplate != null)
+        {
+            return true;
+        }
+
+        var template = settings.PartyTemplate;
+        if (template is not null && !template.TroopCultures.Contains(settlement.Culture))
         {
             return false;
         }

@@ -28,23 +28,22 @@ public static class Recruitment
 
         if (formationClasses.Length == 0 || IsOverMaxTier(troop, heroSettings.MaxTroopTier))
         {
-            //TaleWorlds.Library.InformationManager.DisplayMessage(new("Will not recruit "+troop.Name+" because it has no valid upgrade paths.",TaleWorlds.Library.Colors.Red));
             return false;
         }
 
         foreach (FormationClass formationClass in formationClasses)
         {
-            float need = heroSettings.Composition[formationClass] - comp[formationClass];
+            var targetRatio = heroSettings.Composition[formationClass];
+            var currentRatio = comp[formationClass];
+            float need = targetRatio - currentRatio;
             need *= party.PartySizeLimit;
 
             if (need >= (mustBeOnePlus ? 1f : 0.4f))
             {
-                //TaleWorlds.Library.InformationManager.DisplayMessage(new("Will recruit " + troop.Name, TaleWorlds.Library.Colors.Green));
                 return true;
             }
         }
 
-        //TaleWorlds.Library.InformationManager.DisplayMessage(new("Will not recruit " + troop.Name+ " due to insufficient need.", TaleWorlds.Library.Colors.Red));
         return false;
     }
 
@@ -223,8 +222,12 @@ public static class Recruitment
                 var recruitmentCost = Campaign.Current.Models.PartyWageModel.GetTroopRecruitmentCost(troop, buyer).RoundedResultNumber;
                 var wage = Campaign.Current.Models.PartyWageModel.GetCharacterWage(troop);
                 var budget = mobileParty.GetAvailableWageBudget();
-                if (mobileParty.PartyTradeGold < recruitmentCost
-                    || budget < wage
+                if (mobileParty.PartyTradeGold < recruitmentCost || budget < wage)
+                {
+                    continue;
+                }
+
+                if ((SubModule.PartySettingsManager.AllowTroopConversion && settings.PartyTemplate != null)
                     || !ShouldRecruit(partyComposition, settings, troop, mobileParty.Party))
                 {
                     continue;

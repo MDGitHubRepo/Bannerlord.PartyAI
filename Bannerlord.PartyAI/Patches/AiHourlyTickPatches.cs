@@ -155,7 +155,9 @@ public class AiHourlyTickPatches
             return;
         }
 
-        var after = __1.AIBehaviorScores.ToArray();
+        var after = __1.AIBehaviorScores
+            .OrderByDescending(x => x.Item2)
+            .ToArray();
 
         if (!Before.SequenceEqual(after))
         {
