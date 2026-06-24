@@ -61,7 +61,7 @@ public class VisitSettlementBehavior : PartyAiBehaviorBase
             isFromPort,
             isTargetingPort);
 
-        AddBehaviorScore(behaviorData, 5f, thinkParams);
+        AddBehaviorScore(behaviorData, Constants.BehaviorScore, thinkParams);
     }
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)

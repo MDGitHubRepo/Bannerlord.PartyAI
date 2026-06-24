@@ -100,8 +100,7 @@ public class AttackPartyBehavior : PartyAiBehaviorBase
             isFromPort,
             isTargetingPort);
 
-        var score = 250;
-        AddBehaviorScore(aibehaviorData, score, partyThinkParams);
+        AddBehaviorScore(aibehaviorData, Constants.BehaviorScore, partyThinkParams);
         return true;
     }
 }

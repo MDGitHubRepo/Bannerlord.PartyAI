@@ -60,6 +60,6 @@ internal class BesiegeSettlementBehavior : PartyAiBehaviorBase
             willGatherArmy: false,
             isFromPort: false,
             isTargetingPort: false);
-        AddBehaviorScore(aibehaviorData, 5f, thinkParams);
+        AddBehaviorScore(aibehaviorData, Constants.BehaviorScore, thinkParams);
     }
 }

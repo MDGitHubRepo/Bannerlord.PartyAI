@@ -59,7 +59,7 @@ public class DefendSettlementBehavior : PartyAiBehaviorBase
             isFromPort,
             shouldDefendPort);
 
-        AddBehaviorScore(behaviorData, 5f, thinkParams);
+        AddBehaviorScore(behaviorData, Constants.BehaviorScore, thinkParams);
     }
 
     private bool ShouldDefendPort(MobileParty party, Settlement targetSettlement)

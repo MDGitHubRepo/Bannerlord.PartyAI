@@ -9,11 +9,6 @@ namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
 public class EscortBehavior : PartyAiBehaviorBase
 {
-    private const int FarDistance = 250;
-    private const int CloseDistance = 5;
-    private const int LowPriorityScore = 5;
-    private const int HighPriorityScore = 10;
-
     public override void RegisterEvents()
     {
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
@@ -85,9 +80,7 @@ public class EscortBehavior : PartyAiBehaviorBase
             isFromPort,
             isTargetingPort);
 
-        float t = MBMath.InverseLerp(FarDistance, CloseDistance, navDistance);
-        float score = MBMath.Lerp(LowPriorityScore, HighPriorityScore, t * t);
-        AddBehaviorScore(aibehaviorData, score, partyThinkParams);
+        AddBehaviorScore(aibehaviorData, Constants.BehaviorScore, partyThinkParams);
         return true;
     }
 

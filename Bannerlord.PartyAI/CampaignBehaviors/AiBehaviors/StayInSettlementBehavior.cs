@@ -55,7 +55,7 @@ public class StayInSettlementBehavior : PartyAiBehaviorBase
             false,
             false);
 
-        AddBehaviorScore(behaviorData, 5f, thinkParams);
+        AddBehaviorScore(behaviorData, Constants.BehaviorScore, thinkParams);
     }
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
