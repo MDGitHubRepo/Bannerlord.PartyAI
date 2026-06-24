@@ -83,28 +83,43 @@ internal class CreateOrder
                 ChooseTargetCallback(list);
                 return;
             case PartyAiOrderType.EscortParty:
-                IEnumerable<MobileParty> parties = _hero?.MapFaction?.WarPartyComponents.Select(p => p?.MobileParty);
-                if (_hero?.Clan?.Kingdom != null)
+                Hero hero = _hero is not null
+                    ? _hero
+                    : Hero.MainHero;
+
+                var parties = new List<MobileParty?>();
+                var factionComponents = hero.MapFaction?.WarPartyComponents.Select(p => p?.MobileParty);
+                if (factionComponents is not null)
                 {
-                    parties = parties.Concat(_hero.Clan.Kingdom.WarPartyComponents.Select(p => p?.MobileParty));
+                    parties.AddRange(factionComponents);
                 }
 
-                parties = parties
-                    .Concat(MobileParty.All
-                        .Where(m => m?.MapFaction != null
-                            && m.GetPosition2D.Distance(MobileParty.MainParty.GetPosition2D) <= MobileParty.MainParty.SeeingRange * 2f
-                            && !m.IsGarrison
-                            && !m.IsMilitia
-                            && !FactionManager.IsAtWarAgainstFaction(m.MapFaction, Hero.MainHero.MapFaction)));
+                if (hero.Clan?.Kingdom is not null)
+                {
+                    var kingdomComponents = hero.Clan.Kingdom.WarPartyComponents.Select(p => p?.MobileParty);
+                    parties.AddRange(kingdomComponents);
+                }
+
+                var partiesInRange = MobileParty.All
+                    .Where(m => m?.MapFaction != null
+                        && m.GetPosition2D.Distance(hero.PartyBelongedTo.GetPosition2D) <= hero.PartyBelongedTo.SeeingRange * 2f
+                        && !m.IsGarrison
+                        && !m.IsMilitia
+                        && !FactionManager.IsAtWarAgainstFaction(m.MapFaction, hero.MapFaction));
+                parties.AddRange(partiesInRange);
 
                 var ordered = parties
                     .DistinctBy(p => p.Id)
-                    .OrderByDescending(s => s?.ActualClan?.Equals(_hero?.Clan))
+                    .OrderByDescending(s => s?.ActualClan?.Equals(hero.Clan))
                     .ThenBy(s => s?.Name?.ToString())
                     .ToList();
-                foreach (MobileParty mobileParty in ordered)
+                foreach (MobileParty? mobileParty in ordered)
                 {
-                    if (mobileParty == null) { continue; }
+                    if (mobileParty == null)
+                    {
+                        continue;
+                    }
+
                     PartyAiOrder insert = new(order.Behavior, mobileParty);
                     CharacterObject character = ConversationHelper.GetConversationCharacterPartyLeader(mobileParty.Party);
                     if (character == null)
