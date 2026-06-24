@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Bannerlord.PartyAI;
+﻿namespace Bannerlord.PartyAI;
 
 internal class Constants
 {
