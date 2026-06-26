@@ -19,6 +19,12 @@ public static class Message
             party,
             order);
 
+    public static void OrderStoppedNoValidTargets(MobileParty party, PartyAiOrder order) =>
+        DisplayOrderMessage(
+            "{=PAI_order_stopped_no_valid_targets}{PARTY} is no longer {ORDER} because no suitable target could be found.",
+            party,
+            order);
+
     public static void OrderStoppedTargetEnemy(MobileParty party, PartyAiOrder order) =>
         DisplayOrderMessage(
             "{=PAI_order_stopped_war}{PARTY} is no longer {ORDER} because the target's faction became an enemy.",

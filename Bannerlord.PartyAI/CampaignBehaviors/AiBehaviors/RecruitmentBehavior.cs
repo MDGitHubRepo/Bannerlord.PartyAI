@@ -84,11 +84,6 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
             targetSettlement = newTarget;
         }
 
-        if (targetSettlement is null)
-        {
-            return; // fallback to default AI
-        }
-
         if (!CalculateVisitSettlementScore(party, targetSettlement, order, thinkParams))
         {
             settings.ClearOrder();
@@ -163,10 +158,16 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
 
     private bool CalculateVisitSettlementScore(
         MobileParty mobileParty,
-        Settlement target,
+        Settlement? target,
         PartyAiOrder order,
         PartyThinkParams partyThinkParams)
     {
+        if (target is null)
+        {
+            Message.OrderStoppedNoValidTargets(mobileParty, order);
+            return false;
+        }
+
         var isTargetingPort = target.HasPort && mobileParty.IsCurrentlyAtSea;
 
         AiHelper.GetBestNavigationTypeAndAdjustedDistanceOfSettlementForMobileParty(
