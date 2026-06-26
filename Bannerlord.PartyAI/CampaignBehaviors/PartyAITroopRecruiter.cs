@@ -60,11 +60,15 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
         }
 
         if (winnerParty?.LeaderHero == null)
+        {
             return;
+        }
 
         var heroSettings = SubModule.PartySettingsManager.Settings(winnerParty.LeaderHero);
         if (heroSettings?.PartyTemplate == null)
+        {
             return;
+        }
 
         ExchangeRoster(winnerParty.MemberRoster, heroSettings, winnerParty.LeaderHero, null);
     }
@@ -76,9 +80,16 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
             return;
         }
 
-        if (settlement.IsUnderSiege || settlement.InRebelliousState) { return; }
+        if (settlement.IsUnderSiege || settlement.InRebelliousState)
+        {
+            return;
+        }
 
-        if (!SubModule.PartySettingsManager.AllowTroopConversionForGarrisons || !SubModule.PartySettingsManager.IsGarrisonManageable(settlement)) { return; }
+        if (!SubModule.PartySettingsManager.AllowTroopConversionForGarrisons
+            || !SubModule.PartySettingsManager.IsGarrisonManageable(settlement))
+        {
+            return;
+        }
 
         PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(settlement);
         if (settings.PartyTemplate == null)
@@ -172,7 +183,10 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
                     roster.RemoveZeroCounts();
                 }
             }
-            if (thisRun == 0) { break; }
+            if (thisRun == 0)
+            {
+                break;
+            }
         }
 
         PartyComposition comp = Recruitment.GetPartyComposition(party.Party, settings);
@@ -195,9 +209,22 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
 
             foreach (TroopRosterElement e in troops)
             {
-                if (e.Character.IsHero) { continue; }
-                List<FormationClass> upgradeTargets = Recruitment.UpgradeTargets(e.Character, maxTierOnly: true, template: settings.PartyTemplate).ConvertAll(t => FormationClassExtensions.FallbackClass(t.DefaultFormationClass));
-                if (!upgradeTargets.Contains(overage.Key)) { continue; }
+                if (e.Character.IsHero)
+                {
+                    continue;
+                }
+
+
+                var upgradeTargets = Recruitment.UpgradeTargets(
+                    e.Character,
+                    maxTierOnly: true,
+                    template: settings.PartyTemplate)
+                    .ConvertAll(t => t.DefaultFormationClass.FallbackClass());
+
+                if (!upgradeTargets.Contains(overage.Key))
+                {
+                    continue;
+                }
 
                 // if another formation needs this troop to upgrade to it, don't dismiss it
                 if (upgradeTargets.Any(t => overages[t] < 0))
@@ -224,7 +251,11 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
             if (!settings.PartyTemplate.Troops.Contains(e.Character)
                 || Recruitment.IsOverMaxTier(e.Character, settings.MaxTroopTier))
             {
-                if (settings.TroopsConvertibleToday <= 0) { break; }
+                if (settings.TroopsConvertibleToday <= 0)
+                {
+                    break;
+                }
+
                 ExchangeClanTroops(hero, roster, e.Character, e.Number - e.WoundedNumber, false, settlement);
             }
         }
@@ -377,22 +408,25 @@ internal class PartyAITroopRecruiter : CampaignBehaviorBase
 
     private void SetAutoRecruitmentOrder(PartyAiEntitySettings settings, MobileParty party)
     {
-        if (settings.AutoRecruitment
+        if (ShouldAutoRecruit(settings, party)
+            && CanUseRecruitOrderAutomatically(settings))
+        {
+            settings.SetOrder(PartyAiOrderType.RecruitFromTemplate);
+        }
+    }
+
+    private bool CanUseRecruitOrderAutomatically(PartyAiEntitySettings settings)
+    {
+        return !settings.HasActiveOrder
+            || (settings.Order.Behavior != PartyAiOrderType.RecruitFromTemplate
+            && !settings.OrderQueue.Any(o => o.Behavior == PartyAiOrderType.RecruitFromTemplate));
+    }
+
+    private bool ShouldAutoRecruit(PartyAiEntitySettings settings, MobileParty party)
+    {
+        return settings.AutoRecruitment
             && party.PartySizeRatio < settings.AutoRecruitmentPercentage
             && !_controlAssumptionBehavior.IsUnderControlAssumption(party)
-            && party.Army == null)
-        {
-            if (!settings.HasActiveOrder)
-            {
-                settings.SetOrder(PartyAiOrderType.RecruitFromTemplate);
-                return;
-            }
-
-            if (settings.Order.Behavior != PartyAiOrderType.RecruitFromTemplate
-                && !settings.OrderQueue.Any(o => o.Behavior == PartyAiOrderType.RecruitFromTemplate))
-            {
-                settings.SetOrder(PartyAiOrderType.RecruitFromTemplate);
-            }
-        }
+            && party.Army == null;
     }
 }
