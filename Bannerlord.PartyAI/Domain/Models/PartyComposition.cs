@@ -111,6 +111,11 @@ public class PartyComposition
         float total = GetTotal();
         if (total == 0)
         {
+            float value = 1f / templateTroopClasses.Length;
+            foreach (var formation in templateTroopClasses)
+            {
+                this[formation] = value;
+            }
             return;
         }
 
