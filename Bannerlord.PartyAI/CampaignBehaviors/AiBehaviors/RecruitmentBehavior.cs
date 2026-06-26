@@ -42,11 +42,6 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
         var party = recruiter.PartyBelongedTo;
         var partyComposition = Recruitment.GetPartyComposition(party.Party, settings);
 
-        if (Recruitment.CollectEligibleVolunteers(party, settlement, settings, partyComposition).Count > 0)
-        {
-            return;
-        }
-
         _recentlyRecruitedFromSettlements.Add(new(settlement, CampaignTime.Now, recruiter.PartyBelongedTo));
     }
 
