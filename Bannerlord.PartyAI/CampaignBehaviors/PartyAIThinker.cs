@@ -10,8 +10,6 @@ using TaleWorlds.CampaignSystem.Map;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using TaleWorlds.Library;
-using TaleWorlds.Localization;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors;
 
@@ -32,53 +30,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
     {
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
         CampaignEvents.MobilePartyDestroyed.AddNonSerializedListener(this, OnMobilePartyDestroyed);
-        CampaignEvents.HeroPrisonerTaken.AddNonSerializedListener(this, OnHeroPrisonerTaken);
-        CampaignEvents.OnPartyJoinedArmyEvent.AddNonSerializedListener(this, OnPartyJoinedArmy);
         CampaignEvents.MobilePartyCreated.AddNonSerializedListener(this, OnMobilePartyCreated);
-    }
-
-    private void OnHeroPrisonerTaken(PartyBase party, Hero prisoner)
-    {
-        if (SubModule.PartySettingsManager.IsHeroManageable(prisoner))
-        {
-            PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(prisoner);
-            settings.ClearAllOrders();
-        }
-    }
-
-    private void OnPartyJoinedArmy(MobileParty mobileParty)
-    {
-        if (mobileParty is null)
-        {
-            return;
-        }
-
-        var leaderHero = mobileParty.LeaderHero;
-
-        if (leaderHero is null
-            || !SubModule.PartySettingsManager.IsHeroManageable(leaderHero)
-            || !SubModule.PartySettingsManager.HasActiveOrder(leaderHero))
-        {
-            return;
-        }
-
-        var order = SubModule.PartySettingsManager.Settings(leaderHero).Order;
-
-        var partyText = mobileParty.Name;
-        var orderText = OrderVerbalizer.GetStatusText(order);
-        var armyText = mobileParty.Army?.Name is null
-            ? "an army"
-            : mobileParty.Army.Name.ToString();
-        
-        TextObject text = new TextObject("{=PAIOEWao2aI}{PARTY} is no longer {ORDER} because they were called to {ARMY}")
-          .SetTextVariable("PARTY", partyText)
-          .SetTextVariable("ORDER", orderText)
-          .SetTextVariable("ARMY", armyText);
-        
-        InformationManager.DisplayMessage(new InformationMessage(text.ToString(), Colors.Magenta));
-
-        PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(leaderHero);
-        settings.ClearAllOrders();
     }
 
     private void OnMobilePartyDestroyed(MobileParty mobileParty, PartyBase destroyerParty)
@@ -157,11 +109,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         {
             return;
         }
-
-        // These three should probably be in the "doing" part instead of "thinking"
-        ImplementAllowRaidingVillages(party, thinkParams, settings);
-        ImplementAllowJoiningArmies(party, thinkParams, settings);
-        ImplementAllowBesieging(party, thinkParams, settings);
 
         if (!settings.HasActiveOrder)
         {
@@ -430,101 +377,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
     }
 
-    private void ImplementAllowRaidingVillages(MobileParty party, PartyThinkParams thinkParams, PartyAiEntitySettings settings)
-    {
-        if (settings.AllowRaidVillages)
-        {
-            return;
-        }
-
-        // prevent raiding in army (leave if they raid)
-        // The other half of this is in HarmonyPatches.AiMilitaryBehaviorPatches
-        if (party.Army != null && !party.Army.LeaderParty.LeaderHero.Equals(party.LeaderHero))
-        {
-            if (IsArmyRaiding(party.Army))
-            {
-                // refund influence
-                int influence = Campaign.Current.Models.ArmyManagementCalculationModel.CalculatePartyInfluenceCost(party.Army.LeaderParty, party);
-                ChangeClanInfluenceAction.Apply(party.Army.LeaderParty.LeaderHero.Clan, influence);
-
-                LeaveArmy(party, thinkParams);
-            }
-        }
-    }
-
-    private void ImplementAllowJoiningArmies(MobileParty party, PartyThinkParams thinkParams, PartyAiEntitySettings settings)
-    {
-        var army = party.Army;
-        if (army is null)
-        {
-            return;
-        }
-
-        var armyLeaderHero = army.LeaderParty?.LeaderHero;
-        if (!settings.AllowJoinArmies
-            && armyLeaderHero != party.LeaderHero
-            && armyLeaderHero != Hero.MainHero)
-        {
-            LeaveArmy(party, thinkParams);
-        }
-    }
-
-    private void ImplementAllowBesieging(MobileParty party, PartyThinkParams thinkParams, PartyAiEntitySettings settings)
-    {
-        if (settings.AllowSieging)
-        {
-            return;
-        }
-
-        // prevent besieging in army (leave if they besiege)
-        // The other half of this is in HarmonyPatches.AiMilitaryBehaviorPatches
-        if (party.Army != null && !party.Army.LeaderParty.LeaderHero.Equals(party.LeaderHero))
-        {
-            if (IsArmyBesieging(party.Army))
-            {
-                LeaveArmy(party, thinkParams);
-            }
-        }
-    }
-
-    private void LeaveArmy(MobileParty party, PartyThinkParams thinkParams)
-    {
-        // refund influence
-        int influence = Campaign.Current.Models.ArmyManagementCalculationModel
-            .CalculatePartyInfluenceCost(party.Army.LeaderParty, party);
-        ChangeClanInfluenceAction.Apply(party.Army.LeaderParty.LeaderHero.Clan, influence);
-
-        party.Army = null;
-
-        // Find nearest friendly/neutral fortification to send the party to
-        Settlement? nearestFort = Navigation.FindNearestSettlement(
-            s => s.IsFortification
-                && (s.MapFaction == party.MapFaction
-                ||  FactionManager.IsNeutralWithFaction(party.MapFaction, s.MapFaction)),
-            party
-        );
-
-        if (nearestFort != null && Navigation.TryGetBestNavigationDataForSettlement(party, nearestFort, out MobileParty.NavigationType navType, out bool isFromPort, out bool isTargetingPort))
-        {
-            SetPartyAiAction.GetActionForVisitingSettlement(
-                party,
-                nearestFort,
-                navType,
-                isFromPort,
-                isTargetingPort
-            );
-        }
-
-        ResetPartyAi(party);
-        thinkParams.Reset(party);
-    }
-
-    private void ResetPartyAi(MobileParty party)
-    {
-        party.Ai.RethinkAtNextHourlyTick = true;
-        party.Ai.SetDoNotMakeNewDecisions(false);
-    }
-
     private static CampaignVec2 ExtractPositionFromBehavior(AIBehaviorData behavior)
     {
         CampaignVec2 position;
@@ -557,22 +409,5 @@ internal class PartyAIThinker : CampaignBehaviorBase
         }
 
         return false;
-    }
-
-    private static bool IsArmyRaiding(Army army)
-    {
-        if (army == null)
-            return false;
-
-        return army.ArmyType == Army.ArmyTypes.Raider;
-    }
-
-    private static bool IsArmyBesieging(Army army)
-    {
-        if (army == null)
-            return false;
-
-        // In newer versions AIBehavior / AIBehaviorFlags are gone; ArmyType is enough here.
-        return army.ArmyType == Army.ArmyTypes.Besieger;
     }
 }

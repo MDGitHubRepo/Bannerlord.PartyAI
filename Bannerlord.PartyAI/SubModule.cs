@@ -86,6 +86,9 @@ public class SubModule : MBSubModuleBase
         campaignGameStarter.AddBehavior(new DefendSettlementBehavior(stayInSettlementBehavior));
         campaignGameStarter.AddBehavior(new BesiegeSettlementBehavior());
         campaignGameStarter.AddBehavior(new ResetPartyAiBehavior());
+        campaignGameStarter.AddBehavior(new JoiningArmyClearOrdersBehavior());
+        campaignGameStarter.AddBehavior(new PreventIllegalMovesInArmyBehavior());
+        campaignGameStarter.AddBehavior(new PrisonerClearOrdersBehavior());
     }
 
     public override void OnGameInitializationFinished(Game game)
