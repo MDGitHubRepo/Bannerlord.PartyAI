@@ -1,6 +1,9 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
+using Bannerlord.PartyAI.Models;
 using Helpers;
+using System;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 
@@ -20,6 +23,26 @@ public class DefendSettlementBehavior : PartyOrderBehaviorBase
     public override void RegisterEvents()
     {
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
+        CampaignEvents.OnSettlementOwnerChangedEvent.AddNonSerializedListener(this, OnSettlementOwnerChanged);
+    }
+
+    private void OnSettlementOwnerChanged(Settlement settlement, bool openToClaim, Hero newOwner, Hero oldOwner, Hero capturerHero, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail detail)
+    {
+        foreach (PartyAiEntitySettings settings in SubModule.PartySettingsManager.HeroesWithOrders)
+        {
+            var order = settings.Order;
+
+            if (order is null || order.Behavior != OrderType || order.Target != settlement)
+            {
+                continue;
+            }
+
+            if (FactionManager.IsAtWarAgainstFaction(settings.Hero.MapFaction, settlement.MapFaction))
+            {
+                Message.OrderStoppedTargetEnemy(settings.Hero.PartyBelongedTo, order);
+                settings.ClearOrder();
+            }
+        }
     }
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)

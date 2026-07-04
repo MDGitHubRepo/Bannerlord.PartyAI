@@ -34,22 +34,7 @@ internal class PartyAIThinker : CampaignBehaviorBase
         CampaignEvents.MobilePartyDestroyed.AddNonSerializedListener(this, OnMobilePartyDestroyed);
         CampaignEvents.HeroPrisonerTaken.AddNonSerializedListener(this, OnHeroPrisonerTaken);
         CampaignEvents.OnPartyJoinedArmyEvent.AddNonSerializedListener(this, OnPartyJoinedArmy);
-        CampaignEvents.OnSettlementOwnerChangedEvent.AddNonSerializedListener(this, OnSettlementOwnerChanged);
         CampaignEvents.MobilePartyCreated.AddNonSerializedListener(this, OnMobilePartyCreated);
-    }
-
-    private void OnSettlementOwnerChanged(Settlement settlement, bool openToClaim, Hero newOwner, Hero oldOwner, Hero capturerHero, ChangeOwnerOfSettlementAction.ChangeOwnerOfSettlementDetail detail)
-    {
-        foreach (PartyAiEntitySettings settings in SubModule.PartySettingsManager.HeroesWithOrders)
-        {
-            if (settings.Order.Behavior == PartyAiOrderType.BesiegeSettlement && settings.Order.Target == settlement)
-            {
-                if (!FactionManager.IsAtWarAgainstFaction(settings.Hero.MapFaction, settlement.MapFaction))
-                {
-                    settings.ClearOrder();
-                }
-            }
-        }
     }
 
     private void OnHeroPrisonerTaken(PartyBase party, Hero prisoner)
