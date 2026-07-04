@@ -6,8 +6,10 @@ using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
-internal class BesiegeSettlementBehavior : PartyAiBehaviorBase
+internal class BesiegeSettlementBehavior : PartyOrderBehaviorBase
 {
+    protected override PartyAiOrderType OrderType => PartyAiOrderType.BesiegeSettlement;
+
     public override void RegisterEvents()
     {
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
@@ -15,7 +17,7 @@ internal class BesiegeSettlementBehavior : PartyAiBehaviorBase
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
     {
-        if (!IsPartyOrderRelevant(party, PartyAiOrderType.BesiegeSettlement, out var settings, out var order))
+        if (!IsPartyOrderRelevant(party, out var settings, out var order))
         {
             return;
         }

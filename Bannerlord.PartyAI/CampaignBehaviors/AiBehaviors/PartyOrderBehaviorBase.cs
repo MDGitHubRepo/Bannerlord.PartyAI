@@ -6,8 +6,10 @@ using TaleWorlds.CampaignSystem.Party;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
-public abstract class PartyAiBehaviorBase : CampaignBehaviorBase
+public abstract class PartyOrderBehaviorBase : CampaignBehaviorBase
 {
+    protected abstract PartyAiOrderType OrderType { get; }
+
     public override void RegisterEvents()
     {
         // It is unnecessary to force the consumers to override.
@@ -22,7 +24,6 @@ public abstract class PartyAiBehaviorBase : CampaignBehaviorBase
 
     protected bool IsPartyOrderRelevant(
         Hero? hero,
-        PartyAiOrderType orderType,
         [NotNullWhen(true)]out PartyAiEntitySettings? settings,
         [NotNullWhen(true)]out PartyAiOrder? order)
     {
@@ -40,7 +41,7 @@ public abstract class PartyAiBehaviorBase : CampaignBehaviorBase
             return false;
         }
 
-        if (settings.Order.Behavior != orderType)
+        if (settings.Order.Behavior != OrderType)
         {
             return false;
         }
@@ -51,11 +52,10 @@ public abstract class PartyAiBehaviorBase : CampaignBehaviorBase
 
     protected bool IsPartyOrderRelevant(
         MobileParty party,
-        PartyAiOrderType orderType,
         [NotNullWhen(true)] out PartyAiEntitySettings? settings,
         [NotNullWhen(true)] out PartyAiOrder? order)
     {
-        return IsPartyOrderRelevant(party?.LeaderHero, orderType, out settings, out order);
+        return IsPartyOrderRelevant(party?.LeaderHero, out settings, out order);
     }
 
     protected void AddBehaviorScore(AIBehaviorData behaviorData, float score, PartyThinkParams thinkParams)

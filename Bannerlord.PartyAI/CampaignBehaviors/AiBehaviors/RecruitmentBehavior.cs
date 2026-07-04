@@ -12,12 +12,13 @@ using TaleWorlds.SaveSystem;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
-internal class RecruitmentBehavior : PartyAiBehaviorBase
+internal class RecruitmentBehavior : PartyOrderBehaviorBase
 {
-    private const PartyAiOrderType RecruitOrderType = PartyAiOrderType.RecruitFromTemplate;
     private const int RecruitmentSettlementCooldownDays = 10;
 
     private List<PAISettlementVisitLog> _recentlyRecruitedFromSettlements = new();
+
+    protected override PartyAiOrderType OrderType => PartyAiOrderType.RecruitFromTemplate;
 
     public override void RegisterEvents()
     {
@@ -33,7 +34,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
 
     private void OnTroopRecruited(Hero recruiter, Settlement settlement, Hero source, CharacterObject troop, int amount)
     {
-        if (!IsPartyOrderRelevant(recruiter, RecruitOrderType, out var settings, out _)
+        if (!IsPartyOrderRelevant(recruiter, out var settings, out _)
             || settlement is null)
         {
             return;
@@ -52,7 +53,7 @@ internal class RecruitmentBehavior : PartyAiBehaviorBase
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
     {
-        if (!IsPartyOrderRelevant(party, RecruitOrderType, out var settings, out var order))
+        if (!IsPartyOrderRelevant(party, out var settings, out var order))
         {
             return;
         }

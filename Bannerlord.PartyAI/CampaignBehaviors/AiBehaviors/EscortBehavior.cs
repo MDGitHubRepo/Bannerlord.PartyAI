@@ -7,8 +7,10 @@ using TaleWorlds.Library;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
-public class EscortBehavior : PartyAiBehaviorBase
+public class EscortBehavior : PartyOrderBehaviorBase
 {
+    protected override PartyAiOrderType OrderType => PartyAiOrderType.EscortParty;
+
     public override void RegisterEvents()
     {
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
@@ -16,7 +18,7 @@ public class EscortBehavior : PartyAiBehaviorBase
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
     {
-        if (!IsPartyOrderRelevant(party, PartyAiOrderType.EscortParty, out var settings, out var order))
+        if (!IsPartyOrderRelevant(party, out var settings, out var order))
         {
             return;
         }

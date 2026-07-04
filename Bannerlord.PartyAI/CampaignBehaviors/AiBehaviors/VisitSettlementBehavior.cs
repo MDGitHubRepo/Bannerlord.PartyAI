@@ -7,8 +7,10 @@ using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
-public class VisitSettlementBehavior : PartyAiBehaviorBase
+public class VisitSettlementBehavior : PartyOrderBehaviorBase
 {
+    protected override PartyAiOrderType OrderType => PartyAiOrderType.VisitSettlement;
+
     public override void RegisterEvents()
     {
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
@@ -66,7 +68,7 @@ public class VisitSettlementBehavior : PartyAiBehaviorBase
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
     {
-        if (!IsPartyOrderRelevant(party, PartyAiOrderType.VisitSettlement, out var settings, out var order))
+        if (!IsPartyOrderRelevant(party, out var settings, out var order))
         {
             return;
         }
@@ -90,7 +92,7 @@ public class VisitSettlementBehavior : PartyAiBehaviorBase
 
     private void OnSettlementEntered(MobileParty party, Settlement settlement, Hero hero)
     {
-        if (!IsPartyOrderRelevant(party, PartyAiOrderType.VisitSettlement, out var settings, out var order))
+        if (!IsPartyOrderRelevant(party, out var settings, out var order))
         {
             return;
         }

@@ -6,7 +6,7 @@ using TaleWorlds.CampaignSystem.Settlements;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
-public class DefendSettlementBehavior : PartyAiBehaviorBase
+public class DefendSettlementBehavior : PartyOrderBehaviorBase
 {
     private readonly StayInSettlementBehavior _stayInSettlementBehavior;
 
@@ -15,6 +15,8 @@ public class DefendSettlementBehavior : PartyAiBehaviorBase
         _stayInSettlementBehavior = stayInSettlementBehavior;
     }
 
+    protected override PartyAiOrderType OrderType => PartyAiOrderType.DefendSettlement;
+
     public override void RegisterEvents()
     {
         CampaignEvents.AiHourlyTickEvent.AddNonSerializedListener(this, OnAiHourlyTick);
@@ -22,7 +24,7 @@ public class DefendSettlementBehavior : PartyAiBehaviorBase
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)
     {
-        if (!IsPartyOrderRelevant(party, PartyAiOrderType.DefendSettlement, out var settings, out var order))
+        if (!IsPartyOrderRelevant(party, out var settings, out var order))
         {
             return;
         }
