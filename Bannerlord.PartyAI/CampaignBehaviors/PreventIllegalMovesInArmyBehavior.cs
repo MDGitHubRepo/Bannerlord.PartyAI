@@ -38,7 +38,7 @@ internal class PreventIllegalMovesInArmyBehavior : CampaignBehaviorBase
         var illegalRaiding = !settings.AllowRaidVillages && IsArmyRaiding(army);
         var illegalSiege = !settings.AllowSieging && IsArmyBesieging(army);
 
-        return settings.AllowJoinArmies || illegalRaiding || illegalSiege;
+        return !settings.AllowJoinArmies || illegalRaiding || illegalSiege;
     }
 
     private static void LeaveArmy(MobileParty party)
