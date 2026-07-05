@@ -120,9 +120,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
         List<(AIBehaviorData, float)> newParams;
         switch (settings.Order.Behavior)
         {
-            case PartyAiOrderType.PatrolAroundPoint:
-                ImplementPatrolAroundSettlement(settings, party, target, thinkParams, out newParams, distanceFactor: settings.PatrolRadius);
-                break;
             case PartyAiOrderType.PatrolClanLands:
                 ImplementPatrolClanLands(settings.Hero, party, target, thinkParams, out newParams);
                 break;
@@ -255,112 +252,6 @@ internal class PartyAIThinker : CampaignBehaviorBase
 
             float distToTarget = DistanceHelper.FindClosestDistanceFromSettlementToPoint(
                     nearestClanSettlement,
-                    behaviorTarget,
-                    safeNavType,
-                    isFromPort: out bool _);
-
-            if (distToTarget < range)
-            {
-                newParams.Add((behavior, weight));
-            }
-        }
-
-        if (party.Objective != MobileParty.PartyObjective.Aggressive)
-        {
-            party.SetPartyObjective(MobileParty.PartyObjective.Aggressive);
-        }
-    }
-
-    private void ImplementPatrolAroundSettlement(PartyAiEntitySettings settings, MobileParty party, IMapPoint target, in PartyThinkParams thinkParams, out List<(AIBehaviorData, float)> newParams, float distanceFactor = 1.0f)
-    {
-        newParams = new List<(AIBehaviorData, float)>();
-
-        var safeNavType = Navigation.SanitizeNavigationType(party.DesiredAiNavigationType);
-
-        Settlement centerSettlement = (Settlement)target;
-
-        // Range is a filtering/"too far" heuristic; navigation routing uses vanilla-derived data.
-        float range = Navigation.GetSafeDistanceBetweenClosestTwoTowns(MobileParty.NavigationType.Default) * 0.9f * distanceFactor;
-
-        // Compute best navigation and port flags for reaching the patrol center.
-        if (!Navigation.TryGetBestNavigationDataForSettlement(party, centerSettlement, out MobileParty.NavigationType centerNavType, out bool centerIsFromPort, out bool centerIsTargetingPort))
-        {
-            newParams = thinkParams.AIBehaviorScores.ConvertAll(s => (s.Item1, s.Item2));
-            return;
-        }
-
-        // === PRIORITY: Defend nearby same-faction settlements under attack ===
-        foreach (Settlement settlement in Settlement.All)
-        {
-            if (settlement.MapFaction != party.MapFaction)
-                continue;
-
-            float distToSettlement = DistanceHelper.FindClosestDistanceFromMobilePartyToSettlement(
-                party,
-                settlement,
-                safeNavType);
-
-            if (distToSettlement > range)
-                continue;
-
-            if (IsSettlementUnderAttack(settlement))
-            {
-                if (Navigation.TryGetBestNavigationDataForSettlement(party, settlement, out MobileParty.NavigationType defendNavType, out bool defendIsFromPort, out bool defendIsTargetingPort))
-                {
-                    SetPartyAiAction.GetActionForDefendingSettlement(
-                        party,
-                        settlement,
-                        defendNavType,
-                        defendIsFromPort,
-                        defendIsTargetingPort
-                    );
-                }
-                return;
-            }
-        }
-
-        var distanceToCenter = DistanceHelper.FindClosestDistanceFromMobilePartyToSettlement(
-            party,
-            centerSettlement,
-            safeNavType);
-
-        // If too far from patrol center: walk there
-        if (distanceToCenter > range * 4)
-        {
-            SetPartyAiAction.GetActionForVisitingSettlement(
-                party,
-                centerSettlement,
-                centerNavType,
-                centerIsFromPort,
-                centerIsTargetingPort
-            );
-
-            newParams.Add((
-                new AIBehaviorData(centerSettlement, AiBehavior.GoToSettlement, centerNavType, false, centerIsFromPort, centerIsTargetingPort),
-                5f
-            ));
-
-            return;
-        }
-
-        // Anchor patrol on the intended settlement.
-        newParams.Add((
-            new AIBehaviorData(centerSettlement, AiBehavior.PatrolAroundPoint, centerNavType, false, centerIsFromPort, centerIsTargetingPort),
-            6f
-        ));
-
-        // In range: filter vanilla behavior scores by distance to center
-        foreach ((AIBehaviorData behavior, float weight) in thinkParams.AIBehaviorScores)
-        {
-            var behaviorTarget = ExtractPositionFromBehavior(behavior);
-
-            if (behaviorTarget == CampaignVec2.Zero)
-            {
-                continue;
-            }
-
-            float distToTarget = DistanceHelper.FindClosestDistanceFromSettlementToPoint(
-                    centerSettlement,
                     behaviorTarget,
                     safeNavType,
                     isFromPort: out bool _);
