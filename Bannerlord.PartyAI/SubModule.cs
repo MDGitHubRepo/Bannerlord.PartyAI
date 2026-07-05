@@ -72,7 +72,6 @@ public class SubModule : MBSubModuleBase
         campaignGameStarter.AddBehavior(PartySettingsManager);
 
         campaignGameStarter.AddBehavior(new PartyAITroopRecruiter(ControlAssumptionBehavior));
-        campaignGameStarter.AddBehavior(new PartyAIThinker(ControlAssumptionBehavior));
 
         campaignGameStarter.AddBehavior(new FallbackOrderBehavior());
         campaignGameStarter.AddBehavior(new PartyAutoCreationBehavior());
@@ -91,6 +90,8 @@ public class SubModule : MBSubModuleBase
         campaignGameStarter.AddBehavior(new PrisonerClearOrdersBehavior());
         campaignGameStarter.AddBehavior(new PatrolAroundSettlementBehavior());
         campaignGameStarter.AddBehavior(new PatrolClanLandsBehavior());
+        campaignGameStarter.AddBehavior(new NewPartySetupBehavior());
+        campaignGameStarter.AddBehavior(new PartyDestroyedClearOrdersBehavior());
     }
 
     public override void OnGameInitializationFinished(Game game)
