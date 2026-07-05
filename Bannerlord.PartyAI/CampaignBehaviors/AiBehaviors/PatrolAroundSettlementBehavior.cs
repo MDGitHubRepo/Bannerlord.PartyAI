@@ -1,6 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
 using Helpers;
-using System;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -53,9 +52,10 @@ internal class PatrolAroundSettlementBehavior : PartyOrderBehaviorBase
             return;
         }
 
-        if (party.Objective != MobileParty.PartyObjective.Aggressive)
+        if (party.Objective != MobileParty.PartyObjective.Defensive)
         {
-            party.SetPartyObjective(MobileParty.PartyObjective.Aggressive);
+            settings.CachedPartyObjective = party.Objective;
+            party.SetPartyObjective(MobileParty.PartyObjective.Defensive);
         }
 
         var behaviorData = new AIBehaviorData(

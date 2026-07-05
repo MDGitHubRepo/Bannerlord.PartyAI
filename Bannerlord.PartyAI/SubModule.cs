@@ -90,6 +90,7 @@ public class SubModule : MBSubModuleBase
         campaignGameStarter.AddBehavior(new PreventIllegalMovesInArmyBehavior());
         campaignGameStarter.AddBehavior(new PrisonerClearOrdersBehavior());
         campaignGameStarter.AddBehavior(new PatrolAroundSettlementBehavior());
+        campaignGameStarter.AddBehavior(new PatrolClanLandsBehavior());
     }
 
     public override void OnGameInitializationFinished(Game game)
