@@ -1,9 +1,7 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
-using Helpers;
 using System.Diagnostics.CodeAnalysis;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
-using TaleWorlds.Library;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
@@ -29,61 +27,14 @@ public class EscortBehavior : PartyOrderBehaviorBase
             return;
         }
 
-        party.Ai.SetInitiative(0, 0.33f, 24);
-
-        if (!CalculateEscortPartyScore(party, targetParty, order, thinkParams))
+        if (!TryNavigateToParty(party, targetParty, AiBehavior.EscortParty, thinkParams))
         {
+            Message.OrderStoppedTargetUnreachable(party, order);
             settings.ClearOrder();
-        }
-    }
-
-    private bool CalculateEscortPartyScore(
-        MobileParty mobileParty,
-        MobileParty targetParty,
-        PartyAiOrder order,
-        PartyThinkParams partyThinkParams)
-    {
-        float navDistance = 0f;
-        bool isFromPort = false;
-        bool isTargetingPort = false;
-        MobileParty.NavigationType bestNavType = MobileParty.NavigationType.None;
-        if (targetParty.CurrentSettlement is not null)
-        {
-            isTargetingPort = targetParty.CurrentSettlement.HasPort && mobileParty.IsCurrentlyAtSea;
-
-            AiHelper.GetBestNavigationTypeAndAdjustedDistanceOfSettlementForMobileParty(
-                mobileParty,
-                targetParty.CurrentSettlement,
-                isTargetingPort,
-                out bestNavType,
-                out navDistance,
-                out isFromPort);
-        }
-        else
-        {
-            AiHelper.GetBestNavigationTypeAndDistanceOfMobilePartyForMobileParty(
-                mobileParty,
-                targetParty,
-                out bestNavType,
-                out navDistance);
+            return;
         }
 
-        if (bestNavType == MobileParty.NavigationType.None)
-        {
-            Message.OrderStoppedTargetUnreachable(mobileParty, order);
-            return false;
-        }
-
-        AIBehaviorData aibehaviorData = new AIBehaviorData(
-            targetParty,
-            AiBehavior.EscortParty,
-            bestNavType,
-            false,
-            isFromPort,
-            isTargetingPort);
-
-        AddBehaviorScore(aibehaviorData, Constants.BehaviorScore, partyThinkParams);
-        return true;
+        party.Ai.SetInitiative(0f, 0.33f, 2f);
     }
 
     private bool ShouldContinueExecutingOrder(

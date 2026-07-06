@@ -1,7 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
 using Bannerlord.PartyAI.Models;
-using Helpers;
-using System;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
@@ -68,23 +66,11 @@ public class DefendSettlementBehavior : PartyOrderBehaviorBase
             return;
         }
 
-        AiHelper.GetBestNavigationTypeAndAdjustedDistanceOfSettlementForMobileParty(
-            party,
-            targetSettlement,
-            shouldDefendPort,
-            out var navigationType,
-            out _,
-            out var isFromPort);
-
-        var behaviorData = new AIBehaviorData(
-            targetSettlement,
-            AiBehavior.DefendSettlement,
-            navigationType,
-            false,
-            isFromPort,
-            shouldDefendPort);
-
-        AddBehaviorScore(behaviorData, Constants.BehaviorScore, thinkParams);
+        if (!TryNavigateToSettlement(party, targetSettlement, AiBehavior.DefendSettlement, thinkParams))
+        {
+            Message.OrderStoppedTargetUnreachable(party, order);
+            settings.ClearOrder();
+        }
     }
 
     private bool ShouldDefendPort(MobileParty party, Settlement targetSettlement)

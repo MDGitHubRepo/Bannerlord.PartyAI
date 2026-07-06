@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
-using static TaleWorlds.CampaignSystem.Party.MobileParty;
 
 namespace Bannerlord.PartyAI.CampaignBehaviors.AiBehaviors;
 
@@ -36,28 +35,12 @@ public class StayInSettlementBehavior : PartyOrderBehaviorBase
             return;
         }
 
-        if (party.CurrentSettlement != targetSettlement)
-        {
-            _visitSettlementBehavior.HandleVisitSettlement(
-                party,
-                targetSettlement,
-                settings,
-                order,
-                thinkParams);
-            return;
-        }
-
-        party.Ai.SetInitiative(0, 0, 6);
-
-        var behaviorData = new AIBehaviorData(
+        _visitSettlementBehavior.HandleVisitSettlement(
+            party,
             targetSettlement,
-            AiBehavior.Hold,
-            NavigationType.None,
-            false,
-            false,
-            false);
-
-        AddBehaviorScore(behaviorData, Constants.BehaviorScore, thinkParams);
+            settings,
+            order,
+            thinkParams);
     }
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)

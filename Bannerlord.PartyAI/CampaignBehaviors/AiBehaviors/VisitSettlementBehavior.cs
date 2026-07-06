@@ -1,6 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
 using Bannerlord.PartyAI.Models;
-using Helpers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -37,33 +36,14 @@ public class VisitSettlementBehavior : PartyOrderBehaviorBase
             return;
         }
 
-        var isTargetingPort = targetSettlement.HasPort && party.IsCurrentlyAtSea;
-        AiHelper.GetBestNavigationTypeAndAdjustedDistanceOfSettlementForMobileParty(
-            party,
-            targetSettlement,
-            isTargetingPort,
-            out var navigationType,
-            out var bestDistance,
-            out var isFromPort);
-
-        if (navigationType == MobileParty.NavigationType.None)
+        if (!TryNavigateToSettlement(party, targetSettlement, AiBehavior.GoToSettlement, thinkParams))
         {
             Message.OrderStoppedTargetUnreachable(party, order);
             settings.ClearOrder();
             return;
         }
 
-        party.Ai.SetInitiative(0, 1, 6);
-
-        var behaviorData = new AIBehaviorData(
-            targetSettlement,
-            AiBehavior.GoToSettlement,
-            navigationType,
-            false,
-            isFromPort,
-            isTargetingPort);
-
-        AddBehaviorScore(behaviorData, Constants.BehaviorScore, thinkParams);
+        party.Ai.SetInitiative(0f, 1f, 2f);
     }
 
     private void OnAiHourlyTick(MobileParty party, PartyThinkParams thinkParams)

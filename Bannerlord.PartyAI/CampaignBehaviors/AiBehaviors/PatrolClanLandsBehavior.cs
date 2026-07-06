@@ -1,6 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
 using Bannerlord.PartyAI.Models;
-using Helpers;
 using System.Linq;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
@@ -49,16 +48,7 @@ internal class PatrolClanLandsBehavior : PartyOrderBehaviorBase
             return;
         }
 
-        var isTargetingPort = targetSettlement.HasPort && party.IsCurrentlyAtSea;
-        AiHelper.GetBestNavigationTypeAndAdjustedDistanceOfSettlementForMobileParty(
-            party,
-            targetSettlement,
-            isTargetingPort,
-            out var navigationType,
-            out var bestDistance,
-            out var isFromPort);
-
-        if (navigationType == MobileParty.NavigationType.None)
+        if (!TryNavigateToSettlement(party, targetSettlement, AiBehavior.PatrolAroundPoint, thinkParams))
         {
             order.Target = null;
             return; // Fallback to default AI until settlement is rerolled
@@ -69,16 +59,6 @@ internal class PatrolClanLandsBehavior : PartyOrderBehaviorBase
             settings.CachedPartyObjective = party.Objective;
             party.SetPartyObjective(MobileParty.PartyObjective.Defensive);
         }
-
-        var behaviorData = new AIBehaviorData(
-            targetSettlement,
-            AiBehavior.PatrolAroundPoint,
-            navigationType,
-            false,
-            isFromPort,
-            isTargetingPort);
-
-        AddBehaviorScore(behaviorData, Constants.BehaviorScore, thinkParams);
     }
 
     private bool ShouldContinueExecutingOrder(Hero hero, PartyAiEntitySettings settings, PartyAiOrder order)

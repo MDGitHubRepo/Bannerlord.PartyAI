@@ -1,5 +1,4 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
-using Helpers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
@@ -36,16 +35,7 @@ internal class PatrolAroundSettlementBehavior : PartyOrderBehaviorBase
             return;
         }
 
-        var isTargetingPort = targetSettlement.HasPort && party.IsCurrentlyAtSea;
-        AiHelper.GetBestNavigationTypeAndAdjustedDistanceOfSettlementForMobileParty(
-            party,
-            targetSettlement,
-            isTargetingPort,
-            out var navigationType,
-            out var bestDistance,
-            out var isFromPort);
-
-        if (navigationType == MobileParty.NavigationType.None)
+        if (!TryNavigateToSettlement(party, targetSettlement, AiBehavior.PatrolAroundPoint, thinkParams))
         {
             Message.OrderStoppedTargetUnreachable(party, order);
             settings.ClearOrder();
@@ -57,16 +47,6 @@ internal class PatrolAroundSettlementBehavior : PartyOrderBehaviorBase
             settings.CachedPartyObjective = party.Objective;
             party.SetPartyObjective(MobileParty.PartyObjective.Defensive);
         }
-
-        var behaviorData = new AIBehaviorData(
-            targetSettlement,
-            AiBehavior.PatrolAroundPoint,
-            navigationType,
-            false,
-            isFromPort,
-            isTargetingPort);
-
-        AddBehaviorScore(behaviorData, Constants.BehaviorScore, thinkParams);
     }
 
     private bool ShouldContinueExecutingOrder(

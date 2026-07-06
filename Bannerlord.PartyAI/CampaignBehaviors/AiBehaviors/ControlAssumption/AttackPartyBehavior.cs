@@ -28,7 +28,7 @@ public class AttackPartyBehavior : PartyOrderBehaviorBase
             return;
         }
 
-        party.Ai.SetInitiative(0, 0.33f, 24);
+        party.Ai.SetInitiative(0, 0.33f, 2f);
 
         if (!CalculateAttackPartyScore(party, targetParty, order, thinkParams))
         {

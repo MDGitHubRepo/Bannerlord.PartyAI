@@ -1,5 +1,4 @@
-﻿using Bannerlord.PartyAI.Domain.Models;
-using Bannerlord.PartyAI.Models;
+﻿using Bannerlord.PartyAI.Models;
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.Library;
 
@@ -29,12 +28,6 @@ public static class CallingToArmy
             PartyAiEntitySettings settings = SubModule.PartySettingsManager.Settings(candidateHero);
 
             if (!settings.AllowJoinArmies)
-            {
-                partiesToCallToArmy.RemoveAt(index);
-                continue;
-            }
-
-            if (settings.HasActiveOrder && settings.Order.Behavior == PartyAiOrderType.RecruitFromTemplate)
             {
                 partiesToCallToArmy.RemoveAt(index);
                 continue;

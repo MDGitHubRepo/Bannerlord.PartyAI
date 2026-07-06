@@ -1,6 +1,5 @@
 ﻿using Bannerlord.PartyAI.Domain.Models;
 using Bannerlord.PartyAI.Models;
-using Helpers;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.CampaignSystem.Party;
@@ -60,30 +59,12 @@ internal class BesiegeSettlementBehavior : PartyOrderBehaviorBase
             return;
         }
 
-        AiHelper.GetBestNavigationTypeAndAdjustedDistanceOfSettlementForMobileParty(
-            party,
-            target,
-            isTargetingPort: false, // TODO: Implement a separate blockade order
-            out var navigationType,
-            out var bestDistance,
-            out var isFromPort);
-
-        if (navigationType == MobileParty.NavigationType.None)
+        if (!TryNavigateToSettlement(party, target, AiBehavior.BesiegeSettlement, thinkParams))
         {
             Message.OrderStoppedTargetUnreachable(party, order);
             settings.ClearOrder();
-            return;
         }
 
-        party.Ai.SetInitiative(0, 1, 6);
-
-        AIBehaviorData aibehaviorData = new AIBehaviorData(
-            target,
-            AiBehavior.BesiegeSettlement,
-            navigationType,
-            willGatherArmy: false,
-            isFromPort: false,
-            isTargetingPort: false);
-        AddBehaviorScore(aibehaviorData, Constants.BehaviorScore, thinkParams);
+        party.Ai.SetInitiative(0f, 1f, 2f);
     }
 }

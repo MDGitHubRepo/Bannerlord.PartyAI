@@ -1,7 +1,6 @@
 ﻿using Bannerlord.PartyAI.Domain;
 using Bannerlord.PartyAI.Domain.Models;
 using Bannerlord.PartyAI.Models;
-using Helpers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -66,8 +65,6 @@ internal class RecruitmentBehavior : PartyOrderBehaviorBase
             return;
         }
 
-        party.Ai.SetInitiative(0, 1, 6);
-
         var partyComposition = Recruitment.GetPartyComposition(party.Party, settings);
         var targetSettlement = order.Target as Settlement;
         if (ShouldPickNewRecruitmentTarget(settings, party, targetSettlement, partyComposition))
@@ -80,10 +77,21 @@ internal class RecruitmentBehavior : PartyOrderBehaviorBase
             targetSettlement = newTarget;
         }
 
-        if (!CalculateVisitSettlementScore(party, targetSettlement, order, thinkParams))
+        if (targetSettlement is null)
         {
+            Message.OrderStoppedNoValidTargets(party, order);
             settings.ClearOrder();
+            return;
         }
+
+        if (!TryNavigateToSettlement(party, targetSettlement, AiBehavior.GoToSettlement, thinkParams))
+        {
+            Message.OrderStoppedTargetUnreachable(party, order);
+            settings.ClearOrder();
+            return;
+        }
+
+        party.Ai.SetInitiative(0f, 1f, 2f);
     }
 
     private bool ShouldPickNewRecruitmentTarget(
@@ -149,46 +157,6 @@ internal class RecruitmentBehavior : PartyOrderBehaviorBase
             return false;
         }
 
-        return true;
-    }
-
-    private bool CalculateVisitSettlementScore(
-        MobileParty mobileParty,
-        Settlement? target,
-        PartyAiOrder order,
-        PartyThinkParams partyThinkParams)
-    {
-        if (target is null)
-        {
-            Message.OrderStoppedNoValidTargets(mobileParty, order);
-            return false;
-        }
-
-        var isTargetingPort = target.HasPort && mobileParty.IsCurrentlyAtSea;
-
-        AiHelper.GetBestNavigationTypeAndAdjustedDistanceOfSettlementForMobileParty(
-            mobileParty,
-            target,
-            isTargetingPort,
-            out var bestNavType,
-            out var bestNavDistance,
-            out var isFromPort);
-
-        if (bestNavType == MobileParty.NavigationType.None)
-        {
-            Message.OrderStoppedTargetUnreachable(mobileParty, order);
-            return false;
-        }
-
-        AIBehaviorData aibehaviorData = new AIBehaviorData(
-            target,
-            AiBehavior.GoToSettlement,
-            bestNavType,
-            false,
-            isFromPort,
-            isTargetingPort);
-
-        AddBehaviorScore(aibehaviorData, Constants.BehaviorScore, partyThinkParams);
         return true;
     }
 
