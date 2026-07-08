@@ -35,6 +35,11 @@ internal class PreventIllegalMovesInArmyBehavior : CampaignBehaviorBase
 
     private static bool ShouldLeaveArmy(Army army, PartyAiEntitySettings settings)
     {
+        if (army.LeaderParty.LeaderHero == Hero.MainHero)
+        {
+            return false;
+        }
+
         var illegalRaiding = !settings.AllowRaidVillages && IsArmyRaiding(army);
         var illegalSiege = !settings.AllowSieging && IsArmyBesieging(army);
 
