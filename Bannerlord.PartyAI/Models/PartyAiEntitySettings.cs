@@ -87,9 +87,14 @@ public class PartyAiEntitySettings
             return;
         }
 
-        if (Hero.PartyBelongedTo?.Army != null && Hero.PartyBelongedTo.Army.LeaderParty.LeaderHero != Hero)
+        var party = Hero?.PartyBelongedTo;
+        var army = party?.Army;
+        var armyLeader = army?.LeaderParty.LeaderHero;
+        if (army is not null
+            && armyLeader != Hero
+            && armyLeader != Hero.MainHero)
         {
-            Hero.PartyBelongedTo.Army = null;
+            party!.Army = null;
         }
 
         if (HasActiveOrder)
