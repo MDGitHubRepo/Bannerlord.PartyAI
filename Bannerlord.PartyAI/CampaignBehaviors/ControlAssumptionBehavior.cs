@@ -25,6 +25,9 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
 
     public override void RegisterEvents()
     {
+        CampaignEvents.OnPartyJoinedArmyEvent.AddNonSerializedListener(this, OnPartyJoinedArmy);
+        CampaignEvents.MobilePartyCreated.AddNonSerializedListener(this, OnMobilePartyCreated);
+        CampaignEvents.MobilePartyDestroyed.AddNonSerializedListener(this, OnMobilePartyDestroyed);
     }
 
     public override void SyncData(IDataStore dataStore)
@@ -309,6 +312,26 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
                 }
             }
         }
+    }
+
+    private void OnPartyJoinedArmy(MobileParty party)
+    {
+        RemoveFromControl(party);
+    }
+
+    private void OnMobilePartyCreated(MobileParty party)
+    {
+        RemoveFromControl(party);
+    }
+
+    private void OnMobilePartyDestroyed(MobileParty destroyedParty, PartyBase destroyerParty)
+    {
+        OnPartyJoinedArmy(destroyedParty);
+    }
+
+    private void RemoveFromControl(MobileParty party)
+    {
+        _assumingDirectControl.Remove(party);
     }
 
     private static InquiryElement ConvertToInquiryElement(MobileParty mobileParty)
