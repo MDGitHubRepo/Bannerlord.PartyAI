@@ -326,7 +326,7 @@ internal class ControlAssumptionBehavior : CampaignBehaviorBase
 
     private void OnMobilePartyDestroyed(MobileParty destroyedParty, PartyBase destroyerParty)
     {
-        OnPartyJoinedArmy(destroyedParty);
+        RemoveFromControl(destroyedParty);
     }
 
     private void RemoveFromControl(MobileParty party)
